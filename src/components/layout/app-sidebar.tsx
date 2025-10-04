@@ -45,36 +45,36 @@ export default function AppSidebar() {
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior passHref>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+              <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                <Link href={item.href}>
                   <item.icon />
                   <span>{item.label}</span>
-                </SidebarMenuButton>
-              </Link>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
           <SidebarSeparator />
           {adminMenuItems.map((item) => (
             item.roles.includes(userRole) && (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior passHref>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+              <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                <Link href={item.href}>
                   <item.icon />
                   <span>{item.label}</span>
-                </SidebarMenuButton>
-              </Link>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
             )
           ))}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-         <Link href="/" legacyBehavior passHref>
-            <SidebarMenuButton asChild tooltip="Logout">
+        <SidebarMenuButton asChild tooltip="Logout">
+            <Link href="/">
                 <LogOut />
                 <span>Logout</span>
-            </SidebarMenuButton>
-        </Link>
+            </Link>
+        </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>
   );
