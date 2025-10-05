@@ -34,7 +34,8 @@ interface ProfileFormProps {
 export function ProfileForm({ user }: ProfileFormProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
   const { token, user: authUser } = useAuth();
   
@@ -54,29 +55,35 @@ export function ProfileForm({ user }: ProfileFormProps) {
   });
 
   useEffect(() => {
-    const fetchData = async (url: string, setData: (data: any[]) => void) => {
+    const fetchDepartments = async () => {
       if (!token) return;
       try {
-        const response = await fetch(url, {
+        const response = await fetch('https://iprequestapi.globizsapp.com/api/departments', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
         const result = await response.json();
         if (result.success) {
-          setData(result.data);
+          setDepartments(result.data);
         } else {
-          console.error("Failed to fetch data from", url);
+          console.error("Failed to fetch departments");
+          toast({ title: "Error", description: "Could not load department data.", variant: "destructive" });
         }
       } catch (error) {
-         console.error("Error fetching data from", url, error);
+         console.error("Error fetching departments", error);
+         toast({ title: "Error", description: "An error occurred while fetching departments.", variant: "destructive" });
       }
     };
 
-    fetchData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
+    fetchDepartments();
+  }, [token, toast]);
 
+
+  useEffect(() => {
     const fetchProfile = async () => {
-        if (!token || !authUser?.id) return;
+        if (!token || !authUser?.id || departments.length === 0) return;
+        
         setIsLoading(true);
         try {
             const response = await fetch(`https://iprequestapi.globizsapp.com/api/requesters/${authUser.id}`, {
@@ -85,7 +92,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
             const result = await response.json();
             if (result.success) {
                 const profileData = result.data;
-                // find department id from name
                 const department = departments.find(d => d.name === profileData.department_name);
 
                 form.reset({
@@ -108,23 +114,19 @@ export function ProfileForm({ user }: ProfileFormProps) {
             setIsLoading(false);
         }
     };
-
-    if (token && authUser?.id) {
-        if (departments.length > 0) {
-            fetchProfile();
-        }
+    
+    if (departments.length > 0) {
+      fetchProfile();
     }
-
-
-  }, [toast, token, authUser, form, departments]);
+  }, [token, authUser, departments, form, toast]);
 
 
   function onSubmit(values: z.infer<typeof profileSchema>) {
-    setIsLoading(true);
+    setIsSubmitting(true);
     // Simulate API call to update profile
     console.log("Submitting profile data:", values);
     setTimeout(() => {
-        setIsLoading(false);
+        setIsSubmitting(false);
         toast({
             title: 'Profile Updated!',
             description: 'Your information has been saved successfully.',
@@ -133,7 +135,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     }, 1500)
   }
 
-  if (isLoading && !form.formState.isDirty) {
+  if (isLoading) {
     return <div className="flex justify-center items-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
 
@@ -188,8 +190,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
             )}/>
         </div>
         <div className="flex justify-end">
-            <Button type="submit" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Profile
             </Button>
         </div>

@@ -105,7 +105,7 @@ export default function RequestForm() {
                 toast({ title: 'Error', description: `Could not load ${type}.`, variant: 'destructive' });
             }
         } catch (error) {
-            toast({ title: 'Error', description: `Could not load ${type}.`, variant: 'destructive' });
+            toast({ title: 'Error', description: `An error occurred while loading ${type}.`, variant: 'destructive' });
         }
     };
 
@@ -162,7 +162,7 @@ export default function RequestForm() {
                 <FormField control={form.control} name="connectionSpeed" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Connection Speed</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValuechange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select a speed" /></SelectTrigger></FormControl>
                         <SelectContent>{speeds.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}</SelectContent>
                         </Select>
