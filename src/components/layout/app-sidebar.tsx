@@ -15,14 +15,19 @@ import {
   SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { ManipurEmblem } from '../icons/manipur-emblem';
-import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX } from 'lucide-react';
+import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
 import { useCounter } from '../counter/counter-provider';
 
 const menuItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/requests', label: 'My Requests', icon: FileText, types: ['requester'] },
     { href: '/profile', label: 'My Profile', icon: User },
+];
+
+const requesterMenuItems = [
+    { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'] },
+    { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'] },
+    { href: '/requests', label: 'All My Requests', icon: History, types: ['requester'] },
 ];
 
 const adminMenuItems = [
@@ -67,6 +72,20 @@ export default function AppSidebar() {
                   <span>{item.label}</span>
                 </Link>
               </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+          
+          {userType === 'requester' && <SidebarSeparator />}
+
+          {requesterMenuItems.map((item) => (
+            item.types.includes(userType) &&
+            <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                <Link href={item.href}>
+                    <item.icon />
+                    <span>{item.label}</span>
+                </Link>
+                </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
           

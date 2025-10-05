@@ -1,23 +1,15 @@
 
 'use client';
-import RequestsTable from "@/components/requests-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { REQUESTS } from "@/lib/data";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from '@/components/auth/auth-provider';
+import MyRequestsListPage from "@/components/my-requests-list-page";
 
 export default function MyRequestsPage() {
-    const { user } = useAuth();
-
-    if (!user) return null;
-
-    const myRequests = REQUESTS.filter(r => r.userId === user.id);
-
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
+             <div className="flex items-center justify-between">
                 <h1 className="font-headline text-3xl font-bold">My Requests</h1>
                 <Button asChild>
                     <Link href="/requests/new">
@@ -27,12 +19,12 @@ export default function MyRequestsPage() {
                 </Button>
             </div>
             <Card>
-                <CardHeader>
+                 <CardHeader>
                     <CardTitle>Request History</CardTitle>
                     <CardDescription>A log of all your submitted IP address requests.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <RequestsTable requests={myRequests} />
+                    <MyRequestsListPage title="All My Requests" description="A complete history of all your requests." statusIds={[]} showFilters={false} />
                 </CardContent>
             </Card>
         </div>
