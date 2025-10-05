@@ -4,8 +4,11 @@ import './globals.css';
 import { AuthProvider } from '@/components/auth/auth-provider';
 
 export const metadata: Metadata = {
-  title: 'Manipur Secretariat IP Manager',
+  title: 'Critical Infrastructure Portal, Manipur',
   description: 'Streamlining IP Address Requests and Allocation',
+  icons: {
+    icon: '/images/favicon.png',
+  },
 };
 
 export default function RootLayout({
