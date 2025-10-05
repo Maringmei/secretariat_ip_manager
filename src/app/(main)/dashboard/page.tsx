@@ -30,9 +30,9 @@ interface DashboardData {
     by_month?: { label: string; count: number }[];
     // For requester
     total?: number;
-    // pending?: number; // already in summary
-    // approved?: number; // already in summary
-    // rejected?: number; // already in summary
+    pending?: number;
+    approved?: number;
+    rejected?: number;
 }
 
 
@@ -107,27 +107,6 @@ const StaffDashboard = ({ data }: { data: DashboardData }) => {
                 <StatsCard title="Approved" value={data.approved?.toString() ?? '0'} icon={Check} />
                 <StatsCard title="Rejected" value={data.rejected?.toString() ?? '0'} icon={X} />
             </div>
-
-            <Card>
-                <CardHeader className="flex flex-row items-center">
-                    <div className="grid gap-2">
-                        <CardTitle className="font-headline">My Requests History</CardTitle>
-                        <CardDescription>
-                            An overview of all your submitted IP allocation requests.
-                        </CardDescription>
-                    </div>
-                    <Button asChild size="sm" className="ml-auto gap-1">
-                    <Link href="/requests">
-                        View All
-                        <ArrowUpRight className="h-4 w-4" />
-                    </Link>
-                    </Button>
-                </CardHeader>
-                <CardContent>
-                    {/* The API doesn't provide recent requests, so this is empty or could fetch from another endpoint */}
-                    <p className="text-sm text-muted-foreground">You can view all your requests from the "My Requests" page.</p>
-                </CardContent>
-            </Card>
         </div>
     );
 };
