@@ -24,6 +24,7 @@ export interface User {
   profileComplete?: boolean;
   first_name?: string;
   last_name?: string;
+  eofficeOnboarded?: boolean;
 }
 
 export interface Department {
@@ -81,7 +82,7 @@ export interface Request {
   // Fields for table view (might be deprecated if details are always fetched)
   userId?: string | number;
   block?: string; // blockId
-  status: RequestStatus; // Old status field, for compatibility
+  status?: RequestStatus; // Old status field, for compatibility
   workflow?: WorkflowStep[];
 }
 
