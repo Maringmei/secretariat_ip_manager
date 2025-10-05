@@ -18,14 +18,14 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import type { User, Role } from '@/lib/types';
+import type { User, Role as RoleType } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface EditUserDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (user: User) => Promise<void>;
-  roles: Role[];
+  roles: RoleType[];
   user: User;
 }
 

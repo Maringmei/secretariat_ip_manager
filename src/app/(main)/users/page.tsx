@@ -5,17 +5,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
-import type { User, Role } from "@/lib/types";
+import type { User } from "@/lib/types"; // Role is also in here now
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle, Search } from "lucide-react";
 import { AddUserDialog } from "@/components/users/add-user-dialog";
 import { EditUserDialog } from "@/components/users/edit-user-dialog";
+import { Input } from "@/components/ui/input";
+import type { Role as RoleType } from "@/lib/types";
+
 
 export default function UserManagementPage() {
     const { token } = useAuth();
     const { toast } = useToast();
     const [users, setUsers] = useState<User[]>([]);
-    const [roles, setRoles] = useState<Role[]>([]);
+    const [roles, setRoles] = useState<RoleType[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     
     // Dialog states
@@ -23,12 +26,30 @@ export default function UserManagementPage() {
     const [isEditUserOpen, setIsEditUserOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
+    // Filter states
+    const [nameFilter, setNameFilter] = useState('');
+    const [designationFilter, setDesignationFilter] = useState('');
+    const [usernameFilter, setUsernameFilter] = useState('');
+    const [emailFilter, setEmailFilter] = useState('');
+    const [roleFilter, setRoleFilter] = useState('');
 
-    const fetchUsers = async () => {
+
+    const fetchUsers = async (filters: Record<string, string> = {}) => {
         if (!token) return;
         setIsLoading(true);
+
+        const queryParams = new URLSearchParams({
+            page: '1',
+            name: filters.name || '',
+            designation: filters.designation || '',
+            username: filters.username || '',
+            email: filters.email || '',
+            role: filters.role || '',
+            status: '', // Status filter not implemented yet
+        });
+
          try {
-            const response = await fetch('https://iprequestapi.globizsapp.com/api/profiles?page=1&name=&designation=&username=&email=&status=', {
+            const response = await fetch(`https://iprequestapi.globizsapp.com/api/profiles?${queryParams.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const result = await response.json();
@@ -85,6 +106,16 @@ export default function UserManagementPage() {
             setIsLoading(false);
         }
     }, [token]);
+
+    const handleApplyFilters = () => {
+        fetchUsers({
+            name: nameFilter,
+            designation: designationFilter,
+            username: usernameFilter,
+            email: emailFilter,
+            role: roleFilter,
+        });
+    }
 
     const handleCreateUser = async (newUser: Omit<User, 'id'>) => {
         if (!token) return;
@@ -156,16 +187,33 @@ export default function UserManagementPage() {
                     <CardDescription>Manage officials and their roles within the system.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="mb-4 flex items-center gap-4">
-                        <Select>
-                            <SelectTrigger className="w-full md:w-[240px]">
+                    <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                        <div className="relative">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Filter by Name" className="pl-8" value={nameFilter} onChange={e => setNameFilter(e.target.value)} />
+                        </div>
+                         <div className="relative">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Filter by Designation" className="pl-8" value={designationFilter} onChange={e => setDesignationFilter(e.target.value)} />
+                        </div>
+                         <div className="relative">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Filter by Username" className="pl-8" value={usernameFilter} onChange={e => setUsernameFilter(e.target.value)} />
+                        </div>
+                        <div className="relative">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Filter by Email" className="pl-8" value={emailFilter} onChange={e => setEmailFilter(e.target.value)} />
+                        </div>
+                        <Select value={roleFilter} onValueChange={setRoleFilter}>
+                            <SelectTrigger>
                                 <SelectValue placeholder="Filter by Role" />
                             </SelectTrigger>
                             <SelectContent>
+                                <SelectItem value="">All Roles</SelectItem>
                                 {roles.map((r, i) => <SelectItem key={i} value={r.role}>{r.role}</SelectItem>)}
                             </SelectContent>
                         </Select>
-                        <Button>Apply Filter</Button>
+                        <Button onClick={handleApplyFilters}>Apply Filter</Button>
                     </div>
 
                     {isLoading ? (

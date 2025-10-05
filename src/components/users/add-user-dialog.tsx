@@ -18,14 +18,14 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import type { User, Role } from '@/lib/types';
+import type { User, Role as RoleType } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface AddUserDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (user: Omit<User, 'id'>) => Promise<void>;
-  roles: Role[];
+  roles: RoleType[];
 }
 
 const formSchema = z.object({
@@ -52,7 +52,7 @@ export function AddUserDialog({ isOpen, onClose, onConfirm, roles }: AddUserDial
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
-    await onConfirm(values);
+    await onConfirm(values as Omit<User, 'id'>);
     setIsSubmitting(false);
     if (form.formState.isSubmitSuccessful) {
         form.reset();
