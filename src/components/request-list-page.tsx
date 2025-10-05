@@ -26,11 +26,12 @@ export default function RequestListPage({ title, description, statusId }: Reques
     const [blocks, setBlocks] = useState<Block[]>([]);
 
     // Filter states
-    const [search, setSearch] = useState("");
+    const [searchName, setSearchName] = useState("");
+    const [requestNumber, setRequestNumber] = useState("");
     const [selectedDept, setSelectedDept] = useState("");
     const [selectedBlock, setSelectedBlock] = useState("");
 
-    const fetchRequests = async (currentStatusId: number, searchString = "", deptId = "") => {
+    const fetchRequests = async (currentStatusId: number, name = "", reqNo = "", deptId = "") => {
         if (!token) {
             setIsLoading(false);
             return;
@@ -39,7 +40,7 @@ export default function RequestListPage({ title, description, statusId }: Reques
         try {
             // Block filter is not supported by API, so it will be client side if needed.
             // For now, we only filter by what the API supports: name/request_no and department_id
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/ip-requests?page=1&request_no=${searchString}&name=${searchString}&department_id=${deptId}&status_id=${currentStatusId}`, {
+            const response = await fetch(`https://iprequestapi.globizsapp.com/api/ip-requests?page=1&request_no=${reqNo}&name=${name}&department_id=${deptId}&status_id=${currentStatusId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -95,7 +96,7 @@ export default function RequestListPage({ title, description, statusId }: Reques
     }, [token, toast, statusId]);
 
     const handleFilter = () => {
-        fetchRequests(statusId, search, selectedDept);
+        fetchRequests(statusId, searchName, requestNumber, selectedDept);
     }
 
     return (
@@ -111,10 +112,19 @@ export default function RequestListPage({ title, description, statusId }: Reques
                         <div className="relative flex-1">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input 
-                                placeholder="Search by name or request ID..." 
+                                placeholder="Search by name..." 
                                 className="pl-8" 
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
+                                value={searchName}
+                                onChange={(e) => setSearchName(e.target.value)}
+                            />
+                        </div>
+                        <div className="relative flex-1">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                                placeholder="Search by request number..." 
+                                className="pl-8" 
+                                value={requestNumber}
+                                onChange={(e) => setRequestNumber(e.target.value)}
                             />
                         </div>
                         <Select value={selectedDept} onValueChange={setSelectedDept}>
@@ -122,6 +132,7 @@ export default function RequestListPage({ title, description, statusId }: Reques
                                 <SelectValue placeholder="Filter by Department" />
                             </SelectTrigger>
                             <SelectContent>
+                                <SelectItem value="">All Departments</SelectItem>
                                 {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
@@ -130,6 +141,7 @@ export default function RequestListPage({ title, description, statusId }: Reques
                                 <SelectValue placeholder="Filter by Block" />
                             </SelectTrigger>
                             <SelectContent>
+                                 <SelectItem value="">All Blocks</SelectItem>
                                 {blocks.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
