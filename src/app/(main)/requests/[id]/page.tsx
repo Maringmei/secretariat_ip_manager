@@ -193,6 +193,7 @@ export default function RequestDetailsPage() {
     }
 
     const canAssignIp = request.status_id === 1;
+    const canApprove = request.status_id === 2 && request.can_approve;
 
     return (
         <>
@@ -255,7 +256,7 @@ export default function RequestDetailsPage() {
                             <p><strong>WhatsApp:</strong> {request.mobile_no}</p>
                         </CardContent>
                     </Card>
-                    {(canAssignIp || request.can_approve) && (
+                    {(canAssignIp || canApprove) && (
                         <Card>
                             <CardHeader>
                                 <CardTitle className="font-headline text-lg">Actions</CardTitle>
@@ -264,7 +265,7 @@ export default function RequestDetailsPage() {
                                 {canAssignIp && (
                                      <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
                                 )}
-                                {request.can_approve && (
+                                {canApprove && (
                                     <>
                                         <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
                                         <Button variant="destructive" onClick={() => setIsRevertOpen(true)} disabled={isActionLoading}>Revert</Button>
@@ -285,7 +286,7 @@ export default function RequestDetailsPage() {
                 isSubmitting={isActionLoading}
             />
         )}
-        {request.can_approve && (
+        {canApprove && (
             <>
             <ApproveRequestDialog
                 isOpen={isApproveOpen}
