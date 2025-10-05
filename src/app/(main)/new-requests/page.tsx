@@ -16,7 +16,10 @@ export default function NewRequestsPage() {
     
     useEffect(() => {
         const fetchRequests = async () => {
-            if (!token) return;
+            if (!token) {
+                setIsLoading(false);
+                return;
+            };
             setIsLoading(true);
             try {
                 const response = await fetch('https://iprequestapi.globizsapp.com/api/ip-requests?page=1&request_no=&name=&department_id=&status_id=1', {
@@ -28,7 +31,7 @@ export default function NewRequestsPage() {
                 if (result.success) {
                     // The API returns a paginated response, we need to extract the data array
                     // and map it to our Request type
-                    const apiRequests = result.data.data || [];
+                    const apiRequests = result.data || [];
                     const formattedRequests: Request[] = apiRequests.map((req: any) => ({
                         id: req.id,
                         request_number: req.request_number,
@@ -52,7 +55,7 @@ export default function NewRequestsPage() {
                 } else {
                     toast({
                         title: "Error",
-                        description: "Could not load new requests.",
+                        description: result.message || "Could not load new requests.",
                         variant: "destructive",
                     });
                 }
@@ -67,11 +70,7 @@ export default function NewRequestsPage() {
             }
         };
 
-        if (token) {
-            fetchRequests();
-        } else {
-            setIsLoading(false);
-        }
+        fetchRequests();
     }, [token, toast]);
 
     return (
