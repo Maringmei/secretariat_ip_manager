@@ -15,7 +15,7 @@ import {
   SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { ManipurEmblem } from '../icons/manipur-emblem';
-import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History } from 'lucide-react';
+import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
 import { useCounter } from '../counter/counter-provider';
 import type { LucideIcon } from 'lucide-react';
@@ -34,6 +34,7 @@ const menuItems: MenuItem[] = [
 ];
 
 const requesterMenuItems: MenuItem[] = [
+    { href: '/requests/new', label: 'New IP Request', icon: FilePlus, types: ['requester'] },
     { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'] },
     { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'] },
     { href: '/requests', label: 'All My Requests', icon: History, types: ['requester'] },
@@ -109,7 +110,7 @@ export default function AppSidebar() {
                   <Link href={item.href}>
                     <item.icon />
                     <span>{item.label}</span>
-                    {count && <SidebarMenuBadge>{count}</SidebarMenuBadge>}
+                    {count ? <SidebarMenuBadge>{count}</SidebarMenuBadge> : null}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
