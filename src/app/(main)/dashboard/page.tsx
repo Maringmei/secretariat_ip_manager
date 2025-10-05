@@ -38,6 +38,7 @@ const AdminDashboard = ({ data }: { data: DashboardData }) => {
     return (
         <div className="flex flex-col gap-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <StatsCard title="Total Requests" value={data.summary?.total.toString() ?? '0'} icon={Server} />
                 <StatsCard title="Pending Requests" value={data.summary?.pending.toString() ?? '0'} icon={Clock} />
                 <StatsCard title="Approved Requests" value={data.summary?.approved.toString() ?? '0'} icon={Check} />
                 <StatsCard title="Rejected Requests" value={data.summary?.rejected.toString() ?? '0'} icon={X} />
