@@ -18,18 +18,19 @@ export interface User {
 }
 
 export interface Department {
-  id: string;
+  id: number | string;
   name: string;
 }
 
 export interface Block {
-  id: string;
+  id: number | string;
   name: string;
 }
 
 export interface ConnectionSpeed {
-  id: string;
+  id: number | string;
   speed: string; // e.g., '10 Mbps', '100 Mbps'
+  name?: string; // for compatibility with api response
 }
 
 export interface WorkflowStep {

@@ -1,14 +1,38 @@
+'use client';
 import RequestsTable from "@/components/requests-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BLOCKS, DEPARTMENTS, REQUESTS } from "@/lib/data";
+import { REQUESTS } from "@/lib/data";
 import { Download, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { Department, Block } from "@/lib/types";
 
 export default function IPManagementPage() {
+    const [departments, setDepartments] = useState<Department[]>([]);
+    const [blocks, setBlocks] = useState<Block[]>([]);
     // In a real app, filters would be stateful and trigger API calls.
     const allocatedIPs = REQUESTS.filter(r => r.status === 'Approved' || r.status === 'Completed');
+
+    useEffect(() => {
+        const fetchData = async (url: string, setData: (data: any[]) => void) => {
+            try {
+                const response = await fetch(url);
+                const result = await response.json();
+                if (result.success) {
+                    setData(result.data);
+                } else {
+                    console.error("Failed to fetch data from", url);
+                }
+            } catch (error) {
+                 console.error("Error fetching data from", url, error);
+            }
+        };
+
+        fetchData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
+        fetchData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks);
+    }, []);
 
   return (
     <div className="flex flex-col gap-6">
@@ -36,7 +60,7 @@ export default function IPManagementPage() {
                     <SelectValue placeholder="Filter by Department" />
                 </SelectTrigger>
                 <SelectContent>
-                    {DEPARTMENTS.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                    {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
                 </SelectContent>
             </Select>
             <Select>
@@ -44,7 +68,7 @@ export default function IPManagementPage() {
                     <SelectValue placeholder="Filter by Block" />
                 </SelectTrigger>
                 <SelectContent>
-                    {BLOCKS.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                    {blocks.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>)}
                 </SelectContent>
             </Select>
             <Button>Apply Filters</Button>

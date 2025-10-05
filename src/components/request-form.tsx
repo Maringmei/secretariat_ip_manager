@@ -8,17 +8,19 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { BLOCKS, MOCK_LOGGED_IN_USER, DEPARTMENTS } from '@/lib/data';
+import { MOCK_LOGGED_IN_USER, DEPARTMENTS } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import type { Block, ConnectionSpeed } from '@/lib/types';
 
 const requestSchema = z.object({
   macAddress: z.string().regex(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/, 'Invalid MAC address format.'),
   roomNo: z.string().min(1, 'Room number is required'),
   block: z.string({ required_error: 'Please select a block.' }),
+  connectionSpeed: z.string({ required_error: 'Please select a connection speed.' }),
   consent: z.literal<boolean>(true, {
     errorMap: () => ({ message: 'You must agree to the terms to proceed.' }),
   }),
@@ -26,7 +28,8 @@ const requestSchema = z.object({
 
 const UserInfoDisplay = () => {
     const user = MOCK_LOGGED_IN_USER;
-    const departmentName = DEPARTMENTS.find(d => d.id === user.department)?.name;
+    // This is temporary until we fetch departments globally or pass them as props
+    const departmentName = DEPARTMENTS.find(d => d.id === user.department)?.name || user.department;
 
     return (
         <Card className="bg-secondary/50">
@@ -51,6 +54,28 @@ export default function RequestForm() {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [speeds, setSpeeds] = useState<ConnectionSpeed[]>([]);
+
+  useEffect(() => {
+    const fetchData = async (url: string, setData: (data: any[]) => void, type: string) => {
+         try {
+            const response = await fetch(url);
+            const result = await response.json();
+            if (result.success) {
+                setData(result.data);
+            } else {
+                toast({ title: 'Error', description: `Could not load ${type}.`, variant: 'destructive' });
+            }
+        } catch (error) {
+            toast({ title: 'Error', description: `Could not load ${type}.`, variant: 'destructive' });
+        }
+    };
+
+    fetchData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks, 'blocks');
+    fetchData('https://iprequestapi.globizsapp.com/api/connectionspeeds', setSpeeds, 'connection speeds');
+
+  }, [toast]);
 
   const form = useForm<z.infer<typeof requestSchema>>({
     resolver: zodResolver(requestSchema),
@@ -86,16 +111,28 @@ export default function RequestForm() {
                 <FormItem><FormLabel>Room No.</FormLabel><FormControl><Input placeholder="e.g., 301" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
             </div>
-            <FormField control={form.control} name="block" render={({ field }) => (
-            <FormItem>
-                <FormLabel>Block</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl><SelectTrigger><SelectValue placeholder="Select a block" /></SelectTrigger></FormControl>
-                <SelectContent>{BLOCKS.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}</SelectContent>
-                </Select>
-                <FormMessage />
-            </FormItem>
-            )}/>
+             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <FormField control={form.control} name="block" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Block</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl><SelectTrigger><SelectValue placeholder="Select a block" /></SelectTrigger></FormControl>
+                    <SelectContent>{blocks.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+                )}/>
+                <FormField control={form.control} name="connectionSpeed" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Connection Speed</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select a speed" /></SelectTrigger></FormControl>
+                        <SelectContent>{speeds.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )}/>
+            </div>
             <FormField control={form.control} name="consent" render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                     <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>

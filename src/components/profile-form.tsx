@@ -8,11 +8,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { BLOCKS, DEPARTMENTS } from '@/lib/data';
-import type { User } from '@/lib/types';
+import type { User, Department } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
 const profileSchema = z.object({
@@ -35,6 +34,32 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [departments, setDepartments] = useState<Department[]>([]);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await fetch('https://iprequestapi.globizsapp.com/api/departments');
+        const result = await response.json();
+        if (result.success) {
+          setDepartments(result.data);
+        } else {
+          toast({
+            title: 'Error',
+            description: 'Could not load departments.',
+            variant: 'destructive',
+          });
+        }
+      } catch (error) {
+        toast({
+            title: 'Error',
+            description: 'Could not load departments.',
+            variant: 'destructive',
+          });
+      }
+    };
+    fetchDepartments();
+  }, [toast]);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -82,7 +107,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 <FormLabel>Department</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl><SelectTrigger><SelectValue placeholder="Select a department" /></SelectTrigger></FormControl>
-                <SelectContent>{DEPARTMENTS.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}</SelectContent>
+                <SelectContent>{departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}</SelectContent>
                 </Select>
                 <FormMessage />
             </FormItem>

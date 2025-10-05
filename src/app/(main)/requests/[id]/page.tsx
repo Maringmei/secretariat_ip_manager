@@ -1,8 +1,13 @@
+'use client';
+
 import WorkflowTimeline from "@/components/workflow-timeline";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DEPARTMENTS, MOCK_LOGGED_IN_USER, REQUESTS, BLOCKS, CONNECTION_SPEEDS } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { RequestStatus } from "@/lib/types";
+import { useAuth } from "@/components/auth/auth-provider";
+import { notFound } from "next/navigation";
+
 
 const statusColors: Record<RequestStatus, string> = {
     Pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
@@ -15,13 +20,18 @@ const statusColors: Record<RequestStatus, string> = {
 
 export default function RequestDetailsPage({ params }: { params: { id: string } }) {
     const request = REQUESTS.find(r => r.id === params.id);
-    const user = MOCK_LOGGED_IN_USER; // In a real app, you'd fetch the user associated with the request.
+    const { user: loggedInUser } = useAuth(); // Using the user from auth context
 
     if (!request) {
-        return <p>Request not found.</p>;
+        notFound();
     }
     
-    const departmentName = DEPARTMENTS.find(d => d.id === user.department)?.name;
+    // In a real app, you would fetch the user associated with the request if needed.
+    // For now, we'll display the logged-in user's info if they are the one who made the request,
+    // or use mock data for other users.
+    const applicant = request.userId === loggedInUser?.id ? loggedInUser : MOCK_LOGGED_IN_USER;
+
+    const departmentName = DEPARTMENTS.find(d => d.id === applicant.department)?.name;
     const blockName = BLOCKS.find(b => b.id === request.block)?.name;
     const speed = CONNECTION_SPEEDS.find(s => s.id === request.connectionSpeed)?.speed;
 
@@ -57,11 +67,11 @@ export default function RequestDetailsPage({ params }: { params: { id: string } 
                     <Card>
                         <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
                         <CardContent className="space-y-2 text-sm">
-                            <p><strong>Name:</strong> {user.firstName} {user.lastName}</p>
-                            <p><strong>Designation:</strong> {user.designation}</p>
+                            <p><strong>Name:</strong> {applicant.firstName || applicant.name} {applicant.lastName || ''}</p>
+                            <p><strong>Designation:</strong> {applicant.designation}</p>
                             <p><strong>Department:</strong> {departmentName}</p>
-                            <p><strong>Email:</strong> {user.email}</p>
-                            <p><strong>WhatsApp:</strong> {user.whatsappNo}</p>
+                            <p><strong>Email:</strong> {applicant.email}</p>
+                            <p><strong>WhatsApp:</strong> {applicant.whatsappNo}</p>
                         </CardContent>
                     </Card>
                 </div>

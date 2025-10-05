@@ -3,18 +3,11 @@
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { DEPARTMENTS, REQUESTS, MOCK_LOGGED_IN_USER } from "@/lib/data"
+import { DEPARTMENTS, REQUESTS } from "@/lib/data"
 
 const departmentData = DEPARTMENTS.map(dept => {
     return {

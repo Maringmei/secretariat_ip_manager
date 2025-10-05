@@ -1,8 +1,10 @@
+'use client';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DEPARTMENTS, BLOCKS, CONNECTION_SPEEDS } from "@/lib/data";
 import { Edit, PlusCircle, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { Department, Block, ConnectionSpeed } from "@/lib/types";
 
 const SettingsTable = ({ data, columns }: { data: any[], columns: { key: string, label: string }[] }) => (
     <div className="rounded-md border">
@@ -30,6 +32,30 @@ const SettingsTable = ({ data, columns }: { data: any[], columns: { key: string,
 
 
 export default function SettingsPage() {
+    const [departments, setDepartments] = useState<Department[]>([]);
+    const [blocks, setBlocks] = useState<Block[]>([]);
+    const [speeds, setSpeeds] = useState<ConnectionSpeed[]>([]);
+
+    useEffect(() => {
+        const fetchData = async (url: string, setData: (data: any[]) => void) => {
+            try {
+                const response = await fetch(url);
+                const result = await response.json();
+                if (result.success) {
+                    setData(result.data);
+                } else {
+                    console.error("Failed to fetch data from", url);
+                }
+            } catch (error) {
+                 console.error("Error fetching data from", url, error);
+            }
+        };
+
+        fetchData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
+        fetchData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks);
+        fetchData('https://iprequestapi.globizsapp.com/api/connectionspeeds', setSpeeds);
+    }, []);
+
   return (
     <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
@@ -47,13 +73,13 @@ export default function SettingsPage() {
                 <TabsTrigger value="speeds">Connection Speeds</TabsTrigger>
             </TabsList>
             <TabsContent value="departments" className="mt-4">
-                <SettingsTable data={DEPARTMENTS} columns={[{ key: 'name', label: 'Department Name' }]} />
+                <SettingsTable data={departments} columns={[{ key: 'name', label: 'Department Name' }]} />
             </TabsContent>
             <TabsContent value="blocks" className="mt-4">
-                <SettingsTable data={BLOCKS} columns={[{ key: 'name', label: 'Block Name' }]} />
+                <SettingsTable data={blocks} columns={[{ key: 'name', label: 'Block Name' }]} />
             </TabsContent>
             <TabsContent value="speeds" className="mt-4">
-                <SettingsTable data={CONNECTION_SPEEDS} columns={[{ key: 'speed', label: 'Connection Speed' }]} />
+                <SettingsTable data={speeds} columns={[{ key: 'name', label: 'Connection Speed' }]} />
             </TabsContent>
         </Tabs>
     </div>
