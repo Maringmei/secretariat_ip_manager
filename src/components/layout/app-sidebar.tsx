@@ -18,19 +18,28 @@ import { ManipurEmblem } from '../icons/manipur-emblem';
 import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
 import { useCounter } from '../counter/counter-provider';
+import type { LucideIcon } from 'lucide-react';
 
-const menuItems = [
+interface MenuItem {
+    href: string;
+    label: string;
+    icon: LucideIcon;
+    types?: string[];
+    countKey?: string;
+}
+
+const menuItems: MenuItem[] = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/profile', label: 'My Profile', icon: User },
 ];
 
-const requesterMenuItems = [
+const requesterMenuItems: MenuItem[] = [
     { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'] },
     { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'] },
     { href: '/requests', label: 'All My Requests', icon: History, types: ['requester'] },
 ];
 
-const adminMenuItems = [
+const adminMenuItems: MenuItem[] = [
     { href: '/new-requests', label: 'New Requests', icon: Inbox, types: ['official'], countKey: 'new' },
     { href: '/pending-approval', label: 'Pending Approval', icon: FileClock, types: ['official'], countKey: 'pending_approval' },
     { href: '/approved-requests', label: 'Approved', icon: FileCheck, types: ['official'], countKey: 'approved' },
@@ -58,7 +67,7 @@ export default function AppSidebar() {
       <SidebarHeader>
         <div className="flex items-center gap-2">
             <ManipurEmblem className="size-8 text-sidebar-primary bg-white rounded-full p-1"/>
-            <span className="text-lg font-semibold font-headline">Critical Infrastructure Portal, Manipur</span>
+            <span className="text-lg font-semibold font-headline whitespace-normal">Critical Infrastructure Portal, Manipur</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -78,7 +87,7 @@ export default function AppSidebar() {
           {userType === 'requester' && <SidebarSeparator />}
 
           {requesterMenuItems.map((item) => (
-            item.types.includes(userType) &&
+            item.types && item.types.includes(userType) &&
             <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                 <Link href={item.href}>
@@ -94,7 +103,7 @@ export default function AppSidebar() {
           {adminMenuItems.map((item) => {
             const count = item.countKey ? counts[item.countKey as keyof typeof counts] : null;
             return (
-              item.types.includes(userType) && (
+              item.types && item.types.includes(userType) && (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                   <Link href={item.href}>
