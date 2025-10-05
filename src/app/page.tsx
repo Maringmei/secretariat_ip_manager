@@ -29,9 +29,9 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="flex w-full max-w-md flex-col items-center text-center">
-        <ManipurEmblem className="mb-6 h-20 w-20 text-primary" />
+        <ManipurEmblem className="mb-6 h-20 w-20 text-primary" width={150} height={150}/>
         <h1 className="font-headline text-3xl font-bold text-primary">
-          Manipur Secretariat IP Manager
+          Critical Infrastructure Portal, Manipur
         </h1>
         <p className="mt-2 text-muted-foreground">
           Streamlining IP Address Requests and Allocation
@@ -51,7 +51,7 @@ export default function LoginPage() {
       </Card>
       <footer className="mt-8 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Government of Manipur. All rights reserved.</p>
-        <p className="mt-1">Designed and Maintained by the Department of IT.</p>
+        <p className="mt-1 text-center">Powered By Globizs.</p>
       </footer>
     </main>
   );
