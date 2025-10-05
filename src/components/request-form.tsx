@@ -40,8 +40,11 @@ const requestSchema = z.object({
   }),
 });
 
+interface RequestFormProps {
+    isForSelf: boolean;
+}
 
-export default function RequestForm() {
+export default function RequestForm({ isForSelf }: RequestFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +70,7 @@ export default function RequestForm() {
   });
 
   useEffect(() => {
-    if (user) {
+    if (user && isForSelf) {
         form.reset({
             first_name: user.first_name || user.name?.split(' ')[0] || '',
             last_name: user.last_name || user.name?.split(' ').slice(1).join(' ') || '',
@@ -84,7 +87,7 @@ export default function RequestForm() {
             consent: false,
         });
     }
-  }, [user, form]);
+  }, [user, form, isForSelf]);
 
 
   useEffect(() => {
@@ -176,19 +179,24 @@ export default function RequestForm() {
 
             <Card className="bg-secondary/50">
                 <CardHeader>
-                    <CardTitle className="font-headline text-lg">Your Information</CardTitle>
-                    <CardDescription>This information from your profile will be submitted with your request. You can edit it if needed.</CardDescription>
+                    <CardTitle className="font-headline text-lg">Applicant Information</CardTitle>
+                    <CardDescription>
+                        {isForSelf 
+                            ? "This information from your profile will be submitted with your request. You can edit it if needed." 
+                            : "Enter the information for the employee this request is for."
+                        }
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <FormField control={form.control} name="first_name" render={({ field }) => (
-                            <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Your first name" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Applicant's first name" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                         <FormField control={form.control} name="last_name" render={({ field }) => (
-                            <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Your last name" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Applicant's last name" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                         <FormField control={form.control} name="designation" render={({ field }) => (
-                            <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="Your designation" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="Applicant's designation" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                         <FormField control={form.control} name="department_id" render={({ field }) => (
                             <FormItem>
@@ -201,10 +209,10 @@ export default function RequestForm() {
                             </FormItem>
                         )}/>
                          <FormField control={form.control} name="ein_sin" render={({ field }) => (
-                            <FormItem><FormLabel>EIN / SIN</FormLabel><FormControl><Input placeholder="Your Employee/Service ID" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>EIN / SIN</FormLabel><FormControl><Input placeholder="Applicant's Employee/Service ID" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                         <FormField control={form.control} name="email" render={({ field }) => (
-                            <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="your.email@gov.in" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="applicant.email@gov.in" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                         <FormField control={form.control} name="whatsapp_no" render={({ field }) => (
                             <FormItem><FormLabel>WhatsApp No.</FormLabel><FormControl><Input placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem>
