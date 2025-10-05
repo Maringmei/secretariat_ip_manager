@@ -7,7 +7,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
 import type { User } from "@/lib/types"; // Role is also in here now
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, PlusCircle, Search } from "lucide-react";
+import { Loader2, PlusCircle, Search, X } from "lucide-react";
 import { AddUserDialog } from "@/components/users/add-user-dialog";
 import { EditUserDialog } from "@/components/users/edit-user-dialog";
 import { Input } from "@/components/ui/input";
@@ -204,15 +204,21 @@ export default function UserManagementPage() {
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input placeholder="Filter by Email" className="pl-8" value={emailFilter} onChange={e => setEmailFilter(e.target.value)} />
                         </div>
-                        <Select value={roleFilter} onValueChange={setRoleFilter}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Filter by Role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="">All Roles</SelectItem>
-                                {roles.map((r, i) => <SelectItem key={i} value={r.role}>{r.role}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
+                        <div className="flex items-center gap-2">
+                             <Select value={roleFilter} onValueChange={setRoleFilter}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Filter by Role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {roles.map((r, i) => <SelectItem key={i} value={r.role}>{r.role}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                            {roleFilter && (
+                                <Button variant="ghost" size="icon" onClick={() => setRoleFilter('')}>
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            )}
+                        </div>
                         <Button onClick={handleApplyFilters}>Apply Filter</Button>
                     </div>
 
