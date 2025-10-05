@@ -29,7 +29,6 @@ const adminMenuItems = [
     { href: '/pending-approval', label: 'Pending Approval', icon: FileClock, types: ['official'], countKey: 'pending_approval' },
     { href: '/approved-requests', label: 'Approved', icon: FileCheck, types: ['official'], countKey: 'approved_requests' },
     { href: '/rejected-requests', label: 'Rejected', icon: FileX, types: ['official'], countKey: 'rejected_requests' },
-    { href: '/ip-management', label: 'IP Management', icon: Network, types: ['official'] },
     { href: '/settings', label: 'Settings', icon: Settings, types: ['official'] },
     { href: '/users', label: 'User Management', icon: Users, types: ['official'] },
 ];
