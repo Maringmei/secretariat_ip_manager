@@ -3,13 +3,28 @@
 import { ProfileForm } from "@/components/profile-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/auth-provider";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
-    const { user } = useAuth();
-    // Assuming new user if profile is not complete, which we might not know from the API.
-    // We can adjust this logic. For now, let's assume we always edit.
-    const isNewUser = !user?.profileComplete; 
+    const { user, logout } = useAuth();
+    const router = useRouter();
+    const [isNewUser, setIsNewUser] = useState(false);
 
+    useEffect(() => {
+        if (user) {
+            const newUserFlag = localStorage.getItem('isNewUser') === 'true';
+            const needsProfile = newUserFlag && !user.name;
+            setIsNewUser(needsProfile);
+        }
+    }, [user]);
+
+    const handleBackToLogin = () => {
+        logout();
+        router.push('/');
+    };
+    
     if (!user) return null; // Or a loading state
 
   return (
@@ -30,6 +45,13 @@ export default function ProfilePage() {
                 <ProfileForm user={user} />
             </CardContent>
         </Card>
+        {isNewUser && (
+            <div className="mt-4 text-center">
+                <Button variant="link" onClick={handleBackToLogin}>
+                    Back to Login
+                </Button>
+            </div>
+        )}
     </div>
   );
 }
