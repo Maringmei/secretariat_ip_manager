@@ -1,22 +1,33 @@
 "use client"
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent
 } from "@/components/ui/chart"
+import { ChartConfig } from "../ui/chart"
 
 const chartConfig = {
-  allocations: {
-    label: "Allocations",
-    color: "hsl(var(--primary))",
+  approved: {
+    label: "Approved",
+    color: "hsl(var(--chart-1))",
   },
-}
+  pending: {
+    label: "Pending",
+    color: "hsl(var(--chart-2))",
+  },
+   rejected: {
+    label: "Rejected",
+    color: "hsl(var(--chart-3))",
+  },
+} satisfies ChartConfig
 
 interface DepartmentAllocationsChartProps {
-    data?: { block_name: string; total: number; }[];
+    data?: { block_name: string; total: number; pending: number; approved: number; rejected: number; }[];
 }
 
 export default function DepartmentAllocationsChart({ data }: DepartmentAllocationsChartProps) {
@@ -24,22 +35,29 @@ export default function DepartmentAllocationsChart({ data }: DepartmentAllocatio
 
     const chartData = data.map(dept => ({
         department: dept.block_name.split(" ")[0], // Use short name
-        allocations: dept.total,
+        approved: dept.approved,
+        pending: dept.pending,
+        rejected: dept.rejected,
     }));
 
   return (
       <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-        <BarChart accessibilityLayer data={chartData}>
-          <CartesianGrid vertical={false} />
-          <XAxis
+        <BarChart accessibilityLayer data={chartData} layout="vertical" stackOffset="expand">
+          <XAxis type="number" hide />
+          <YAxis
             dataKey="department"
+            type="category"
             tickLine={false}
             tickMargin={10}
             axisLine={false}
             tickFormatter={(value) => value.slice(0, 10)}
+            
           />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <Bar dataKey="allocations" fill="var(--color-allocations)" radius={4} />
+          <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+          <ChartLegend content={<ChartLegendContent />} />
+          <Bar dataKey="approved" stackId="a" fill="var(--color-approved)" radius={0} />
+          <Bar dataKey="pending" stackId="a" fill="var(--color-pending)" radius={0} />
+          <Bar dataKey="rejected" stackId="a" fill="var(--color-rejected)" radius={4} />
         </BarChart>
       </ChartContainer>
   )
