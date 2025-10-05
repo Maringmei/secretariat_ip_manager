@@ -27,20 +27,17 @@ export interface User {
   eofficeOnboarded?: boolean;
 }
 
-export interface Department {
-  id: number | string;
-  name: string;
+export interface SettingItem {
+    id: number | string;
+    name: string;
 }
 
-export interface Block {
-  id: number | string;
-  name: string;
-}
+export interface Department extends SettingItem {}
 
-export interface ConnectionSpeed {
-  id: number | string;
+export interface Block extends SettingItem {}
+
+export interface ConnectionSpeed extends SettingItem {
   speed?: string; // e.g., '10 Mbps', '100 Mbps'
-  name: string; // for compatibility with api response
 }
 
 export interface WorkflowStep {

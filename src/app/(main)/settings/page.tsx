@@ -5,9 +5,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Edit, PlusCircle, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { Department, Block, ConnectionSpeed } from "@/lib/types";
+import type { Department, Block, ConnectionSpeed, SettingItem } from "@/lib/types";
 import { useAuth } from "@/components/auth/auth-provider";
 import { AddSettingDialog } from "@/components/settings/add-setting-dialog";
+import { EditSettingDialog } from "@/components/settings/edit-setting-dialog";
+import { DeleteSettingDialog } from "@/components/settings/delete-setting-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -23,7 +25,7 @@ const SettingsTable = ({ data, columns, onEdit, onDelete }: { data: any[], colum
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {data.map(item => (
+                {data.length > 0 ? data.map(item => (
                     <TableRow key={item.id}>
                         {columns.map(col => <TableCell key={col.key}>{item[col.key]}</TableCell>)}
                         <TableCell className="text-right">
@@ -31,7 +33,11 @@ const SettingsTable = ({ data, columns, onEdit, onDelete }: { data: any[], colum
                             <Button variant="ghost" size="icon" className="text-destructive" onClick={() => onDelete(item)}><Trash className="h-4 w-4" /></Button>
                         </TableCell>
                     </TableRow>
-                ))}
+                )) : (
+                    <TableRow>
+                        <TableCell colSpan={columns.length + 1} className="h-24 text-center">No results.</TableCell>
+                    </TableRow>
+                )}
             </TableBody>
         </Table>
     </div>
@@ -45,19 +51,28 @@ export default function SettingsPage() {
     const [isLoading, setIsLoading] = useState<Record<SettingType, boolean>>({ departments: true, blocks: true, speeds: true });
     
     const [activeTab, setActiveTab] = useState<SettingType>('departments');
+    
+    // Dialog states
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<SettingItem | null>(null);
 
     const { token } = useAuth();
     const { toast } = useToast();
 
-    const fetchData = async (type: SettingType) => {
-        if (!token) return;
-        
-        const endpointMap: Record<SettingType, string> = {
+    const getApiEndpoint = (type: SettingType, id?: number | string) => {
+        const baseEndpoints: Record<SettingType, string> = {
             departments: 'https://iprequestapi.globizsapp.com/api/departments',
             blocks: 'https://iprequestapi.globizsapp.com/api/blocks',
             speeds: 'https://iprequestapi.globizsapp.com/api/connectionspeeds',
         };
+        return id ? `${baseEndpoints[type]}/${id}` : baseEndpoints[type];
+    }
+
+    const fetchData = async (type: SettingType) => {
+        if (!token) return;
+        
         const setterMap: Record<SettingType, (data: any[]) => void> = {
             departments: setDepartments,
             blocks: setBlocks,
@@ -66,12 +81,14 @@ export default function SettingsPage() {
         
         setIsLoading(prev => ({...prev, [type]: true}));
         try {
-            const response = await fetch(endpointMap[type], {
+            const response = await fetch(getApiEndpoint(type), {
                  headers: { 'Authorization': `Bearer ${token}` }
             });
             const result = await response.json();
             if (result.success) {
-                setterMap[type](result.data);
+                // Filter out inactive items if the API returns them
+                const activeItems = result.data.filter((item: any) => item.is_active === 1 || item.is_active === undefined);
+                setterMap[type](activeItems);
             } else {
                 toast({ title: `Error fetching ${type}`, description: result.message || 'Failed to fetch data.', variant: 'destructive'});
             }
@@ -90,60 +107,78 @@ export default function SettingsPage() {
     }, [token]);
 
     const handleAddItem = async (name: string) => {
-        if (!token) {
-            toast({ title: "Authentication Error", description: "You are not logged in.", variant: "destructive" });
-            return;
-        }
-
-        const endpointMap: Record<SettingType, string> = {
-            departments: 'https://iprequestapi.globizsapp.com/api/departments',
-            blocks: 'https://iprequestapi.globizsapp.com/api/blocks',
-            speeds: 'https://iprequestapi.globizsapp.com/api/connectionspeeds',
-        };
+        if (!token) return;
 
         try {
-             const response = await fetch(endpointMap[activeTab], {
+             const response = await fetch(getApiEndpoint(activeTab), {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ name }),
             });
-
             const result = await response.json();
-
             if (result.success) {
                 toast({ title: 'Success', description: `${activeTab.slice(0, -1)} added successfully.` });
-                fetchData(activeTab); // Refresh data for the current tab
+                fetchData(activeTab);
                 setIsAddDialogOpen(false);
-            } else {
-                throw new Error(result.message || `Failed to add ${activeTab.slice(0, -1)}.`);
-            }
-
+            } else { throw new Error(result.message); }
         } catch (error: any) {
             toast({ title: 'Error', description: error.message, variant: 'destructive' });
         }
     };
 
-    const handleEditItem = (item: any) => {
-        // TODO: Implement edit functionality
-        toast({ title: "Not Implemented", description: "Edit functionality is not yet available." });
-        console.log("Edit:", item, "from", activeTab);
+    const openEditDialog = (item: SettingItem) => {
+        setSelectedItem(item);
+        setIsEditDialogOpen(true);
     };
 
-    const handleDeleteItem = (item: any) => {
-        // TODO: Implement delete functionality
-        toast({ title: "Not Implemented", description: "Delete functionality is not yet available." });
-        console.log("Delete:", item, "from", activeTab);
+    const handleUpdateItem = async (name: string) => {
+        if (!token || !selectedItem) return;
+
+        try {
+            const response = await fetch(getApiEndpoint(activeTab, selectedItem.id), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ name, is_active: "1" }),
+            });
+            const result = await response.json();
+            if (result.success) {
+                toast({ title: 'Success', description: `${activeTab.slice(0, -1)} updated successfully.` });
+                fetchData(activeTab);
+                setIsEditDialogOpen(false);
+                setSelectedItem(null);
+            } else { throw new Error(result.message); }
+        } catch (error: any) {
+            toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        }
+    };
+
+    const openDeleteDialog = (item: SettingItem) => {
+        setSelectedItem(item);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleDeleteItem = async () => {
+        if (!token || !selectedItem) return;
+         try {
+            const response = await fetch(getApiEndpoint(activeTab, selectedItem.id), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ name: selectedItem.name, is_active: "0" }),
+            });
+            const result = await response.json();
+            if (result.success) {
+                toast({ title: 'Success', description: `${activeTab.slice(0, -1)} deleted successfully.` });
+                fetchData(activeTab);
+                setIsDeleteDialogOpen(false);
+                setSelectedItem(null);
+            } else { throw new Error(result.message); }
+        } catch (error: any) {
+            toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        }
     };
 
     const renderTable = (type: SettingType) => {
-        const dataMap: Record<SettingType, any[]> = {
-            departments,
-            blocks,
-            speeds,
-        };
+        const dataMap: Record<SettingType, any[]> = { departments, blocks, speeds };
         const columnMap: Record<SettingType, { key: string, label: string }[]> = {
             departments: [{ key: 'name', label: 'Department Name' }],
             blocks: [{ key: 'name', label: 'Block Name' }],
@@ -156,8 +191,8 @@ export default function SettingsPage() {
             <SettingsTable 
                 data={dataMap[type]} 
                 columns={columnMap[type]}
-                onEdit={handleEditItem}
-                onDelete={handleDeleteItem}
+                onEdit={openEditDialog}
+                onDelete={openDeleteDialog}
             />
         );
     }
@@ -178,21 +213,29 @@ export default function SettingsPage() {
                 <TabsTrigger value="blocks">Blocks</TabsTrigger>
                 <TabsTrigger value="speeds">Connection Speeds</TabsTrigger>
             </TabsList>
-            <TabsContent value="departments" className="mt-4">
-                {renderTable('departments')}
-            </TabsContent>
-            <TabsContent value="blocks" className="mt-4">
-                {renderTable('blocks')}
-            </TabsContent>
-            <TabsContent value="speeds" className="mt-4">
-                {renderTable('speeds')}
-            </TabsContent>
+            <TabsContent value="departments" className="mt-4">{renderTable('departments')}</TabsContent>
+            <TabsContent value="blocks" className="mt-4">{renderTable('blocks')}</TabsContent>
+            <TabsContent value="speeds" className="mt-4">{renderTable('speeds')}</TabsContent>
         </Tabs>
 
         <AddSettingDialog
             isOpen={isAddDialogOpen}
             onClose={() => setIsAddDialogOpen(false)}
             onConfirm={handleAddItem}
+            settingType={activeTab}
+        />
+        <EditSettingDialog
+            isOpen={isEditDialogOpen}
+            onClose={() => { setIsEditDialogOpen(false); setSelectedItem(null); }}
+            onConfirm={handleUpdateItem}
+            item={selectedItem}
+            settingType={activeTab}
+        />
+        <DeleteSettingDialog
+            isOpen={isDeleteDialogOpen}
+            onClose={() => { setIsDeleteDialogOpen(false); setSelectedItem(null); }}
+            onConfirm={handleDeleteItem}
+            item={selectedItem}
             settingType={activeTab}
         />
     </div>
