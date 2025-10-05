@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -19,8 +20,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Phone, KeyRound, Send, User, Building } from 'lucide-react';
 import { useAuth } from './auth-provider';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 
 
 const formSchema = z.object({
@@ -183,21 +182,25 @@ export function LoginForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="flex items-center justify-center space-x-4 rounded-lg bg-muted p-2">
-            <div className='flex items-center space-x-2'>
-                <User className="h-5 w-5 text-muted-foreground"/>
-                <Label htmlFor="login-type" className={loginType === 'requester' ? 'text-primary font-semibold' : ''}>Requester</Label>
-            </div>
-            <Switch
-                id="login-type"
-                checked={loginType === 'official'}
-                onCheckedChange={(checked) => setLoginType(checked ? 'official' : 'requester')}
+        <div className="grid grid-cols-2 gap-2 rounded-lg bg-muted p-1">
+            <Button
+                type="button"
+                variant={loginType === 'requester' ? 'default' : 'ghost'}
+                onClick={() => setLoginType('requester')}
                 disabled={isOtpSent}
-            />
-            <div className='flex items-center space-x-2'>
-                <Building className="h-5 w-5 text-muted-foreground"/>
-                <Label htmlFor="login-type" className={loginType === 'official' ? 'text-primary font-semibold' : ''}>Official</Label>
-            </div>
+            >
+                <User className="mr-2" />
+                Requester
+            </Button>
+             <Button
+                type="button"
+                variant={loginType === 'official' ? 'default' : 'ghost'}
+                onClick={() => setLoginType('official')}
+                disabled={isOtpSent}
+            >
+                <Building className="mr-2" />
+                Official
+            </Button>
         </div>
         <FormField
           control={form.control}
