@@ -1,13 +1,14 @@
+
 'use client';
 import type { Role } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import StatsCard from "@/components/dashboard/stats-card";
-import { Activity, ArrowUpRight, Check, Clock, Server, Users, Wifi, X } from "lucide-react";
+import { Activity, ArrowUpRight, Check, Clock, Server, Users, X } from "lucide-react";
 import RequestsTable from "@/components/requests-table";
 import Link from "next/link";
-import SpeedChart from "@/components/dashboard/speed-chart";
 import DepartmentAllocationsChart from "@/components/dashboard/department-allocations-chart";
+import SpeedChart from "@/components/dashboard/speed-chart";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -23,7 +24,7 @@ interface DashboardData {
         e_office_not_onboarded: number;
     };
     by_connection_speed?: { connection_speed_name: string; count: number }[];
-    by_department?: { block_name: string; total: number; pending: number; approved: number; rejected: number}[];
+    by_department?: { block_name: string; total: number; pending: number; approved: number; rejected: number;}[];
     by_block?: { block_name: string; count: number }[];
     by_month?: { label: string; count: number }[];
     // For requester
@@ -61,42 +62,6 @@ const AdminDashboard = ({ data }: { data: DashboardData }) => {
                     </CardContent>
                 </Card>
             </div>
-        </div>
-    );
-};
-
-const DirectorDashboard = () => {
-    // This dashboard is now part of the AdminDashboard logic. Can be customized if needed.
-    // For now, we'll keep it simple and show AdminDashboard for all officials.
-    const [requests, setRequests] = useState<any[]>([]);
-    
-    // Example of fetching specific data for director if needed.
-    // This is just a placeholder and would need a real API endpoint.
-    useEffect(() => {
-        // fetch director-specific data here
-        // setRequests(...)
-    }, []);
-
-    return (
-        <div className="flex flex-col gap-6">
-            <h1 className="font-headline text-3xl font-bold">Director Dashboard</h1>
-             <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">Requests Awaiting Your Approval</CardTitle>
-                    <CardDescription>These requests have been assigned an IP and need final approval.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <RequestsTable requests={requests.filter(r => r.status === 'Pending Approval')} />
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">All Recent Requests</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <RequestsTable requests={requests.slice(0,10)} />
-                </CardContent>
-            </Card>
         </div>
     );
 };

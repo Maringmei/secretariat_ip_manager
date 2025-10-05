@@ -1,6 +1,7 @@
+
 "use client"
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, XAxis, YAxis } from "recharts"
 
 import {
   ChartContainer,
@@ -40,8 +41,12 @@ export default function DepartmentAllocationsChart({ data }: DepartmentAllocatio
         rejected: dept.rejected,
     }));
 
+    if (chartData.length === 0) {
+      return <div className="flex h-[300px] items-center justify-center text-muted-foreground">No allocation data available</div>
+    }
+
   return (
-      <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+      <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
         <BarChart accessibilityLayer data={chartData} layout="vertical" stackOffset="expand">
           <XAxis type="number" hide />
           <YAxis

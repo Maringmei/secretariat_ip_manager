@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Pie, PieChart } from "recharts"
@@ -6,6 +7,8 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
 } from "@/components/ui/chart"
 
 interface SpeedChartProps {
@@ -46,6 +49,7 @@ export default function SpeedChart({ data }: SpeedChartProps) {
             nameKey="name"
             innerRadius={60}
           />
+          <ChartLegend content={<ChartLegendContent nameKey="name" />} />
         </PieChart>
       </ChartContainer>
   )
