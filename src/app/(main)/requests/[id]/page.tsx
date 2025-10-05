@@ -194,6 +194,7 @@ export default function RequestDetailsPage() {
 
     const canAssignIp = request.status_id === 1;
     const canApprove = request.status_id === 2 && request.can_approve;
+    const canReject = request.status_id === 1 || canApprove;
 
     return (
         <>
@@ -256,20 +257,20 @@ export default function RequestDetailsPage() {
                             <p><strong>WhatsApp:</strong> {request.mobile_no}</p>
                         </CardContent>
                     </Card>
-                    {(canAssignIp || canApprove) && (
+                    {(canAssignIp || canApprove || canReject) && (
                         <Card>
                             <CardHeader>
                                 <CardTitle className="font-headline text-lg">Actions</CardTitle>
                             </CardHeader>
-                             <CardContent className="flex gap-4">
+                             <CardContent className="flex flex-wrap gap-4">
                                 {canAssignIp && (
                                      <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
                                 )}
                                 {canApprove && (
-                                    <>
-                                        <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
-                                        <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
-                                    </>
+                                    <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
+                                )}
+                                {canReject && (
+                                    <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
                                 )}
                             </CardContent>
                         </Card>
@@ -286,7 +287,7 @@ export default function RequestDetailsPage() {
                 isSubmitting={isActionLoading}
             />
         )}
-        {canApprove && (
+        {(canApprove || canReject) && (
             <>
             <ApproveRequestDialog
                 isOpen={isApproveOpen}
