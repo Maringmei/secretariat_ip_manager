@@ -51,7 +51,6 @@ export default function UsersTable({ users = [], onEditUser }: UsersTableProps) 
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuItem onClick={() => onEditUser(user)}>Edit User</DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">Deactivate User</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableCell>
