@@ -36,6 +36,7 @@ const menuItems: MenuItem[] = [
 const requesterMenuItems: MenuItem[] = [
     { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'] },
     { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'] },
+    { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'] },
 ];
 
 const adminMenuItems: MenuItem[] = [
