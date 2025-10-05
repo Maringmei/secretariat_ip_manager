@@ -1,0 +1,72 @@
+'use client';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import type { User } from "@/lib/types";
+import { MoreHorizontal } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "./ui/dropdown-menu";
+
+interface UsersTableProps {
+  users: User[];
+}
+
+export default function UsersTable({ users = [] }: UsersTableProps) {
+  return (
+    <div className="rounded-md border">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead>Designation</TableHead>
+          <TableHead className="hidden md:table-cell">Department</TableHead>
+          <TableHead>Role</TableHead>
+          <TableHead>
+            <span className="sr-only">Actions</span>
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.id}>
+            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell>{user.designation || 'N/A'}</TableCell>
+            <TableCell className="hidden md:table-cell">{user.department_name || 'N/A'}</TableCell>
+            <TableCell>
+              <Badge variant="secondary">{user.role || 'N/A'}</Badge>
+            </TableCell>
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button aria-haspopup="true" size="icon" variant="ghost">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem>Edit User</DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive">Deactivate User</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
+          </TableRow>
+        ))}
+        {users.length === 0 && (
+            <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center">
+                    No users found.
+                </TableCell>
+            </TableRow>
+        )}
+      </TableBody>
+    </Table>
+    </div>
+  );
+}
