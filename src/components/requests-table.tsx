@@ -11,27 +11,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Request, RequestStatus } from "@/lib/types";
-import { MOCK_LOGGED_IN_USER } from "@/lib/data";
 import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { useAuth } from "./auth/auth-provider";
 
 interface RequestsTableProps {
   requests: Request[];
 }
 
-const statusColors: Record<RequestStatus, string> = {
-    Pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
-    Assigned: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
-    "Pending Approval": "bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300",
-    Approved: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-    Completed: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-    Reverted: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
-    New: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300", // Default for 'New'
-};
-
-
 export default function RequestsTable({ requests = [] }: RequestsTableProps) {
-    const userRole = MOCK_LOGGED_IN_USER.role;
+    const { user } = useAuth();
+    const userRole = user?.type === 'official' ? user.role : 'staff';
 
   return (
     <div className="rounded-md border">
@@ -65,7 +55,7 @@ export default function RequestsTable({ requests = [] }: RequestsTableProps) {
                 {request.status_name || request.status}
               </Badge>
             </TableCell>
-            <TableCell className="hidden md:table-cell">{new Date(request.requestedAt).toLocaleDateString()}</TableCell>
+            <TableCell className="hidden md:table-cell">{new Date(request.requestedAt || request.created_at).toLocaleDateString()}</TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

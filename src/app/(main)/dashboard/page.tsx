@@ -1,26 +1,46 @@
 'use client';
-import { MOCK_LOGGED_IN_USER, REQUESTS, DEPARTMENTS, CONNECTION_SPEEDS } from "@/lib/data";
 import type { Role } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import StatsCard from "@/components/dashboard/stats-card";
-import { Activity, ArrowUpRight, Clock, Server, Users, Wifi } from "lucide-react";
+import { Activity, ArrowUpRight, Check, Clock, Server, Users, Wifi, X } from "lucide-react";
 import RequestsTable from "@/components/requests-table";
 import Link from "next/link";
 import SpeedChart from "@/components/dashboard/speed-chart";
 import DepartmentAllocationsChart from "@/components/dashboard/department-allocations-chart";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
-const AdminDashboard = () => {
-    const pendingRequests = REQUESTS.filter(r => r.status === 'Pending' || r.status === 'Pending Approval').length;
-    const totalAllocated = REQUESTS.filter(r => r.status === 'Approved' || r.status === 'Completed').length;
-    
+interface DashboardData {
+    summary?: {
+        total: number;
+        pending: number;
+        approved: number;
+        rejected: number;
+        e_office_onboarded: number;
+        e_office_not_onboarded: number;
+    };
+    by_connection_speed?: { connection_speed_name: string; count: number }[];
+    by_department?: { block_name: string; total: number; pending: number; approved: number; rejected: number}[];
+    by_block?: { block_name: string; count: number }[];
+    by_month?: { label: string; count: number }[];
+    // For requester
+    total?: number;
+    pending?: number;
+    approved?: number;
+    rejected?: number;
+}
+
+
+const AdminDashboard = ({ data }: { data: DashboardData }) => {
     return (
         <div className="flex flex-col gap-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatsCard title="Total IPs Allocated" value={totalAllocated.toString()} icon={Server} />
-                <StatsCard title="Pending Requests" value={pendingRequests.toString()} icon={Clock} />
-                <StatsCard title="Departments Onboarded" value={DEPARTMENTS.length.toString()} icon={Users} />
+                <StatsCard title="Total IPs Allocated" value={data.summary?.approved.toString() ?? '0'} icon={Server} />
+                <StatsCard title="Pending Requests" value={data.summary?.pending.toString() ?? '0'} icon={Clock} />
+                <StatsCard title="Departments Onboarded" value={data.by_department?.length.toString() ?? '0'} icon={Users} />
                 <StatsCard title="Avg. Approval Time" value="36 Hours" icon={Activity} description="in the last 30 days" />
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -29,7 +49,7 @@ const AdminDashboard = () => {
                         <CardTitle className="font-headline">Department-wise Allocations</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <DepartmentAllocationsChart />
+                        <DepartmentAllocationsChart data={data.by_department} />
                     </CardContent>
                 </Card>
                 <Card className="lg:col-span-3">
@@ -37,35 +57,26 @@ const AdminDashboard = () => {
                         <CardTitle className="font-headline">Connection Speed Distribution</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <SpeedChart />
+                        <SpeedChart data={data.by_connection_speed} />
                     </CardContent>
                 </Card>
             </div>
-             <Card>
-                <CardHeader className="flex flex-row items-center">
-                    <div className="grid gap-2">
-                    <CardTitle className="font-headline">Recent Requests</CardTitle>
-                    <CardDescription>
-                        An overview of the most recent IP allocation requests.
-                    </CardDescription>
-                    </div>
-                    <Button asChild size="sm" className="ml-auto gap-1">
-                    <Link href="/ip-management">
-                        View All
-                        <ArrowUpRight className="h-4 w-4" />
-                    </Link>
-                    </Button>
-                </CardHeader>
-                <CardContent>
-                    <RequestsTable requests={REQUESTS.slice(0, 5)} />
-                </CardContent>
-            </Card>
         </div>
     );
 };
 
 const DirectorDashboard = () => {
-    const pendingApproval = REQUESTS.filter(r => r.status === 'Pending Approval');
+    // This dashboard is now part of the AdminDashboard logic. Can be customized if needed.
+    // For now, we'll keep it simple and show AdminDashboard for all officials.
+    const [requests, setRequests] = useState<any[]>([]);
+    
+    // Example of fetching specific data for director if needed.
+    // This is just a placeholder and would need a real API endpoint.
+    useEffect(() => {
+        // fetch director-specific data here
+        // setRequests(...)
+    }, []);
+
     return (
         <div className="flex flex-col gap-6">
             <h1 className="font-headline text-3xl font-bold">Director Dashboard</h1>
@@ -75,7 +86,7 @@ const DirectorDashboard = () => {
                     <CardDescription>These requests have been assigned an IP and need final approval.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <RequestsTable requests={pendingApproval} />
+                    <RequestsTable requests={requests.filter(r => r.status === 'Pending Approval')} />
                 </CardContent>
             </Card>
             <Card>
@@ -83,66 +94,125 @@ const DirectorDashboard = () => {
                     <CardTitle className="font-headline">All Recent Requests</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <RequestsTable requests={REQUESTS.slice(0,10)} />
+                    <RequestsTable requests={requests.slice(0,10)} />
                 </CardContent>
             </Card>
         </div>
     );
 };
 
-const StaffDashboard = () => {
+const StaffDashboard = ({ data }: { data: DashboardData }) => {
     const { user } = useAuth();
     if (!user) return null;
 
-    const myRequests = REQUESTS.filter(r => r.userId === user.id);
-
     return (
         <div className="flex flex-col gap-6">
-            <Card className="bg-primary text-primary-foreground">
-                <CardHeader>
-                    <CardTitle className="font-headline">Welcome, {user.name}!</CardTitle>
-                    <CardDescription className="text-primary-foreground/80">Ready to get connected? Submit a new IP request here.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     <Button asChild variant="secondary" size="lg">
-                        <Link href="/requests/new">New IP Request</Link>
-                    </Button>
-                </CardContent>
-            </Card>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="font-headline text-3xl font-bold">Welcome, {user.name}!</h1>
+                    <p className="text-muted-foreground">Here's a summary of your IP requests.</p>
+                </div>
+                <Button asChild variant="default" size="lg">
+                    <Link href="/requests/new">New IP Request</Link>
+                </Button>
+            </div>
+            
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatsCard title="Total Requests" value={data.total?.toString() ?? '0'} icon={Server} />
+                <StatsCard title="Pending" value={data.pending?.toString() ?? '0'} icon={Clock} />
+                <StatsCard title="Approved" value={data.approved?.toString() ?? '0'} icon={Check} />
+                <StatsCard title="Rejected" value={data.rejected?.toString() ?? '0'} icon={X} />
+            </div>
 
             <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">My Recent Requests</CardTitle>
+                <CardHeader className="flex flex-row items-center">
+                    <div className="grid gap-2">
+                        <CardTitle className="font-headline">My Requests History</CardTitle>
+                        <CardDescription>
+                            An overview of all your submitted IP allocation requests.
+                        </CardDescription>
+                    </div>
+                    <Button asChild size="sm" className="ml-auto gap-1">
+                    <Link href="/requests">
+                        View All
+                        <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                    </Button>
                 </CardHeader>
                 <CardContent>
-                    <RequestsTable requests={myRequests} />
+                    {/* The API doesn't provide recent requests, so this is empty or could fetch from another endpoint */}
+                    <p className="text-sm text-muted-foreground">You can view all your requests from the "My Requests" page.</p>
                 </CardContent>
             </Card>
         </div>
     );
 };
 
-const DashboardByRole = ({ role }: { role: Role }) => {
+const DashboardByRole = ({ role, data }: { role: Role, data: DashboardData }) => {
     switch (role) {
         case 'admin':
         case 'coordinator':
-            return <AdminDashboard />;
         case 'director':
-            return <DirectorDashboard />;
+            return <AdminDashboard data={data} />;
         case 'staff':
-            return <StaffDashboard />;
+            return <StaffDashboard data={data} />;
         default:
             return <p>Invalid user role.</p>;
     }
 };
 
 export default function DashboardPage() {
-  const { user } = useAuth();
-  
-  if (!user) return null;
+    const { user, token } = useAuth();
+    const [data, setData] = useState<DashboardData | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+    
+    if (!user) return null;
+    
+    // A bit of a hack to map API type to internal Role type
+    const userRole: Role = user?.type === 'official' ? (user.role || 'admin') : 'staff';
+    const isOfficial = userRole !== 'staff';
 
-  // A bit of a hack to map API type to internal Role type
-  const userRole: Role = user?.type === 'official' ? (user.role || 'admin') : 'staff';
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            if (!token) {
+                setIsLoading(false);
+                return;
+            }
+            setIsLoading(true);
 
-  return <DashboardByRole role={userRole} />;
+            const url = isOfficial 
+                ? 'https://iprequestapi.globizsapp.com/api/dashboard'
+                : 'https://iprequestapi.globizsapp.com/api/dashboard/0'; // 0 is a placeholder for current user
+
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    setData(result.data);
+                } else {
+                    throw new Error(result.message || "Failed to load dashboard data.");
+                }
+            } catch (error: any) {
+                toast({
+                    title: "Error",
+                    description: error.message || "Could not fetch dashboard data.",
+                    variant: "destructive"
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, [token, isOfficial, toast]);
+
+
+    if (isLoading || !data) {
+        return <div className="flex h-64 items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
+    }
+
+    return <DashboardByRole role={userRole} data={data} />;
 }

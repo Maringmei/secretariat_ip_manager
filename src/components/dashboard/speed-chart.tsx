@@ -7,21 +7,29 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { CONNECTION_SPEEDS, REQUESTS } from "@/lib/data"
 
-const chartData = CONNECTION_SPEEDS.map((speed, index) => {
-    const count = REQUESTS.filter(r => r.connectionSpeed === speed.id && (r.status === 'Approved' || r.status === 'Completed')).length;
-    return { name: speed.name, count, fill: `hsl(var(--chart-${index + 1}))` };
-}).filter(d => d.count > 0);
+interface SpeedChartProps {
+    data?: { connection_speed_name: string; count: number }[];
+}
 
-const chartConfig = {
-    count: {
-        label: "Count",
-    },
-    ...Object.fromEntries(chartData.map(d => [d.name.replace(/\s/g,''), {label: d.name}]))
-};
+export default function SpeedChart({ data }: SpeedChartProps) {
+    if (!data) return null;
 
-export default function SpeedChart() {
+    const chartData = data.map((speed, index) => {
+        return { name: speed.connection_speed_name, count: speed.count, fill: `hsl(var(--chart-${index + 1}))` };
+    }).filter(d => d.count > 0);
+
+    const chartConfig = {
+        count: {
+            label: "Count",
+        },
+        ...Object.fromEntries(chartData.map(d => [d.name.replace(/\s/g,''), {label: d.name}]))
+    };
+
+    if (chartData.length === 0) {
+      return <div className="flex h-[300px] items-center justify-center text-muted-foreground">No data available</div>
+    }
+
   return (
       <ChartContainer
         config={chartConfig}
