@@ -131,14 +131,14 @@ export default function SettingsPage() {
         setIsEditDialogOpen(true);
     };
 
-    const handleUpdateItem = async (name: string) => {
+    const handleUpdateItem = async (name: string, isActive: boolean) => {
         if (!token || !selectedItem) return;
 
         try {
             const response = await fetch(getApiEndpoint(activeTab, selectedItem.id), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ name, is_active: "1" }),
+                body: JSON.stringify({ name, is_active: isActive ? "1" : "0" }),
             });
             const result = await response.json();
             if (result.success) {
