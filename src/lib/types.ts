@@ -1,4 +1,5 @@
 
+
 export type Role = 'staff' | 'director' | 'coordinator' | 'admin';
 
 export type RequestStatus = 'Pending' | 'Assigned' | 'Pending Approval' | 'Approved' | 'Reverted' | 'Completed' | 'New';
@@ -12,7 +13,10 @@ export interface User {
   access?: string[];
   // from profile API
   department_name?: string;
-  // Deprecated fields from old mock data, kept for compatibility for now
+  // from login response
+  role?: Role;
+
+  // from profile form/API
   department?: string; // departmentId
   ein_sin?: string;
   email?: string;
@@ -40,23 +44,19 @@ export interface ConnectionSpeed {
 
 export interface WorkflowStep {
   step: string;
-  timestamp: Date;
+  timestamp: Date | string; // Allow string to handle API response
   actor: string; // User's name
   remarks?: string;
 }
 
 export interface Request {
-  // Common fields
+  // Common fields from list view
   id: number;
   request_number: number;
   first_name: string;
   last_name: string;
   designation: string;
   department_name: string;
-  room_no: string;
-  section: string;
-  block_name: string;
-  e_office_onboarded: '0' | '1';
   created_at: string;
   status_name: RequestStatus;
   status_foreground_color: string;
@@ -69,6 +69,10 @@ export interface Request {
   mobile_no?: string;
   email?: string;
   mac_address?: string;
+  block_name?: string;
+  section?: string;
+  room_no?: string;
+  e_office_onboarded?: '0' | '1';
   status_id?: number;
   ip_address?: string;
   connection_speed?: string;
@@ -77,7 +81,7 @@ export interface Request {
   // Fields for table view (might be deprecated if details are always fetched)
   userId?: string | number;
   block?: string; // blockId
-  status: RequestStatus;
+  status: RequestStatus; // Old status field, for compatibility
   privateIp?: string;
   connectionSpeed?: string; // speedId
   workflow?: WorkflowStep[];

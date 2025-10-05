@@ -12,16 +12,12 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const DUMMY_WORKFLOW: WorkflowStep[] = [
-    { step: 'Request Submitted', timestamp: new Date(), actor: 'Requester' },
-    { step: 'IP Assigned', timestamp: new Date(), actor: 'Coordinator' },
-];
-
 export default function RequestDetailsPage() {
     const { id } = useParams<{ id: string }>();
     const { token } = useAuth();
     const { toast } = useToast();
     const [request, setRequest] = useState<Request | null>(null);
+    const [workflow, setWorkflow] = useState<WorkflowStep[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -59,7 +55,33 @@ export default function RequestDetailsPage() {
             }
         };
 
+        const fetchWorkflow = async () => {
+            if (!token || !id) return;
+            try {
+                 const response = await fetch(`https://iprequestapi.globizsapp.com/api/ip-requests/${id}/workflows`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const result = await response.json();
+                if (result.success && Array.isArray(result.data)) {
+                    setWorkflow(result.data);
+                } else {
+                    // If the API doesn't return a workflow, we can set an empty array
+                    setWorkflow([]);
+                    console.warn("Could not load workflow or workflow is empty.");
+                }
+            } catch (error) {
+                 toast({
+                    title: "Error",
+                    description: "An unexpected error occurred while fetching workflow.",
+                    variant: "destructive",
+                });
+            }
+        };
+
         fetchRequestDetails();
+        fetchWorkflow();
     }, [id, token, toast]);
 
     if (isLoading) {
@@ -71,13 +93,8 @@ export default function RequestDetailsPage() {
     }
     
     if (!request) {
-        // You can render a 'not found' message or redirect
         return notFound();
     }
-    
-    // The API response does not contain workflow data, so we use a dummy one.
-    // This can be replaced if the API is updated.
-    const workflow = request.workflow || DUMMY_WORKFLOW;
 
     return (
         <div className="flex flex-col gap-6">
