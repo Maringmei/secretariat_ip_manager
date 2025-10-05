@@ -9,6 +9,7 @@ import type { User, Role } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, PlusCircle } from "lucide-react";
 import { AddUserDialog } from "@/components/users/add-user-dialog";
+import { EditUserDialog } from "@/components/users/edit-user-dialog";
 
 export default function UserManagementPage() {
     const { token } = useAuth();
@@ -16,7 +17,12 @@ export default function UserManagementPage() {
     const [users, setUsers] = useState<User[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    
+    // Dialog states
     const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+    const [isEditUserOpen, setIsEditUserOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
 
     const fetchUsers = async () => {
         if (!token) return;
@@ -104,6 +110,36 @@ export default function UserManagementPage() {
         }
     };
 
+    const handleUpdateUser = async (updatedUser: User) => {
+        if (!token || !selectedUser) return;
+        try {
+            const response = await fetch(`https://iprequestapi.globizsapp.com/api/profiles/${selectedUser.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updatedUser)
+            });
+            const result = await response.json();
+             if (result.success) {
+                toast({ title: 'Success', description: 'User updated successfully.' });
+                fetchUsers(); // Refresh user list
+                setIsEditUserOpen(false);
+                setSelectedUser(null);
+            } else {
+                throw new Error(result.message || 'Failed to update user.');
+            }
+        } catch (error: any) {
+            toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        }
+    }
+
+    const openEditDialog = (user: User) => {
+        setSelectedUser(user);
+        setIsEditUserOpen(true);
+    };
+
 
     return (
         <div className="flex flex-col gap-6">
@@ -137,7 +173,7 @@ export default function UserManagementPage() {
                             <Loader2 className="h-8 w-8 animate-spin" />
                         </div>
                     ) : (
-                        <UsersTable users={users} />
+                        <UsersTable users={users} onEditUser={openEditDialog} />
                     )}
                 </CardContent>
             </Card>
@@ -147,6 +183,15 @@ export default function UserManagementPage() {
                 onConfirm={handleCreateUser}
                 roles={roles}
             />
+            {selectedUser && (
+                <EditUserDialog
+                    isOpen={isEditUserOpen}
+                    onClose={() => { setIsEditUserOpen(false); setSelectedUser(null); }}
+                    onConfirm={handleUpdateUser}
+                    roles={roles}
+                    user={selectedUser}
+                />
+            )}
         </div>
     );
 }

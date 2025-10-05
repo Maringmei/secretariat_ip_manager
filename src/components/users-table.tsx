@@ -15,9 +15,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 
 interface UsersTableProps {
   users: User[];
+  onEditUser: (user: User) => void;
 }
 
-export default function UsersTable({ users = [] }: UsersTableProps) {
+export default function UsersTable({ users = [], onEditUser }: UsersTableProps) {
   return (
     <div className="rounded-md border">
     <Table>
@@ -49,7 +50,7 @@ export default function UsersTable({ users = [] }: UsersTableProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem>Edit User</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onEditUser(user)}>Edit User</DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive">Deactivate User</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
