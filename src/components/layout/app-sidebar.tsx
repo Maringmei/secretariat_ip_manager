@@ -13,7 +13,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { ManipurEmblem } from '../icons/manipur-emblem';
-import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
 import type { Role } from '@/lib/types';
 
@@ -24,6 +24,7 @@ const menuItems = [
 ];
 
 const adminMenuItems = [
+    { href: '/new-requests', label: 'New IP Requests', icon: Inbox, types: ['official'] },
     { href: '/ip-management', label: 'IP Management', icon: Network, types: ['official'] },
     { href: '/settings', label: 'Settings', icon: Settings, types: ['official'] },
     { href: '/users', label: 'User Management', icon: Users, types: ['official'] },
