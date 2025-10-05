@@ -37,7 +37,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const { token, user: authUser } = useAuth();
+  const { token, user: authUser, login } = useAuth();
   
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -46,7 +46,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         last_name: '',
         designation: '',
         department: undefined,
-        reportingOfficer: '',
+        reportingOfficer: 'N/A',
         ein_sin: '',
         eofficeOnboarded: 'no',
         email: '',
@@ -99,14 +99,14 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     last_name: profileData.last_name || '',
                     designation: profileData.designation || '',
                     department: department ? String(department.id) : undefined,
-                    reportingOfficer: profileData.reporting_officer || 'N/A', // API response doesn't have this
+                    reportingOfficer: 'N/A', // API response doesn't have this
                     ein_sin: profileData.ein_sin || '',
-                    eofficeOnboarded: profileData.eoffice_onboarded ? 'yes' : 'no', // API response doesn't have this
+                    eofficeOnboarded: 'no', // API response doesn't have this
                     email: profileData.email || '',
                     whatsapp_no: profileData.whatsapp_no || '',
                 });
             } else {
-                toast({ title: "Error", description: "Failed to fetch profile data.", variant: "destructive" });
+                toast({ title: "Error", description: result.message || "Failed to fetch profile data.", variant: "destructive" });
             }
         } catch (error) {
             toast({ title: "Error", description: "An error occurred while fetching your profile.", variant: "destructive" });
@@ -115,25 +115,66 @@ export function ProfileForm({ user }: ProfileFormProps) {
         }
     };
     
-    // Only run fetchProfile when departments are loaded.
     if (departments.length > 0) {
       fetchProfile();
     }
   }, [token, departments, form, toast]);
 
 
-  function onSubmit(values: z.infer<typeof profileSchema>) {
+  async function onSubmit(values: z.infer<typeof profileSchema>) {
+    if (!token) {
+        toast({ title: "Error", description: "You are not authenticated.", variant: "destructive" });
+        return;
+    }
     setIsSubmitting(true);
-    // Simulate API call to update profile
-    console.log("Submitting profile data:", values);
-    setTimeout(() => {
-        setIsSubmitting(false);
-        toast({
-            title: 'Profile Updated!',
-            description: 'Your information has been saved successfully.',
+    
+    try {
+        const response = await fetch('https://iprequestapi.globizsapp.com/api/requesters', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                first_name: values.first_name,
+                last_name: values.last_name,
+                department_id: parseInt(values.department, 10),
+                designation: values.designation,
+                ein_sin: values.ein_sin,
+                email: values.email,
+                whatsapp_no: values.whatsapp_no,
+            }),
         });
-        router.push('/dashboard');
-    }, 1500)
+
+        const result = await response.json();
+
+        if (result.success) {
+            toast({
+                title: 'Profile Updated!',
+                description: 'Your information has been saved successfully.',
+            });
+            // Optionally update user in auth context if name changes
+            if (authUser) {
+                const updatedUser = { ...authUser, name: `${values.first_name} ${values.last_name}`, designation: values.designation };
+                const storedToken = localStorage.getItem('accessToken');
+                if (storedToken) {
+                    login(storedToken, updatedUser);
+                }
+            }
+            router.push('/dashboard');
+        } else {
+            throw new Error(result.message || 'Failed to update profile.');
+        }
+
+    } catch (error: any) {
+        toast({
+            title: 'Update Failed',
+            description: error.message || 'An unexpected error occurred.',
+            variant: 'destructive'
+        });
+    } finally {
+        setIsSubmitting(false);
+    }
   }
 
   if (isLoading) {
