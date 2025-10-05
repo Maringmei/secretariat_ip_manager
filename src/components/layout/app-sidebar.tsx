@@ -34,7 +34,6 @@ const menuItems: MenuItem[] = [
 ];
 
 const requesterMenuItems: MenuItem[] = [
-    { href: '/requests/new', label: 'New IP Request', icon: FilePlus, types: ['requester'] },
     { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'my_pending' },
     { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'my_approved' },
     { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'my_rejected' },
