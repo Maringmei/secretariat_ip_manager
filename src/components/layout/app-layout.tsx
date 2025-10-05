@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useAuth } from "@/components/auth/auth-provider";
@@ -6,7 +5,7 @@ import AppHeader from '@/components/layout/app-header';
 import AppSidebar from '@/components/layout/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   AlertDialog,
@@ -17,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
+import ProfilePage from "@/app/(main)/profile/page";
 
 export default function  AppLayout({
   children,
@@ -25,7 +25,8 @@ export default function  AppLayout({
 }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
-  const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const pathname = usePathname();
+  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -34,21 +35,20 @@ export default function  AppLayout({
   }, [isAuthenticated, isLoading, router]);
 
   useEffect(() => {
-    // This effect runs on the client after hydration
-    const isNewUser = localStorage.getItem('isNewUser') === 'true';
-    if (isAuthenticated && isNewUser) {
-        // We use user?.name to see if the profile has been created in this session.
-        // If the user refreshes on the profile page, `user` will be updated by the AuthProvider
-        // but `isNewUser` will still be true in localStorage.
-        if (!user?.name) {
-             setShowProfileDialog(true);
-        } else {
+    if (isAuthenticated && user) {
+        const newUserFlag = localStorage.getItem('isNewUser') === 'true';
+        // A user is "new" if the flag is set and their name isn't in the user object yet.
+        const needsProfile = newUserFlag && !user.name;
+        setIsNewUser(needsProfile);
+
+        if (needsProfile && pathname !== '/profile') {
+            router.replace('/profile');
+        } else if (!needsProfile && newUserFlag) {
             // Profile has been created, clear the flag
             localStorage.removeItem('isNewUser');
-            setShowProfileDialog(false);
         }
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, pathname, router]);
 
 
   if (isLoading || !isAuthenticated) {
@@ -56,6 +56,17 @@ export default function  AppLayout({
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
+    );
+  }
+
+  // If new user, force them to the profile page without the main layout
+  if (isNewUser) {
+    return (
+        <div className="flex min-h-screen items-center justify-center bg-background p-4">
+             <main className="w-full max-w-2xl">
+                <ProfilePage />
+             </main>
+        </div>
     );
   }
 
@@ -68,21 +79,6 @@ export default function  AppLayout({
           {children}
         </main>
       </SidebarInset>
-
-      <AlertDialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Welcome! Let's set up your profile.</AlertDialogTitle>
-            <AlertDialogDescription>
-              To get started, we need a few more details from you. Please complete your profile to continue.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-            <AlertDialogAction asChild>
-                <Link href="/profile" onClick={() => setShowProfileDialog(false)}>Go to Profile</Link>
-            </AlertDialogAction>
-        </AlertDialogContent>
-      </AlertDialog>
-
     </SidebarProvider>
   );
 }

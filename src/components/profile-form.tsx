@@ -155,18 +155,34 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
         if (result.success) {
             toast({
-                title: 'Profile Updated!',
+                title: 'Profile Created!',
                 description: 'Your information has been saved successfully.',
             });
-            // Optionally update user in auth context if name changes
+            
+            // Manually update user in auth context to trigger layout change
             if (authUser) {
-                const updatedUser = { ...authUser, name: `${values.first_name} ${values.last_name}`, designation: values.designation, profileComplete: true };
+                const updatedUser = { 
+                    ...authUser, 
+                    name: `${values.first_name} ${values.last_name}`, 
+                    designation: values.designation, 
+                    profileComplete: true,
+                    first_name: values.first_name,
+                    last_name: values.last_name,
+                    email: values.email,
+                    whatsapp_no: values.whatsapp_no,
+                    ein_sin: values.ein_sin,
+                };
                 const storedToken = localStorage.getItem('accessToken');
                 if (storedToken) {
-                    login(storedToken, updatedUser);
+                    // This updates the user data in AuthProvider's state
+                    login(storedToken, updatedUser); 
                 }
             }
+            
+            // Remove the flag so the profile prompt doesn't show again
             localStorage.removeItem('isNewUser');
+            
+            // Redirect to the dashboard now that the profile is complete.
             router.push('/dashboard');
         } else {
             throw new Error(result.message || 'Failed to update profile.');
