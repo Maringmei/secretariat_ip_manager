@@ -13,6 +13,8 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AssignIpDialog } from '@/components/requests/assign-ip-dialog';
 import { useCounter } from '@/components/counter/counter-provider';
+import { ApproveRequestDialog } from '@/components/requests/approve-request-dialog';
+import { RevertRequestDialog } from '@/components/requests/revert-request-dialog';
 
 export default function RequestDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -24,8 +26,12 @@ export default function RequestDetailsPage() {
     const [request, setRequest] = useState<Request | null>(null);
     const [workflow, setWorkflow] = useState<WorkflowStep[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isAssignIpOpen, setIsAssignIpOpen] = useState(false);
     const [isActionLoading, setIsActionLoading] = useState(false);
+
+    // Dialog states
+    const [isAssignIpOpen, setIsAssignIpOpen] = useState(false);
+    const [isApproveOpen, setIsApproveOpen] = useState(false);
+    const [isRevertOpen, setIsRevertOpen] = useState(false);
 
 
     const fetchRequestDetails = async () => {
@@ -86,11 +92,52 @@ export default function RequestDetailsPage() {
         }
     };
 
-    useEffect(() => {
+    const refreshData = () => {
         fetchRequestDetails();
         fetchWorkflow();
+        refreshCounts();
+    }
+
+    useEffect(() => {
+        if (id && token) {
+            refreshData();
+        }
     }, [id, token]);
 
+
+    const handleWorkflowAction = async (statusId: number, remark?: string) => {
+        if (!token || !request) return;
+
+        setIsActionLoading(true);
+        try {
+            const response = await fetch(`https://iprequestapi.globizsapp.com/api/workflows`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                body: JSON.stringify({
+                    ip_request_id: request.id,
+                    status_id: statusId,
+                    remark: remark,
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                toast({ title: "Success", description: "Request status updated." });
+                // Close all dialogs
+                setIsAssignIpOpen(false);
+                setIsApproveOpen(false);
+                setIsRevertOpen(false);
+                refreshData();
+            } else {
+                throw new Error(result.message || "Failed to update workflow.");
+            }
+
+        } catch(error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive"});
+        } finally {
+            setIsActionLoading(false);
+        }
+    }
 
     const handleAssignIp = async (data: { ipAddress: string; speedId: number; remark?: string }) => {
         if (!token || !request) return;
@@ -113,10 +160,7 @@ export default function RequestDetailsPage() {
             if (result.success) {
                 toast({ title: "Success", description: "IP address has been assigned." });
                 setIsAssignIpOpen(false);
-                // Refresh data
-                fetchRequestDetails();
-                fetchWorkflow();
-                refreshCounts();
+                refreshData();
             } else {
                 throw new Error(result.message || "Failed to assign IP.");
             }
@@ -126,6 +170,14 @@ export default function RequestDetailsPage() {
         } finally {
             setIsActionLoading(false);
         }
+    };
+
+    const handleApprove = async ({ remark }: { remark?: string }) => {
+        await handleWorkflowAction(3, remark);
+    };
+
+    const handleRevert = async ({ remark }: { remark: string }) => {
+        await handleWorkflowAction(5, remark);
     };
 
     if (isLoading) {
@@ -210,12 +262,12 @@ export default function RequestDetailsPage() {
                             </CardHeader>
                              <CardContent className="flex gap-4">
                                 {canAssignIp && (
-                                     <Button onClick={() => setIsAssignIpOpen(true)}>Assign IP Address</Button>
+                                     <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
                                 )}
                                 {request.can_approve && (
                                     <>
-                                        <Button>Approve</Button>
-                                        <Button variant="destructive">Revert</Button>
+                                        <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
+                                        <Button variant="destructive" onClick={() => setIsRevertOpen(true)} disabled={isActionLoading}>Revert</Button>
                                     </>
                                 )}
                             </CardContent>
@@ -232,6 +284,22 @@ export default function RequestDetailsPage() {
                 onConfirm={handleAssignIp}
                 isSubmitting={isActionLoading}
             />
+        )}
+        {request.can_approve && (
+            <>
+            <ApproveRequestDialog
+                isOpen={isApproveOpen}
+                onClose={() => setIsApproveOpen(false)}
+                onConfirm={handleApprove}
+                isSubmitting={isActionLoading}
+            />
+            <RevertRequestDialog
+                isOpen={isRevertOpen}
+                onClose={() => setIsRevertOpen(false)}
+                onConfirm={handleRevert}
+                isSubmitting={isActionLoading}
+            />
+            </>
         )}
         </>
     )
