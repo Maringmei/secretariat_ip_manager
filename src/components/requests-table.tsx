@@ -1,4 +1,4 @@
-
+'use client';
 import Link from "next/link";
 import {
   Table,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { Request } from "@/lib/types";
-import { useAuth } from "./auth/auth-provider";
+import { useAuth } from "@/components/auth/auth-provider";
 import { useRouter } from "next/navigation";
 
 interface RequestsTableProps {
