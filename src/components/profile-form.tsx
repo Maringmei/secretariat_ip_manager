@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from './auth/auth-provider';
 
 const profileSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -35,11 +36,17 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchDepartments = async () => {
+      if (!token) return;
       try {
-        const response = await fetch('https://iprequestapi.globizsapp.com/api/departments');
+        const response = await fetch('https://iprequestapi.globizsapp.com/api/departments', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         const result = await response.json();
         if (result.success) {
           setDepartments(result.data);
@@ -59,7 +66,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
       }
     };
     fetchDepartments();
-  }, [toast]);
+  }, [toast, token]);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),

@@ -15,6 +15,7 @@ import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import type { Block, ConnectionSpeed } from '@/lib/types';
+import { useAuth } from './auth/auth-provider';
 
 const requestSchema = z.object({
   macAddress: z.string().regex(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/, 'Invalid MAC address format.'),
@@ -56,11 +57,17 @@ export default function RequestForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [speeds, setSpeeds] = useState<ConnectionSpeed[]>([]);
+  const { token } = useAuth();
 
   useEffect(() => {
     const fetchData = async (url: string, setData: (data: any[]) => void, type: string) => {
+        if (!token) return;
          try {
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const result = await response.json();
             if (result.success) {
                 setData(result.data);
@@ -75,7 +82,7 @@ export default function RequestForm() {
     fetchData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks, 'blocks');
     fetchData('https://iprequestapi.globizsapp.com/api/connectionspeeds', setSpeeds, 'connection speeds');
 
-  }, [toast]);
+  }, [toast, token]);
 
   const form = useForm<z.infer<typeof requestSchema>>({
     resolver: zodResolver(requestSchema),

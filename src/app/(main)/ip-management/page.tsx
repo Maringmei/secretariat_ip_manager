@@ -8,17 +8,24 @@ import { REQUESTS } from "@/lib/data";
 import { Download, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Department, Block } from "@/lib/types";
+import { useAuth } from "@/components/auth/auth-provider";
 
 export default function IPManagementPage() {
     const [departments, setDepartments] = useState<Department[]>([]);
     const [blocks, setBlocks] = useState<Block[]>([]);
+    const { token } = useAuth();
     // In a real app, filters would be stateful and trigger API calls.
     const allocatedIPs = REQUESTS.filter(r => r.status === 'Approved' || r.status === 'Completed');
 
     useEffect(() => {
         const fetchData = async (url: string, setData: (data: any[]) => void) => {
+            if (!token) return;
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 const result = await response.json();
                 if (result.success) {
                     setData(result.data);
@@ -32,7 +39,7 @@ export default function IPManagementPage() {
 
         fetchData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
         fetchData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks);
-    }, []);
+    }, [token]);
 
   return (
     <div className="flex flex-col gap-6">

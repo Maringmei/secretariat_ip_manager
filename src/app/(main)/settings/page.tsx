@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Edit, PlusCircle, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Department, Block, ConnectionSpeed } from "@/lib/types";
+import { useAuth } from "@/components/auth/auth-provider";
 
 const SettingsTable = ({ data, columns }: { data: any[], columns: { key: string, label: string }[] }) => (
     <div className="rounded-md border">
@@ -35,11 +36,17 @@ export default function SettingsPage() {
     const [departments, setDepartments] = useState<Department[]>([]);
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [speeds, setSpeeds] = useState<ConnectionSpeed[]>([]);
+    const { token } = useAuth();
 
     useEffect(() => {
         const fetchData = async (url: string, setData: (data: any[]) => void) => {
+            if (!token) return;
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                     headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 const result = await response.json();
                 if (result.success) {
                     setData(result.data);
@@ -54,7 +61,7 @@ export default function SettingsPage() {
         fetchData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
         fetchData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks);
         fetchData('https://iprequestapi.globizsapp.com/api/connectionspeeds', setSpeeds);
-    }, []);
+    }, [token]);
 
   return (
     <div className="flex flex-col gap-6">
