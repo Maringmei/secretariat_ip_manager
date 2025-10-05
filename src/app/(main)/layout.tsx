@@ -1,6 +1,4 @@
-import AppHeader from '@/components/layout/app-header';
-import AppSidebar from '@/components/layout/app-sidebar';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import AppLayout from "@/components/layout/app-layout";
 
 export default function MainLayout({
   children,
@@ -8,14 +6,8 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <AppHeader />
-        <main className="flex-1 p-4 md:p-6 lg:p-8">
-          {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <AppLayout>
+      {children}
+    </AppLayout>
   );
 }

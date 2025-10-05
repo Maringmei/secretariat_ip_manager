@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Sidebar,
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/sidebar';
 import { ManipurEmblem } from '../icons/manipur-emblem';
 import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut } from 'lucide-react';
-import { MOCK_LOGGED_IN_USER } from '@/lib/data';
+import { useAuth } from '../auth/auth-provider';
 
 const menuItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -31,7 +31,17 @@ const adminMenuItems = [
 
 export default function AppSidebar() {
     const pathname = usePathname();
-    const userRole = MOCK_LOGGED_IN_USER.role;
+    const { user, logout } = useAuth();
+    const router = useRouter();
+
+    // In a real app, role would come from the authenticated user object.
+    // For now, we simulate it. 'admin' can see everything.
+    const userRole = user?.type === 'official' ? 'admin' : 'staff'; 
+
+    const handleLogout = () => {
+      logout();
+      router.push('/');
+    };
 
   return (
     <Sidebar>
@@ -69,11 +79,9 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenuButton asChild tooltip="Logout">
-            <Link href="/">
-                <LogOut />
-                <span>Logout</span>
-            </Link>
+        <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
+          <LogOut />
+          <span>Logout</span>
         </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>
