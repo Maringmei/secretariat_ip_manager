@@ -1,3 +1,4 @@
+
 'use client';
 import RequestsTable from "@/components/requests-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +27,28 @@ export default function NewRequestsPage() {
                 const result = await response.json();
                 if (result.success) {
                     // The API returns a paginated response, we need to extract the data array
-                    setRequests(result.data.data || []);
+                    // and map it to our Request type
+                    const apiRequests = result.data.data || [];
+                    const formattedRequests: Request[] = apiRequests.map((req: any) => ({
+                        id: req.id,
+                        request_number: req.request_number,
+                        first_name: req.first_name,
+                        last_name: req.last_name,
+                        designation: req.designation,
+                        department_name: req.department_name,
+                        status: req.status_name as Request['status'],
+                        requestedAt: new Date(req.created_at),
+                        status_name: req.status_name,
+                        status_background_color: req.status_background_color,
+                        status_foreground_color: req.status_foreground_color,
+                        // Add dummy workflow for compatibility with table component, can be removed if table is updated
+                        workflow: [{
+                            step: 'Request Submitted',
+                            actor: `${req.first_name} ${req.last_name}`,
+                            timestamp: new Date(req.created_at),
+                        }]
+                    }));
+                    setRequests(formattedRequests);
                 } else {
                     toast({
                         title: "Error",

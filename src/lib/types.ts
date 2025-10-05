@@ -1,6 +1,7 @@
+
 export type Role = 'staff' | 'director' | 'coordinator' | 'admin';
 
-export type RequestStatus = 'Pending' | 'Assigned' | 'Pending Approval' | 'Approved' | 'Reverted' | 'Completed';
+export type RequestStatus = 'Pending' | 'Assigned' | 'Pending Approval' | 'Approved' | 'Reverted' | 'Completed' | 'New';
 
 // Based on /api/auth/verify-otp response
 export interface User {
@@ -50,11 +51,26 @@ export interface WorkflowStep {
 }
 
 export interface Request {
-  id: string;
-  userId: string | number;
-  macAddress: string;
-  roomNo: string;
-  block: string; // blockId
+  // Fields from new requests API
+  id: string | number;
+  request_number?: number;
+  first_name?: string;
+  last_name?: string;
+  designation?: string;
+  department_name?: string;
+  block_name?: string;
+  section?: string;
+  room_no?: string;
+  e_office_onboarded?: string;
+  created_at?: string;
+  status_name?: RequestStatus;
+  status_foreground_color?: string;
+  status_background_color?: string;
+
+  // Fields from old mock data, some overlap
+  userId?: string | number;
+  macAddress?: string;
+  block?: string; // blockId
   status: RequestStatus;
   requestedAt: Date;
   privateIp?: string;

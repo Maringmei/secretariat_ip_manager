@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Request, RequestStatus } from "@/lib/types";
-import { DEPARTMENTS, MOCK_LOGGED_IN_USER } from "@/lib/data";
+import { MOCK_LOGGED_IN_USER } from "@/lib/data";
 import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
@@ -26,12 +26,8 @@ const statusColors: Record<RequestStatus, string> = {
     Approved: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
     Completed: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
     Reverted: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
+    New: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300", // Default for 'New'
 };
-
-
-const getDepartmentName = (id: string) => {
-    return DEPARTMENTS.find(d => d.id === id)?.name || "Unknown";
-}
 
 
 export default function RequestsTable({ requests = [] }: RequestsTableProps) {
@@ -55,11 +51,19 @@ export default function RequestsTable({ requests = [] }: RequestsTableProps) {
       <TableBody>
         {requests.map((request) => (
           <TableRow key={request.id}>
-            <TableCell className="font-medium">{request.id}</TableCell>
-            <TableCell>{request.workflow[0]?.actor || 'Unknown User'}</TableCell>
-            <TableCell className="hidden md:table-cell">{getDepartmentName(request.block)}</TableCell>
+            <TableCell className="font-medium">{request.request_number || request.id}</TableCell>
+            <TableCell>{request.first_name ? `${request.first_name} ${request.last_name || ''}` : (request.workflow && request.workflow[0]?.actor) || 'Unknown User'}</TableCell>
+            <TableCell className="hidden md:table-cell">{request.department_name || 'N/A'}</TableCell>
             <TableCell>
-              <Badge className={`border-transparent ${statusColors[request.status]}`}>{request.status}</Badge>
+              <Badge 
+                className={`border-transparent`}
+                style={{
+                  backgroundColor: request.status_background_color,
+                  color: request.status_foreground_color
+                }}
+              >
+                {request.status_name || request.status}
+              </Badge>
             </TableCell>
             <TableCell className="hidden md:table-cell">{new Date(request.requestedAt).toLocaleDateString()}</TableCell>
             <TableCell>
