@@ -15,22 +15,28 @@ import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import type { Block, ConnectionSpeed, Department } from '@/lib/types';
 import { useAuth } from './auth/auth-provider';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+
+const macAddressRegex = /^(?:[0-9A-Fa-f]{2}([:-]?))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}$|^[0-9A-Fa-f]{12}$/;
+const emailRegex = /^[a-zA-Z0-9._%+-]+@(gov\.in|nic\.in)$/;
 
 const requestSchema = z.object({
-  macAddress: z.string().regex(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/, 'Invalid MAC address format.'),
-  roomNo: z.string().min(1, 'Room number is required'),
-  block: z.string({ required_error: 'Please select a block.' }),
-  connectionSpeed: z.string({ required_error: 'Please select a connection speed.' }),
+  mac_address: z.string().regex(macAddressRegex, 'Invalid MAC address format.'),
+  room_no: z.string().min(1, 'Room number is required'),
+  block_id: z.string({ required_error: 'Please select a block.' }),
+  connectionSpeed: z.string().optional(), // This field is not in the final API body, but might be kept in UI
+  reporting_officer: z.string().min(2, 'Reporting officer is required'),
+  section: z.string().min(1, 'Section is required'),
+  e_office_onboarded: z.enum(['1', '0'], { required_error: 'This field is required.' }),
   consent: z.literal<boolean>(true, {
     errorMap: () => ({ message: 'You must agree to the terms to proceed.' }),
   }),
 });
 
 const UserInfoDisplay = () => {
-    const { user } = useAuth();
+    const { user, token } = useAuth();
     const [departmentName, setDepartmentName] = useState('');
     const [departments, setDepartments] = useState<Department[]>([]);
-    const { token } = useAuth();
 
      useEffect(() => {
         const fetchDepartments = async () => {
@@ -74,6 +80,7 @@ const UserInfoDisplay = () => {
                     <div><strong>Designation:</strong> {user.designation}</div>
                     <div><strong>Department:</strong> {departmentName}</div>
                     <div><strong>Email:</strong> {user.email}</div>
+                    <div><strong>WhatsApp:</strong> {user.whatsapp_no}</div>
                 </div>
             </CardContent>
         </Card>
@@ -86,8 +93,7 @@ export default function RequestForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [blocks, setBlocks] = useState<Block[]>([]);
-  const [speeds, setSpeeds] = useState<ConnectionSpeed[]>([]);
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   useEffect(() => {
     const fetchData = async (url: string, setData: (data: any[]) => void, type: string) => {
@@ -110,29 +116,80 @@ export default function RequestForm() {
     };
 
     fetchData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks, 'blocks');
-    fetchData('https://iprequestapi.globizsapp.com/api/connectionspeeds', setSpeeds, 'connection speeds');
 
   }, [toast, token]);
 
   const form = useForm<z.infer<typeof requestSchema>>({
     resolver: zodResolver(requestSchema),
     defaultValues: {
-      macAddress: '',
-      roomNo: '',
+      mac_address: '',
+      room_no: '',
+      reporting_officer: '',
+      section: '',
       consent: false,
     },
   });
 
-  function onSubmit(values: z.infer<typeof requestSchema>) {
+  async function onSubmit(values: z.infer<typeof requestSchema>) {
+    if (!token || !user) {
+        toast({ title: 'Authentication Error', description: 'Could not verify user. Please log in again.', variant: 'destructive'});
+        return;
+    }
+
+    if (!user.email || !emailRegex.test(user.email)) {
+        toast({ title: 'Invalid Email', description: 'Your profile email must be a valid gov.in or nic.in address.', variant: 'destructive'});
+        return;
+    }
+
     setIsLoading(true);
-    setTimeout(() => {
-        setIsLoading(false);
-        toast({
-            title: 'Request Submitted!',
-            description: 'Your IP request (REQ005) has been submitted for processing.',
+    
+    const requestBody = {
+        first_name: user.first_name || user.name?.split(' ')[0],
+        last_name: user.last_name || user.name?.split(' ').slice(1).join(' '),
+        department_id: parseInt(user.department || '0', 10),
+        reporting_officer: values.reporting_officer,
+        designation: user.designation,
+        ein_sin: user.ein_sin,
+        email: user.email,
+        mobile_no: user.whatsapp_no,
+        section: values.section,
+        room_no: values.room_no,
+        block_id: parseInt(values.block_id, 10),
+        e_office_onboarded: values.e_office_onboarded,
+        mac_address: values.mac_address,
+    };
+
+    try {
+        const response = await fetch('https://iprequestapi.globizsapp.com/api/ip-requests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(requestBody),
         });
-        router.push('/dashboard');
-    }, 1500)
+
+        const result = await response.json();
+
+        if (result.success) {
+            toast({
+                title: 'Request Submitted!',
+                description: result.message || 'Your IP request has been submitted for processing.',
+            });
+            router.push('/dashboard');
+        } else {
+            throw new Error(result.message || 'Failed to submit request.');
+        }
+
+    } catch (error: any) {
+        toast({
+            title: 'Submission Failed',
+            description: error.message || 'An unexpected error occurred.',
+            variant: 'destructive'
+        });
+    } finally {
+        setIsLoading(false);
+    }
   }
 
   return (
@@ -141,15 +198,21 @@ export default function RequestForm() {
         <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FormField control={form.control} name="macAddress" render={({ field }) => (
-                <FormItem><FormLabel>Computer MAC Address</FormLabel><FormControl><Input placeholder="00:1A:2B:3C:4D:5E" {...field} /></FormControl><FormMessage /></FormItem>
-            )}/>
-            <FormField control={form.control} name="roomNo" render={({ field }) => (
-                <FormItem><FormLabel>Room No.</FormLabel><FormControl><Input placeholder="e.g., 301" {...field} /></FormControl><FormMessage /></FormItem>
-            )}/>
+              <FormField control={form.control} name="mac_address" render={({ field }) => (
+                  <FormItem><FormLabel>Computer MAC Address</FormLabel><FormControl><Input placeholder="00:1A:2B:3C:4D:5E" {...field} /></FormControl><FormMessage /></FormItem>
+              )}/>
+              <FormField control={form.control} name="room_no" render={({ field }) => (
+                  <FormItem><FormLabel>Room No.</FormLabel><FormControl><Input placeholder="e.g., 301" {...field} /></FormControl><FormMessage /></FormItem>
+              )}/>
+              <FormField control={form.control} name="section" render={({ field }) => (
+                <FormItem><FormLabel>Section</FormLabel><FormControl><Input placeholder="e.g., Sec A" {...field} /></FormControl><FormMessage /></FormItem>
+              )}/>
+              <FormField control={form.control} name="reporting_officer" render={({ field }) => (
+                  <FormItem><FormLabel>Reporting Officer</FormLabel><FormControl><Input placeholder="Officer's name" {...field} /></FormControl><FormMessage /></FormItem>
+              )}/>
             </div>
              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <FormField control={form.control} name="block" render={({ field }) => (
+                <FormField control={form.control} name="block_id" render={({ field }) => (
                 <FormItem>
                     <FormLabel>Block</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -159,14 +222,16 @@ export default function RequestForm() {
                     <FormMessage />
                 </FormItem>
                 )}/>
-                <FormField control={form.control} name="connectionSpeed" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Connection Speed</FormLabel>
-                        <Select onValuechange={field.onChange} defaultValue={field.value}>
-                        <FormControl><SelectTrigger><SelectValue placeholder="Select a speed" /></SelectTrigger></FormControl>
-                        <SelectContent>{speeds.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}</SelectContent>
-                        </Select>
-                        <FormMessage />
+                <FormField control={form.control} name="e_office_onboarded" render={({ field }) => (
+                    <FormItem className="space-y-3">
+                    <FormLabel>E-office Onboarded?</FormLabel>
+                    <FormControl>
+                        <RadioGroup onValueChange={field.onChange} value={field.value} className="flex items-center space-x-4 pt-2">
+                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="1" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="0" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                        </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
                     </FormItem>
                 )}/>
             </div>
