@@ -106,11 +106,19 @@ export function LoginForm() {
 
       if (result.success && result.data.accessToken) {
         login(result.data.accessToken, result.data);
+
+        // Check if it's a new user needing a profile
+        if (!result.data.name) {
+          localStorage.setItem('isNewUser', 'true');
+        }
+
         toast({
           title: 'Success',
           description: 'Login successful!'
         });
+
         router.push('/dashboard');
+        
       } else {
         throw new Error(result.message || 'OTP verification failed. Please try again.');
       }

@@ -21,9 +21,9 @@ const profileSchema = z.object({
   designation: z.string().min(2, 'Designation is required'),
   department: z.string({ required_error: 'Please select a department.' }),
   reportingOfficer: z.string().min(2, 'Reporting officer is required'),
-  ein_sin: z.string().min(5, 'A valid EIN/SIN is required'),
+  ein_sin: z.string().min(1, 'A valid EIN/SIN is required'),
   eofficeOnboarded: z.enum(['yes', 'no'], { required_error: 'This field is required.' }),
-  email: z.string().email().refine(val => val.endsWith('.gov.in') || val.endsWith('.nic.in'), 'Email must be a .gov.in or .nic.in address.'),
+  email: z.string().email("Invalid email address"),
   whatsapp_no: z.string().length(10, 'WhatsApp number must be 10 digits.'),
 });
 
@@ -50,7 +50,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         ein_sin: '',
         eofficeOnboarded: 'no',
         email: '',
-        whatsapp_no: '',
+        whatsapp_no: user?.whatsapp_no || '',
     },
   });
 
@@ -90,7 +90,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const result = await response.json();
-            if (result.success) {
+            if (result.success && result.data) {
                 const profileData = result.data;
                 const department = departments.find(d => d.name === profileData.department_name);
 
@@ -103,10 +103,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     ein_sin: profileData.ein_sin || '',
                     eofficeOnboarded: 'no', // API response doesn't have this
                     email: profileData.email || '',
-                    whatsapp_no: profileData.whatsapp_no || '',
+                    whatsapp_no: profileData.whatsapp_no || authUser?.whatsapp_no || '',
                 });
-            } else {
-                toast({ title: "Error", description: result.message || "Failed to fetch profile data.", variant: "destructive" });
+            } else if (result.success && !result.data) {
+                // This is a new user, form is pre-filled with defaults.
+            }
+            else {
+                toast({ title: "Note", description: result.message || "Could not fetch profile data. Please create one.", variant: "default" });
             }
         } catch (error) {
             toast({ title: "Error", description: "An error occurred while fetching your profile.", variant: "destructive" });
@@ -117,8 +120,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
     
     if (departments.length > 0) {
       fetchProfile();
+    } else {
+        setIsLoading(false);
     }
-  }, [token, departments, form, toast]);
+  }, [token, departments, form, toast, authUser]);
 
 
   async function onSubmit(values: z.infer<typeof profileSchema>) {
@@ -155,12 +160,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
             });
             // Optionally update user in auth context if name changes
             if (authUser) {
-                const updatedUser = { ...authUser, name: `${values.first_name} ${values.last_name}`, designation: values.designation };
+                const updatedUser = { ...authUser, name: `${values.first_name} ${values.last_name}`, designation: values.designation, profileComplete: true };
                 const storedToken = localStorage.getItem('accessToken');
                 if (storedToken) {
                     login(storedToken, updatedUser);
                 }
             }
+            localStorage.removeItem('isNewUser');
             router.push('/dashboard');
         } else {
             throw new Error(result.message || 'Failed to update profile.');
@@ -186,13 +192,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <FormField control={form.control} name="first_name" render={({ field }) => (
-                <FormItem><FormLabel>First Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Your first name" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
             <FormField control={form.control} name="last_name" render={({ field }) => (
-                <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Your last name" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
             <FormField control={form.control} name="designation" render={({ field }) => (
-                <FormItem><FormLabel>Designation</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="Your designation" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
             <FormField control={form.control} name="department" render={({ field }) => (
             <FormItem>
@@ -208,7 +214,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 <FormItem><FormLabel>Reporting Officer</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
             <FormField control={form.control} name="ein_sin" render={({ field }) => (
-                <FormItem><FormLabel>EIN / SIN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>EIN / SIN</FormLabel><FormControl><Input placeholder="Your Employee/Service ID" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
         </div>
         <FormField control={form.control} name="eofficeOnboarded" render={({ field }) => (
@@ -225,10 +231,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
         )}/>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="your.email@gov.in" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
             <FormField control={form.control} name="whatsapp_no" render={({ field }) => (
-                <FormItem><FormLabel>WhatsApp No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>WhatsApp No.</FormLabel><FormControl><Input placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
         </div>
         <div className="flex justify-end">
