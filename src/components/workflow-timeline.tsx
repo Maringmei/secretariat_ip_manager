@@ -7,9 +7,11 @@ interface WorkflowTimelineProps {
 }
 
 const stepIcons: Record<string, React.ReactNode> = {
+    'New': <Send className="h-5 w-5" />,
     'Request Submitted': <Send className="h-5 w-5" />,
     'IP Assigned': <GitPullRequestArrow className="h-5 w-5" />,
-    'Approved': <FileCheck className="h-5 w-5" />,
+    'Approved': <FileCheck className="h-5 w-5 text-green-600" />,
+    'Rejected': <XCircle className="h-5 w-5 text-destructive" />,
     'Reverted': <XCircle className="h-5 w-5 text-destructive" />,
     'Completed': <CheckCircle className="h-5 w-5 text-green-600" />,
 }

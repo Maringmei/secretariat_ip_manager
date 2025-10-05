@@ -78,7 +78,13 @@ export default function RequestDetailsPage() {
             });
             const result = await response.json();
             if (result.success && Array.isArray(result.data)) {
-                setWorkflow(result.data);
+                const formattedWorkflow = result.data.map((item: any) => ({
+                    step: item.status_name,
+                    timestamp: item.date,
+                    actor: item.action_by,
+                    remarks: item.remark
+                }));
+                setWorkflow(formattedWorkflow);
             } else {
                 setWorkflow([]);
                 console.warn("Could not load workflow or workflow is empty.");
