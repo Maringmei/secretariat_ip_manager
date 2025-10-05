@@ -117,6 +117,15 @@ export default function UserManagementPage() {
         });
     }
 
+    const handleClearFilters = () => {
+        setNameFilter('');
+        setDesignationFilter('');
+        setUsernameFilter('');
+        setEmailFilter('');
+        setRoleFilter('');
+        fetchUsers();
+    }
+
     const handleCreateUser = async (newUser: Omit<User, 'id'>) => {
         if (!token) return;
         try {
@@ -187,7 +196,7 @@ export default function UserManagementPage() {
                     <CardDescription>Manage officials and their roles within the system.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                    <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         <div className="relative">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input placeholder="Filter by Name" className="pl-8" value={nameFilter} onChange={e => setNameFilter(e.target.value)} />
@@ -210,6 +219,7 @@ export default function UserManagementPage() {
                                     <SelectValue placeholder="Filter by Role" />
                                 </SelectTrigger>
                                 <SelectContent>
+                                    <SelectItem value="">All Roles</SelectItem>
                                     {roles.map((r, i) => <SelectItem key={i} value={r.role}>{r.role}</SelectItem>)}
                                 </SelectContent>
                             </Select>
@@ -219,7 +229,10 @@ export default function UserManagementPage() {
                                 </Button>
                             )}
                         </div>
-                        <Button onClick={handleApplyFilters}>Apply Filter</Button>
+                        <div className="flex gap-2">
+                            <Button onClick={handleApplyFilters} className="flex-1">Apply Filter</Button>
+                            <Button onClick={handleClearFilters} variant="outline" className="flex-1">Clear Filter</Button>
+                        </div>
                     </div>
 
                     {isLoading ? (
