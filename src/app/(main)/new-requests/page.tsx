@@ -26,7 +26,7 @@ export default function NewRequestsPage() {
                 const result = await response.json();
                 if (result.success) {
                     // The API returns a paginated response, we need to extract the data array
-                    setRequests(result.data.data);
+                    setRequests(result.data.data || []);
                 } else {
                     toast({
                         title: "Error",
@@ -45,7 +45,11 @@ export default function NewRequestsPage() {
             }
         };
 
-        fetchRequests();
+        if (token) {
+            fetchRequests();
+        } else {
+            setIsLoading(false);
+        }
     }, [token, toast]);
 
     return (

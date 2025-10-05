@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import {
   Table,
@@ -33,7 +34,7 @@ const getDepartmentName = (id: string) => {
 }
 
 
-export default function RequestsTable({ requests }: RequestsTableProps) {
+export default function RequestsTable({ requests = [] }: RequestsTableProps) {
     const userRole = MOCK_LOGGED_IN_USER.role;
 
   return (
