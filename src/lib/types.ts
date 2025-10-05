@@ -10,18 +10,13 @@ export interface User {
   designation: string;
   type: 'official' | 'requester';
   access?: string[];
+  // from profile API
+  department_name?: string;
   // Deprecated fields from old mock data, kept for compatibility for now
-  firstName?: string;
-  lastName?: string;
   department?: string; // departmentId
-  reportingOfficer?: string;
-  einOrSin?: string;
   ein_sin?: string;
-  eofficeOnboarded?: boolean;
   email?: string;
-  whatsappNo?: string;
   whatsapp_no?: string;
-  role?: Role;
   profileComplete?: boolean;
   first_name?: string;
   last_name?: string;
@@ -51,29 +46,39 @@ export interface WorkflowStep {
 }
 
 export interface Request {
-  // Fields from new requests API
-  id: string | number;
-  request_number?: number;
-  first_name?: string;
-  last_name?: string;
-  designation?: string;
-  department_name?: string;
-  block_name?: string;
-  section?: string;
-  room_no?: string;
-  e_office_onboarded?: string;
-  created_at?: string;
-  status_name?: RequestStatus;
-  status_foreground_color?: string;
-  status_background_color?: string;
+  // Common fields
+  id: number;
+  request_number: number;
+  first_name: string;
+  last_name: string;
+  designation: string;
+  department_name: string;
+  room_no: string;
+  section: string;
+  block_name: string;
+  e_office_onboarded: '0' | '1';
+  created_at: string;
+  status_name: RequestStatus;
+  status_foreground_color: string;
+  status_background_color: string;
+  requestedAt: Date; // Manually added client-side for convenience
 
-  // Fields from old mock data, some overlap
+  // Fields for details view
+  reporting_officer?: string;
+  ein_sin?: string;
+  mobile_no?: string;
+  email?: string;
+  mac_address?: string;
+  status_id?: number;
+  ip_address?: string;
+  connection_speed?: string;
+  can_approve?: boolean;
+
+  // Fields for table view (might be deprecated if details are always fetched)
   userId?: string | number;
-  macAddress?: string;
   block?: string; // blockId
   status: RequestStatus;
-  requestedAt: Date;
   privateIp?: string;
   connectionSpeed?: string; // speedId
-  workflow: WorkflowStep[];
+  workflow?: WorkflowStep[];
 }
