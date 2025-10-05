@@ -31,7 +31,7 @@ export default function LoginPage() {
       <div className="flex w-full max-w-md flex-col items-center text-center">
         <ManipurEmblem className="mb-6 text-primary" width={150} height={150}/>
         <h1 className="font-headline text-3xl font-bold text-primary">
-          Critical Infrastructure Portal, Manipur
+          Critical Infrastructure Portal, Government of Manipur
         </h1>
         <p className="mt-2 text-muted-foreground">
           Streamlining IP Address Requests and Allocation
