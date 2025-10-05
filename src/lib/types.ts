@@ -1,6 +1,6 @@
 
 
-export type Role = 'staff' | 'director' | 'coordinator' | 'admin';
+export type Role = 'staff' | 'director' | 'coordinator' | 'admin' | string;
 
 export type RequestStatus = 'Pending' | 'Assigned' | 'Pending Approval' | 'Approved' | 'Reverted' | 'Completed' | 'New';
 
@@ -9,11 +9,11 @@ export interface User {
   id: number;
   name: string;
   designation: string;
-  type: 'official' | 'requester';
+  type?: 'official' | 'requester';
   access?: string[];
   // from profile API
   department_name?: string;
-  // from login response
+  // from login response or user list
   role?: Role;
 
   // from profile form/API
@@ -25,6 +25,7 @@ export interface User {
   first_name?: string;
   last_name?: string;
   eofficeOnboarded?: boolean;
+  username?: string;
 }
 
 export interface SettingItem {

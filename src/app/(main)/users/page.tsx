@@ -5,13 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
-import type { User } from "@/lib/types";
+import type { User, Role } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, PlusCircle } from "lucide-react";
-
-interface Role {
-    role: string;
-}
+import { AddUserDialog } from "@/components/users/add-user-dialog";
 
 export default function UserManagementPage() {
     const { token } = useAuth();
@@ -19,53 +16,100 @@ export default function UserManagementPage() {
     const [users, setUsers] = useState<User[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAddUserOpen, setIsAddUserOpen] = useState(false);
 
-    useEffect(() => {
-        const fetchData = async (url: string, setData: (data: any) => void, entity: string) => {
-            if (!token) {
-                setIsLoading(false);
-                return;
-            }
-            try {
-                const response = await fetch(url, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const result = await response.json();
-                if (result.success) {
-                    setData(result.data);
-                } else {
-                    toast({
-                        title: "Error",
-                        description: `Could not load ${entity}.`,
-                        variant: "destructive",
-                    });
-                }
-            } catch (error) {
-                 toast({
+    const fetchUsers = async () => {
+        if (!token) return;
+        setIsLoading(true);
+         try {
+            const response = await fetch('https://iprequestapi.globizsapp.com/api/profiles?page=1&name=&designation=&username=&email=&status=', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const result = await response.json();
+            if (result.success) {
+                setUsers(result.data);
+            } else {
+                toast({
                     title: "Error",
-                    description: `An unexpected error occurred while fetching ${entity}.`,
+                    description: `Could not load users.`,
                     variant: "destructive",
                 });
             }
-        };
-
-        const fetchAllData = async () => {
-            setIsLoading(true);
-            await Promise.all([
-                fetchData('https://iprequestapi.globizsapp.com/api/profiles?page=1&name=&designation=&username=&email=&status=', setUsers, 'users'),
-                fetchData('https://iprequestapi.globizsapp.com/api/auth/roles', setRoles, 'roles')
-            ]);
+        } catch (error) {
+             toast({
+                title: "Error",
+                description: `An unexpected error occurred while fetching users.`,
+                variant: "destructive",
+            });
+        } finally {
             setIsLoading(false);
-        };
+        }
+    }
 
-        fetchAllData();
-    }, [token, toast]);
+    const fetchRoles = async () => {
+         if (!token) return;
+         try {
+            const response = await fetch('https://iprequestapi.globizsapp.com/api/auth/roles', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const result = await response.json();
+            if (result.success) {
+                setRoles(result.data);
+            } else {
+                 toast({
+                    title: "Error",
+                    description: `Could not load roles.`,
+                    variant: "destructive",
+                });
+            }
+        } catch (error) {
+              toast({
+                title: "Error",
+                description: `An unexpected error occurred while fetching roles.`,
+                variant: "destructive",
+            });
+        }
+    }
+
+    useEffect(() => {
+        if (token) {
+            fetchUsers();
+            fetchRoles();
+        } else {
+            setIsLoading(false);
+        }
+    }, [token]);
+
+    const handleCreateUser = async (newUser: Omit<User, 'id'>) => {
+        if (!token) return;
+        try {
+            const response = await fetch('https://iprequestapi.globizsapp.com/api/profiles', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(newUser)
+            });
+            const result = await response.json();
+            if (result.success) {
+                toast({ title: 'Success', description: 'User added successfully.' });
+                fetchUsers(); // Refresh user list
+                setIsAddUserOpen(false);
+            } else {
+                throw new Error(result.message || 'Failed to add user.');
+            }
+        } catch (error: any) {
+            toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        }
+    };
+
 
     return (
         <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
                 <h1 className="font-headline text-3xl font-bold">User Management</h1>
-                <Button>
+                <Button onClick={() => setIsAddUserOpen(true)}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add User
                 </Button>
@@ -97,6 +141,12 @@ export default function UserManagementPage() {
                     )}
                 </CardContent>
             </Card>
+            <AddUserDialog
+                isOpen={isAddUserOpen}
+                onClose={() => setIsAddUserOpen(false)}
+                onConfirm={handleCreateUser}
+                roles={roles}
+            />
         </div>
     );
 }
