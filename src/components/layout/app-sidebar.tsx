@@ -20,7 +20,7 @@ import type { Role } from '@/lib/types';
 const menuItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/requests', label: 'My Requests', icon: FileText, types: ['requester'] },
-    { href: '/profile', label: 'My Profile', icon: User, types: ['requester'] },
+    { href: '/profile', label: 'My Profile', icon: User },
 ];
 
 const adminMenuItems = [

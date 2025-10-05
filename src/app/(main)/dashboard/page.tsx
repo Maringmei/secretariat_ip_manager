@@ -1,3 +1,4 @@
+'use client';
 import { MOCK_LOGGED_IN_USER, REQUESTS, DEPARTMENTS, CONNECTION_SPEEDS } from "@/lib/data";
 import type { Role } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -138,8 +139,10 @@ const DashboardByRole = ({ role }: { role: Role }) => {
 export default function DashboardPage() {
   const { user } = useAuth();
   
+  if (!user) return null;
+
   // A bit of a hack to map API type to internal Role type
-  const userRole: Role = user?.type === 'official' ? 'admin' : 'staff';
+  const userRole: Role = user?.type === 'official' ? (user.role || 'admin') : 'staff';
 
   return <DashboardByRole role={userRole} />;
 }
