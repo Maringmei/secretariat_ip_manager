@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -5,10 +6,10 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { useToast } from '@/hooks/use-toast';
 
 interface Counts {
-  new_requests?: number;
+  new?: number;
   pending_approval?: number;
-  approved_requests?: number;
-  rejected_requests?: number;
+  approved?: number;
+  rejected_requests?: number; // This one might be from a different API or old, keeping for now
   [key: string]: number | undefined;
 }
 
