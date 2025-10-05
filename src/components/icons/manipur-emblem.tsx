@@ -1,7 +1,7 @@
-import type { SVGProps } from 'react';
+import type { ImgHTMLAttributes } from 'react';
 
-export function ManipurEmblem(props: SVGProps<SVGSVGElement>) {
+export function ManipurEmblem(props: ImgHTMLAttributes<HTMLImageElement>) {
   return (
-    <img src='images/logo.png' alt="kanglasha"/>
+    <img src='/images/logo.png' alt="kanglasha" {...props} />
   );
 }
