@@ -1,3 +1,4 @@
+
 'use client';
 import RequestsTable from "@/components/requests-table";
 import { Button } from "@/components/ui/button";
@@ -7,12 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { REQUESTS } from "@/lib/data";
 import { Download, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { Department, Block } from "@/lib/types";
+import type { Department, Block, Status } from "@/lib/types";
 import { useAuth } from "@/components/auth/auth-provider";
 
 export default function IPManagementPage() {
     const [departments, setDepartments] = useState<Department[]>([]);
     const [blocks, setBlocks] = useState<Block[]>([]);
+    const [statuses, setStatuses] = useState<Status[]>([]);
     const { token } = useAuth();
     // In a real app, filters would be stateful and trigger API calls.
     const allocatedIPs = REQUESTS.filter(r => r.status === 'Approved' || r.status === 'Completed');
@@ -39,6 +41,7 @@ export default function IPManagementPage() {
 
         fetchData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
         fetchData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks);
+        fetchData('https://iprequestapi.globizsapp.com/api/statuses', setStatuses);
     }, [token]);
 
   return (
@@ -76,6 +79,14 @@ export default function IPManagementPage() {
                 </SelectTrigger>
                 <SelectContent>
                     {blocks.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>)}
+                </SelectContent>
+            </Select>
+            <Select>
+                <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Filter by Status" />
+                </SelectTrigger>
+                <SelectContent>
+                    {statuses.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}
                 </SelectContent>
             </Select>
             <Button>Apply Filters</Button>

@@ -82,7 +82,12 @@ export interface Request {
   userId?: string | number;
   block?: string; // blockId
   status: RequestStatus; // Old status field, for compatibility
-  privateIp?: string;
-  connectionSpeed?: string; // speedId
   workflow?: WorkflowStep[];
+}
+
+export interface Status {
+  id: number;
+  name: string;
+  foreground_color: string;
+  background_color: string;
 }
