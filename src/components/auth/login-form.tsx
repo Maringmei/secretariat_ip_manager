@@ -218,21 +218,21 @@ export function LoginForm() {
                         form.clearErrors('mobile');
                       }
                     }}
-                    className="pl-10 pr-10" 
+                    className="pl-10 pr-24" 
                     disabled={isOtpSent}
                     maxLength={10}
                   />
                   <button
                     type="button"
                     title="Send OTP"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-primary hover:text-primary/80 transition-colors disabled:opacity-50"
                     onClick={sendOtp}
                     disabled={isOtpSent || isOtpLoading || field.value.length !== 10}
                   >
                     {isOtpLoading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Send className="h-4 w-4" />
+                      'Send OTP'
                     )}
                   </button>
                 </div>
