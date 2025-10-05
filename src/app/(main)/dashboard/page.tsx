@@ -8,6 +8,7 @@ import RequestsTable from "@/components/requests-table";
 import Link from "next/link";
 import SpeedChart from "@/components/dashboard/speed-chart";
 import DepartmentAllocationsChart from "@/components/dashboard/department-allocations-chart";
+import { useAuth } from "@/components/auth/auth-provider";
 
 const AdminDashboard = () => {
     const pendingRequests = REQUESTS.filter(r => r.status === 'Pending' || r.status === 'Pending Approval').length;
@@ -89,14 +90,16 @@ const DirectorDashboard = () => {
 };
 
 const StaffDashboard = () => {
-    const user = MOCK_LOGGED_IN_USER;
+    const { user } = useAuth();
+    if (!user) return null;
+
     const myRequests = REQUESTS.filter(r => r.userId === user.id);
 
     return (
         <div className="flex flex-col gap-6">
             <Card className="bg-primary text-primary-foreground">
                 <CardHeader>
-                    <CardTitle className="font-headline">Welcome, {user.firstName}!</CardTitle>
+                    <CardTitle className="font-headline">Welcome, {user.name}!</CardTitle>
                     <CardDescription className="text-primary-foreground/80">Ready to get connected? Submit a new IP request here.</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -133,6 +136,10 @@ const DashboardByRole = ({ role }: { role: Role }) => {
 };
 
 export default function DashboardPage() {
-  const userRole = MOCK_LOGGED_IN_USER.role;
+  const { user } = useAuth();
+  
+  // A bit of a hack to map API type to internal Role type
+  const userRole: Role = user?.type === 'official' ? 'admin' : 'staff';
+
   return <DashboardByRole role={userRole} />;
 }

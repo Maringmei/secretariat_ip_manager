@@ -1,52 +1,52 @@
 import type { User, Department, Block, ConnectionSpeed, Request, RequestStatus, Role } from './types';
 
 export const MOCK_USER_STAFF: User = {
-  id: 'user-staff-1',
-  firstName: 'Manbi',
-  lastName: 'Chanu',
+  id: 2,
+  name: 'Manbi Chanu',
   designation: 'Section Officer',
   department: 'dept-home',
   reportingOfficer: 'A. Subhash',
-  einOrSin: '10023',
+  ein_sin: '10023',
   eofficeOnboarded: true,
   email: 'manbi.c@nic.in',
-  whatsappNo: '9876543210',
+  whatsapp_no: '9876543210',
   role: 'staff',
   profileComplete: true,
+  type: 'requester'
 };
 
 export const MOCK_USER_DIRECTOR: User = {
-    id: 'user-director-1',
-    firstName: 'Arambam',
-    lastName: 'Subhash',
+    id: 3,
+    name: 'Arambam Subhash',
     designation: 'Joint Director',
     department: 'dept-it',
     reportingOfficer: 'Jane Smith',
-    einOrSin: '123456',
+    ein_sin: '123456',
     eofficeOnboarded: true,
     email: 'a.subhash@gov.in',
-    whatsappNo: '9876543210',
+    whatsapp_no: '9876543210',
     role: 'director',
     profileComplete: true,
+    type: 'requester'
   };
 
 export const MOCK_USER_ADMIN: User = {
-    id: 'user-admin-1',
-    firstName: 'Sonia',
-    lastName: 'Heikrujam',
+    id: 1,
+    name: 'Admin User',
     designation: 'System Administrator',
     department: 'dept-it',
     reportingOfficer: 'N/A',
-    einOrSin: '10001',
+    ein_sin: '10001',
     eofficeOnboarded: true,
-    email: 'sonia.h@nic.in',
-    whatsappNo: '9123456789',
+  email: 'sonia.h@nic.in',
+  whatsapp_no: '9123456789',
     role: 'admin',
     profileComplete: true,
+    type: 'official'
 };
 
 // Set this to the user you want to simulate being logged in
-export const MOCK_LOGGED_IN_USER = MOCK_USER_ADMIN; 
+export const MOCK_LOGGED_IN_USER: User = MOCK_USER_ADMIN; 
 
 export const DEPARTMENTS: Department[] = [
   { id: 'dept-it', name: 'Information Technology' },
@@ -64,16 +64,16 @@ export const BLOCKS: Block[] = [
 ];
 
 export const CONNECTION_SPEEDS: ConnectionSpeed[] = [
-    { id: 'speed-10', speed: '10 Mbps' },
-    { id: 'speed-50', speed: '50 Mbps' },
-    { id: 'speed-100', speed: '100 Mbps' },
-    { id: 'speed-1000', speed: '1 Gbps' },
+    { id: 'speed-10', name: '10 Mbps' },
+    { id: 'speed-50', name: '50 Mbps' },
+    { id: 'speed-100', name: '100 Mbps' },
+    { id: 'speed-1000', name: '1 Gbps' },
 ];
 
 export const REQUESTS: Request[] = [
   {
     id: 'REQ001',
-    userId: 'user-staff-1',
+    userId: 2,
     macAddress: '00:1B:44:11:3A:B7',
     roomNo: '204',
     block: 'block-a',
@@ -90,7 +90,7 @@ export const REQUESTS: Request[] = [
   },
   {
     id: 'REQ002',
-    userId: 'user-staff-1',
+    userId: 2,
     macAddress: 'A1:2B:C3:4D:5E:6F',
     roomNo: '312',
     block: 'block-c',
@@ -105,7 +105,7 @@ export const REQUESTS: Request[] = [
   },
   {
     id: 'REQ003',
-    userId: 'user-director-1',
+    userId: 3,
     macAddress: 'B2:3C:D4:5E:6F:A1',
     roomNo: '101',
     block: 'block-b',
@@ -117,7 +117,7 @@ export const REQUESTS: Request[] = [
   },
     {
     id: 'REQ004',
-    userId: 'user-staff-1',
+    userId: 2,
     macAddress: 'C3:4D:E5:6F:A1:B2',
     roomNo: '401',
     block: 'block-d',

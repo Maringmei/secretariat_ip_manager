@@ -1,12 +1,18 @@
+
+'use client';
 import RequestsTable from "@/components/requests-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MOCK_LOGGED_IN_USER, REQUESTS } from "@/lib/data";
+import { REQUESTS } from "@/lib/data";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from '@/components/auth/auth-provider';
 
 export default function MyRequestsPage() {
-    const user = MOCK_LOGGED_IN_USER;
+    const { user } = useAuth();
+
+    if (!user) return null;
+
     const myRequests = REQUESTS.filter(r => r.userId === user.id);
 
     return (

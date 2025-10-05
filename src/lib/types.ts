@@ -2,19 +2,28 @@ export type Role = 'staff' | 'director' | 'coordinator' | 'admin';
 
 export type RequestStatus = 'Pending' | 'Assigned' | 'Pending Approval' | 'Approved' | 'Reverted' | 'Completed';
 
+// Based on /api/auth/verify-otp response
 export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
+  id: number;
+  name: string;
   designation: string;
-  department: string; // departmentId
-  reportingOfficer: string;
-  einOrSin: string;
-  eofficeOnboarded: boolean;
-  email: string;
-  whatsappNo: string;
-  role: Role;
-  profileComplete: boolean;
+  type: 'official' | 'requester';
+  access?: string[];
+  // Deprecated fields from old mock data, kept for compatibility for now
+  firstName?: string;
+  lastName?: string;
+  department?: string; // departmentId
+  reportingOfficer?: string;
+  einOrSin?: string;
+  ein_sin?: string;
+  eofficeOnboarded?: boolean;
+  email?: string;
+  whatsappNo?: string;
+  whatsapp_no?: string;
+  role?: Role;
+  profileComplete?: boolean;
+  first_name?: string;
+  last_name?: string;
 }
 
 export interface Department {
@@ -29,8 +38,8 @@ export interface Block {
 
 export interface ConnectionSpeed {
   id: number | string;
-  speed: string; // e.g., '10 Mbps', '100 Mbps'
-  name?: string; // for compatibility with api response
+  speed?: string; // e.g., '10 Mbps', '100 Mbps'
+  name: string; // for compatibility with api response
 }
 
 export interface WorkflowStep {
@@ -42,7 +51,7 @@ export interface WorkflowStep {
 
 export interface Request {
   id: string;
-  userId: string;
+  userId: string | number;
   macAddress: string;
   roomNo: string;
   block: string; // blockId

@@ -11,7 +11,7 @@ import { CONNECTION_SPEEDS, REQUESTS } from "@/lib/data"
 
 const chartData = CONNECTION_SPEEDS.map((speed, index) => {
     const count = REQUESTS.filter(r => r.connectionSpeed === speed.id && (r.status === 'Approved' || r.status === 'Completed')).length;
-    return { name: speed.speed, count, fill: `hsl(var(--chart-${index + 1}))` };
+    return { name: speed.name, count, fill: `hsl(var(--chart-${index + 1}))` };
 }).filter(d => d.count > 0);
 
 const chartConfig = {

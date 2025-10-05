@@ -1,9 +1,17 @@
+
+'use client';
 import { ProfileForm } from "@/components/profile-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MOCK_LOGGED_IN_USER } from "@/lib/data";
+import { useAuth } from "@/components/auth/auth-provider";
 
 export default function ProfilePage() {
-    const isNewUser = !MOCK_LOGGED_IN_USER.profileComplete;
+    const { user } = useAuth();
+    // Assuming new user if profile is not complete, which we might not know from the API.
+    // We can adjust this logic. For now, let's assume we always edit.
+    const isNewUser = !user?.profileComplete; 
+
+    if (!user) return null; // Or a loading state
+
   return (
     <div className="mx-auto max-w-2xl">
         <Card>
@@ -19,7 +27,7 @@ export default function ProfilePage() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <ProfileForm user={MOCK_LOGGED_IN_USER} />
+                <ProfileForm user={user} />
             </CardContent>
         </Card>
     </div>

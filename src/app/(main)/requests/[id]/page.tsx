@@ -33,7 +33,7 @@ export default function RequestDetailsPage({ params }: { params: { id: string } 
 
     const departmentName = DEPARTMENTS.find(d => d.id === applicant.department)?.name;
     const blockName = BLOCKS.find(b => b.id === request.block)?.name;
-    const speed = CONNECTION_SPEEDS.find(s => s.id === request.connectionSpeed)?.speed;
+    const speed = CONNECTION_SPEEDS.find(s => s.id === request.connectionSpeed)?.name;
 
 
     return (
@@ -67,11 +67,11 @@ export default function RequestDetailsPage({ params }: { params: { id: string } 
                     <Card>
                         <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
                         <CardContent className="space-y-2 text-sm">
-                            <p><strong>Name:</strong> {applicant.firstName || applicant.name} {applicant.lastName || ''}</p>
+                            <p><strong>Name:</strong> {applicant.name}</p>
                             <p><strong>Designation:</strong> {applicant.designation}</p>
                             <p><strong>Department:</strong> {departmentName}</p>
                             <p><strong>Email:</strong> {applicant.email}</p>
-                            <p><strong>WhatsApp:</strong> {applicant.whatsappNo}</p>
+                            <p><strong>WhatsApp:</strong> {applicant.whatsapp_no}</p>
                         </CardContent>
                     </Card>
                 </div>

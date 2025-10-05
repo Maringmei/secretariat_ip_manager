@@ -15,17 +15,18 @@ import {
 import { ManipurEmblem } from '../icons/manipur-emblem';
 import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
+import type { Role } from '@/lib/types';
 
 const menuItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/requests', label: 'My Requests', icon: FileText },
-    { href: '/profile', label: 'My Profile', icon: User },
+    { href: '/requests', label: 'My Requests', icon: FileText, types: ['requester'] },
+    { href: '/profile', label: 'My Profile', icon: User, types: ['requester'] },
 ];
 
 const adminMenuItems = [
-    { href: '/ip-management', label: 'IP Management', icon: Network, roles: ['admin', 'coordinator'] },
-    { href: '/settings', label: 'Settings', icon: Settings, roles: ['admin'] },
-    { href: '/users', label: 'User Management', icon: Users, roles: ['admin'] },
+    { href: '/ip-management', label: 'IP Management', icon: Network, types: ['official'] },
+    { href: '/settings', label: 'Settings', icon: Settings, types: ['official'] },
+    { href: '/users', label: 'User Management', icon: Users, types: ['official'] },
 ];
 
 
@@ -34,9 +35,7 @@ export default function AppSidebar() {
     const { user, logout } = useAuth();
     const router = useRouter();
 
-    // In a real app, role would come from the authenticated user object.
-    // For now, we simulate it. 'admin' can see everything.
-    const userRole = user?.type === 'official' ? 'admin' : 'staff'; 
+    const userType = user?.type || 'requester'; 
 
     const handleLogout = () => {
       logout();
@@ -54,6 +53,7 @@ export default function AppSidebar() {
       <SidebarContent>
         <SidebarMenu>
           {menuItems.map((item) => (
+            (!item.types || item.types.includes(userType)) &&
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                 <Link href={item.href}>
@@ -63,9 +63,11 @@ export default function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
-          <SidebarSeparator />
+          
+          {userType === 'official' && <SidebarSeparator />}
+          
           {adminMenuItems.map((item) => (
-            item.roles.includes(userRole) && (
+            item.types.includes(userType) && (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                 <Link href={item.href}>

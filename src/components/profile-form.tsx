@@ -16,15 +16,15 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from './auth/auth-provider';
 
 const profileSchema = z.object({
-  firstName: z.string().min(2, 'First name is required'),
-  lastName: z.string().min(2, 'Last name is required'),
+  first_name: z.string().min(2, 'First name is required'),
+  last_name: z.string().min(2, 'Last name is required'),
   designation: z.string().min(2, 'Designation is required'),
   department: z.string({ required_error: 'Please select a department.' }),
   reportingOfficer: z.string().min(2, 'Reporting officer is required'),
-  einOrSin: z.string().min(5, 'A valid EIN/SIN is required'),
+  ein_sin: z.string().min(5, 'A valid EIN/SIN is required'),
   eofficeOnboarded: z.enum(['yes', 'no'], { required_error: 'This field is required.' }),
   email: z.string().email().refine(val => val.endsWith('.gov.in') || val.endsWith('.nic.in'), 'Email must be a .gov.in or .nic.in address.'),
-  whatsappNo: z.string().length(10, 'WhatsApp number must be 10 digits.'),
+  whatsapp_no: z.string().length(10, 'WhatsApp number must be 10 digits.'),
 });
 
 interface ProfileFormProps {
@@ -36,56 +36,93 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const { token } = useAuth();
+  const { token, user: authUser } = useAuth();
+  
+  const form = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+        first_name: '',
+        last_name: '',
+        designation: '',
+        department: undefined,
+        reportingOfficer: '',
+        ein_sin: '',
+        eofficeOnboarded: 'no',
+        email: '',
+        whatsapp_no: '',
+    },
+  });
 
   useEffect(() => {
-    const fetchDepartments = async () => {
+    const fetchData = async (url: string, setData: (data: any[]) => void) => {
       if (!token) return;
       try {
-        const response = await fetch('https://iprequestapi.globizsapp.com/api/departments', {
+        const response = await fetch(url, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
         const result = await response.json();
         if (result.success) {
-          setDepartments(result.data);
+          setData(result.data);
         } else {
-          toast({
-            title: 'Error',
-            description: 'Could not load departments.',
-            variant: 'destructive',
-          });
+          console.error("Failed to fetch data from", url);
         }
       } catch (error) {
-        toast({
-            title: 'Error',
-            description: 'Could not load departments.',
-            variant: 'destructive',
-          });
+         console.error("Error fetching data from", url, error);
       }
     };
-    fetchDepartments();
-  }, [toast, token]);
 
-  const form = useForm<z.infer<typeof profileSchema>>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      firstName: user.firstName || '',
-      lastName: user.lastName || '',
-      designation: user.designation || '',
-      department: user.department || undefined,
-      reportingOfficer: user.reportingOfficer || '',
-      einOrSin: user.einOrSin || '',
-      eofficeOnboarded: user.eofficeOnboarded ? 'yes' : 'no',
-      email: user.email || '',
-      whatsappNo: user.whatsappNo || '',
-    },
-  });
+    fetchData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
+
+    const fetchProfile = async () => {
+        if (!token || !authUser?.id) return;
+        setIsLoading(true);
+        try {
+            const response = await fetch(`https://iprequestapi.globizsapp.com/api/requesters/${authUser.id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const result = await response.json();
+            if (result.success) {
+                const profileData = result.data;
+                // find department id from name
+                const department = departments.find(d => d.name === profileData.department_name);
+
+                form.reset({
+                    first_name: profileData.first_name || '',
+                    last_name: profileData.last_name || '',
+                    designation: profileData.designation || '',
+                    department: department ? String(department.id) : undefined,
+                    reportingOfficer: profileData.reporting_officer || '', // API response doesn't have this
+                    ein_sin: profileData.ein_sin || '',
+                    eofficeOnboarded: profileData.eoffice_onboarded ? 'yes' : 'no', // API response doesn't have this
+                    email: profileData.email || '',
+                    whatsapp_no: profileData.whatsapp_no || '',
+                });
+            } else {
+                toast({ title: "Error", description: "Failed to fetch profile data.", variant: "destructive" });
+            }
+        } catch (error) {
+            toast({ title: "Error", description: "An error occurred while fetching your profile.", variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (token && authUser?.id) {
+        if (departments.length > 0) {
+            fetchProfile();
+        }
+    }
+
+
+  }, [toast, token, authUser, form, departments]);
+
 
   function onSubmit(values: z.infer<typeof profileSchema>) {
     setIsLoading(true);
-    // Simulate API call
+    // Simulate API call to update profile
+    console.log("Submitting profile data:", values);
     setTimeout(() => {
         setIsLoading(false);
         toast({
@@ -96,14 +133,18 @@ export function ProfileForm({ user }: ProfileFormProps) {
     }, 1500)
   }
 
+  if (isLoading && !form.formState.isDirty) {
+    return <div className="flex justify-center items-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FormField control={form.control} name="firstName" render={({ field }) => (
+            <FormField control={form.control} name="first_name" render={({ field }) => (
                 <FormItem><FormLabel>First Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
-            <FormField control={form.control} name="lastName" render={({ field }) => (
+            <FormField control={form.control} name="last_name" render={({ field }) => (
                 <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
             <FormField control={form.control} name="designation" render={({ field }) => (
@@ -112,7 +153,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <FormField control={form.control} name="department" render={({ field }) => (
             <FormItem>
                 <FormLabel>Department</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl><SelectTrigger><SelectValue placeholder="Select a department" /></SelectTrigger></FormControl>
                 <SelectContent>{departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}</SelectContent>
                 </Select>
@@ -122,7 +163,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <FormField control={form.control} name="reportingOfficer" render={({ field }) => (
                 <FormItem><FormLabel>Reporting Officer</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
-            <FormField control={form.control} name="einOrSin" render={({ field }) => (
+            <FormField control={form.control} name="ein_sin" render={({ field }) => (
                 <FormItem><FormLabel>EIN / SIN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
         </div>
@@ -130,7 +171,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <FormItem className="space-y-3">
             <FormLabel>E-office Onboarded?</FormLabel>
             <FormControl>
-                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex items-center space-x-4">
+                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex items-center space-x-4">
                 <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
                 <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
                 </RadioGroup>
@@ -142,7 +183,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
-            <FormField control={form.control} name="whatsappNo" render={({ field }) => (
+            <FormField control={form.control} name="whatsapp_no" render={({ field }) => (
                 <FormItem><FormLabel>WhatsApp No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
         </div>

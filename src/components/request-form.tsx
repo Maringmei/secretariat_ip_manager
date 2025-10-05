@@ -8,13 +8,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { MOCK_LOGGED_IN_USER, DEPARTMENTS } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import type { Block, ConnectionSpeed } from '@/lib/types';
+import type { Block, ConnectionSpeed, Department } from '@/lib/types';
 import { useAuth } from './auth/auth-provider';
 
 const requestSchema = z.object({
@@ -28,9 +27,40 @@ const requestSchema = z.object({
 });
 
 const UserInfoDisplay = () => {
-    const user = MOCK_LOGGED_IN_USER;
-    // This is temporary until we fetch departments globally or pass them as props
-    const departmentName = DEPARTMENTS.find(d => d.id === user.department)?.name || user.department;
+    const { user } = useAuth();
+    const [departmentName, setDepartmentName] = useState('');
+    const [departments, setDepartments] = useState<Department[]>([]);
+    const { token } = useAuth();
+
+     useEffect(() => {
+        const fetchDepartments = async () => {
+            if (!token) return;
+            try {
+                const response = await fetch('https://iprequestapi.globizsapp.com/api/departments', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    setDepartments(result.data);
+                }
+            } catch (error) {
+                console.error("Could not load departments", error);
+            }
+        };
+        fetchDepartments();
+    }, [token]);
+
+    useEffect(() => {
+        if (user?.department && departments.length > 0) {
+            const dept = departments.find(d => String(d.id) === user.department);
+            setDepartmentName(dept?.name || user.department);
+        } else if (user?.department) {
+             setDepartmentName(user.department);
+        }
+    }, [user, departments]);
+
+
+    if (!user) return null;
 
     return (
         <Card className="bg-secondary/50">
@@ -40,7 +70,7 @@ const UserInfoDisplay = () => {
             </CardHeader>
             <CardContent className="text-sm">
                 <div className="grid grid-cols-2 gap-4">
-                    <div><strong>Name:</strong> {user.firstName} {user.lastName}</div>
+                    <div><strong>Name:</strong> {user.name}</div>
                     <div><strong>Designation:</strong> {user.designation}</div>
                     <div><strong>Department:</strong> {departmentName}</div>
                     <div><strong>Email:</strong> {user.email}</div>
