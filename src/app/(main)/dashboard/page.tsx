@@ -42,8 +42,8 @@ const AdminDashboard = ({ data }: { data: DashboardData }) => {
                 <StatsCard title="Pending Requests" value={data.summary?.pending.toString() ?? '0'} icon={Clock} />
                 <StatsCard title="Approved Requests" value={data.summary?.approved.toString() ?? '0'} icon={Check} />
                 <StatsCard title="Rejected Requests" value={data.summary?.rejected.toString() ?? '0'} icon={X} />
-                <StatsCard title="Departments Onboarded" value={data.by_department?.length.toString() ?? '0'} icon={Users} />
                 <StatsCard title="e-Office Onboarded" value={data.summary?.e_office_onboarded.toString() ?? '0'} icon={Activity} />
+                <StatsCard title="e-Office Not Onboarded" value={data.summary?.e_office_not_onboarded.toString() ?? '0'} icon={Users} />
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <Card className="lg:col-span-4">
