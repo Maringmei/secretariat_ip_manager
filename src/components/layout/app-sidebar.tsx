@@ -29,8 +29,8 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/profile', label: 'My Profile', icon: User },
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['official', 'requester'] },
+    { href: '/profile', label: 'My Profile', icon: User, types: ['official', 'requester'] },
 ];
 
 const requesterMenuItems: MenuItem[] = [
@@ -101,7 +101,7 @@ export default function AppSidebar() {
           {userType === 'official' && <SidebarSeparator />}
           
           {adminMenuItems.map((item) => {
-            const count = item.countKey ? counts[item.countKey as keyof typeof counts] : null;
+            const count = item.countKey ? counts[item.countKey as keyof typeof counts] : undefined;
             return (
               item.types && item.types.includes(userType) && (
               <SidebarMenuItem key={item.href}>
@@ -109,7 +109,7 @@ export default function AppSidebar() {
                   <Link href={item.href}>
                     <item.icon />
                     <span>{item.label}</span>
-                    {count !== null && count > 0 && <SidebarMenuBadge>{count}</SidebarMenuBadge>}
+                    {count && <SidebarMenuBadge>{count}</SidebarMenuBadge>}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
