@@ -30,7 +30,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['official', 'requester'] },
-    { href: '/profile', label: 'My Profile', icon: User, types: ['official', 'requester'] },
+    { href: '/profile', label: 'My Profile', icon: User, types: ['official'] },
 ];
 
 const requesterMenuItems: MenuItem[] = [
