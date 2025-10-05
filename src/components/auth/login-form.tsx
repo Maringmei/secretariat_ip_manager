@@ -17,8 +17,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Phone, KeyRound, Send } from 'lucide-react';
+import { Loader2, Phone, KeyRound, Send, User, Building } from 'lucide-react';
 import { useAuth } from './auth-provider';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 
 const formSchema = z.object({
@@ -49,10 +51,13 @@ const mobileOnlySchema = z.object({
     })
 });
 
+type LoginType = 'official' | 'requester';
+
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOtpSent, setOtpSent] = useState(false);
   const [isOtpLoading, setOtpLoading] = useState(false);
+  const [loginType, setLoginType] = useState<LoginType>('official');
   const router = useRouter();
   const { toast } = useToast();
   const { login } = useAuth();
@@ -91,7 +96,7 @@ export function LoginForm() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            type: 'requester',
+            type: loginType,
             username: values.mobile,
             otp: values.otp,
         }),
@@ -140,7 +145,7 @@ export function LoginForm() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                type: 'official',
+                type: loginType,
                 username: result.data.mobile,
             }),
         });
@@ -170,6 +175,22 @@ export function LoginForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="flex items-center justify-center space-x-4 rounded-lg bg-muted p-2">
+            <div className='flex items-center space-x-2'>
+                <User className="h-5 w-5 text-muted-foreground"/>
+                <Label htmlFor="login-type" className={loginType === 'requester' ? 'text-primary font-semibold' : ''}>Requester</Label>
+            </div>
+            <Switch
+                id="login-type"
+                checked={loginType === 'official'}
+                onCheckedChange={(checked) => setLoginType(checked ? 'official' : 'requester')}
+                disabled={isOtpSent}
+            />
+            <div className='flex items-center space-x-2'>
+                <Building className="h-5 w-5 text-muted-foreground"/>
+                <Label htmlFor="login-type" className={loginType === 'official' ? 'text-primary font-semibold' : ''}>Official</Label>
+            </div>
+        </div>
         <FormField
           control={form.control}
           name="mobile"
