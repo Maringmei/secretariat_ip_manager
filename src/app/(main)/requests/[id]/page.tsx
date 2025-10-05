@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { AssignIpDialog } from '@/components/requests/assign-ip-dialog';
 import { useCounter } from '@/components/counter/counter-provider';
 import { ApproveRequestDialog } from '@/components/requests/approve-request-dialog';
-import { RevertRequestDialog } from '@/components/requests/revert-request-dialog';
+import { RejectRequestDialog } from '@/components/requests/reject-request-dialog';
 
 export default function RequestDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -31,7 +31,7 @@ export default function RequestDetailsPage() {
     // Dialog states
     const [isAssignIpOpen, setIsAssignIpOpen] = useState(false);
     const [isApproveOpen, setIsApproveOpen] = useState(false);
-    const [isRevertOpen, setIsRevertOpen] = useState(false);
+    const [isRejectOpen, setIsRejectOpen] = useState(false);
 
 
     const fetchRequestDetails = async () => {
@@ -126,7 +126,7 @@ export default function RequestDetailsPage() {
                 // Close all dialogs
                 setIsAssignIpOpen(false);
                 setIsApproveOpen(false);
-                setIsRevertOpen(false);
+                setIsRejectOpen(false);
                 refreshData();
             } else {
                 throw new Error(result.message || "Failed to update workflow.");
@@ -176,7 +176,7 @@ export default function RequestDetailsPage() {
         await handleWorkflowAction(3, remark);
     };
 
-    const handleRevert = async ({ remark }: { remark: string }) => {
+    const handleReject = async ({ remark }: { remark: string }) => {
         await handleWorkflowAction(5, remark);
     };
 
@@ -268,7 +268,7 @@ export default function RequestDetailsPage() {
                                 {canApprove && (
                                     <>
                                         <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
-                                        <Button variant="destructive" onClick={() => setIsRevertOpen(true)} disabled={isActionLoading}>Revert</Button>
+                                        <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
                                     </>
                                 )}
                             </CardContent>
@@ -294,10 +294,10 @@ export default function RequestDetailsPage() {
                 onConfirm={handleApprove}
                 isSubmitting={isActionLoading}
             />
-            <RevertRequestDialog
-                isOpen={isRevertOpen}
-                onClose={() => setIsRevertOpen(false)}
-                onConfirm={handleRevert}
+            <RejectRequestDialog
+                isOpen={isRejectOpen}
+                onClose={() => setIsRejectOpen(false)}
+                onConfirm={handleReject}
                 isSubmitting={isActionLoading}
             />
             </>
