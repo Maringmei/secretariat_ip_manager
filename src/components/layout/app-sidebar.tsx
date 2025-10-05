@@ -85,7 +85,7 @@ export default function AppSidebar() {
             </SidebarMenuItem>
           ))}
           
-          {userType === 'requester' && <SidebarSeparator />}
+          {(userType === 'requester' && requesterMenuItems.length > 0) && <SidebarSeparator />}
 
           {requesterMenuItems.map((item) => {
             const count = item.countKey ? counts[item.countKey] : undefined;
@@ -96,7 +96,7 @@ export default function AppSidebar() {
                     <Link href={item.href}>
                         <item.icon />
                         <span>{item.label}</span>
-                         {count ? <SidebarMenuBadge>{count}</SidebarMenuBadge> : null}
+                         {count && count > 0 ? <SidebarMenuBadge>{count}</SidebarMenuBadge> : null}
                     </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -114,7 +114,7 @@ export default function AppSidebar() {
                   <Link href={item.href}>
                     <item.icon />
                     <span>{item.label}</span>
-                    {count ? <SidebarMenuBadge>{count}</SidebarMenuBadge> : null}
+                    {count && count > 0 ? <SidebarMenuBadge>{count}</SidebarMenuBadge> : null}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
