@@ -26,6 +26,8 @@ export default function UsersTable({ users = [], onEditUser }: UsersTableProps) 
         <TableRow>
           <TableHead>Name</TableHead>
           <TableHead>Designation</TableHead>
+          <TableHead>Username (Mobile)</TableHead>
+          <TableHead>Email</TableHead>
           <TableHead>Role</TableHead>
           <TableHead>
             <span className="sr-only">Actions</span>
@@ -37,6 +39,8 @@ export default function UsersTable({ users = [], onEditUser }: UsersTableProps) 
           <TableRow key={user.id}>
             <TableCell className="font-medium">{user.name}</TableCell>
             <TableCell>{user.designation || 'N/A'}</TableCell>
+            <TableCell>{user.username || 'N/A'}</TableCell>
+            <TableCell>{user.email || 'N/A'}</TableCell>
             <TableCell>
               <Badge variant="secondary">{user.role || 'N/A'}</Badge>
             </TableCell>
@@ -58,7 +62,7 @@ export default function UsersTable({ users = [], onEditUser }: UsersTableProps) 
         ))}
         {users.length === 0 && (
             <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                     No users found.
                 </TableCell>
             </TableRow>
