@@ -219,7 +219,6 @@ export default function UserManagementPage() {
                                     <SelectValue placeholder="Filter by Role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Roles</SelectItem>
                                     {roles.map((r, i) => <SelectItem key={i} value={r.role}>{r.role}</SelectItem>)}
                                 </SelectContent>
                             </Select>
