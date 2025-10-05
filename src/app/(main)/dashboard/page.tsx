@@ -28,18 +28,19 @@ interface DashboardData {
     by_month?: { label: string; count: number }[];
     // For requester
     total?: number;
-    pending?: number;
-    approved?: number;
-    rejected?: number;
+    // pending?: number; // already in summary
+    // approved?: number; // already in summary
+    // rejected?: number; // already in summary
 }
 
 
 const AdminDashboard = ({ data }: { data: DashboardData }) => {
     return (
         <div className="flex flex-col gap-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatsCard title="Total IPs Allocated" value={data.summary?.approved.toString() ?? '0'} icon={Server} />
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <StatsCard title="Pending Requests" value={data.summary?.pending.toString() ?? '0'} icon={Clock} />
+                <StatsCard title="Approved Requests" value={data.summary?.approved.toString() ?? '0'} icon={Check} />
+                <StatsCard title="Rejected Requests" value={data.summary?.rejected.toString() ?? '0'} icon={X} />
                 <StatsCard title="Departments Onboarded" value={data.by_department?.length.toString() ?? '0'} icon={Users} />
                 <StatsCard title="e-Office Onboarded" value={data.summary?.e_office_onboarded.toString() ?? '0'} icon={Activity} />
             </div>
@@ -155,7 +156,11 @@ export default function DashboardPage() {
                 });
                 const result = await response.json();
                 if (result.success) {
-                    setData(result.data);
+                    if (isOfficial) {
+                        setData(result.data);
+                    } else {
+                        setData(result.data)
+                    }
                 } else {
                     throw new Error(result.message || "Failed to load dashboard data.");
                 }
