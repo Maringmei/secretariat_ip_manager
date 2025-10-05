@@ -4,7 +4,7 @@ import './globals.css';
 import { AuthProvider } from '@/components/auth/auth-provider';
 
 export const metadata: Metadata = {
-  title: 'Critical Infrastructure Portal, Manipur',
+  title: 'Critical Infrastructure Portal, Government of Manipur',
   description: 'Streamlining IP Address Requests and Allocation',
   icons: {
     icon: '/images/favicon.png',
