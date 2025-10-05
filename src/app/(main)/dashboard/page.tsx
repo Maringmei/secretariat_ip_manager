@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import StatsCard from "@/components/dashboard/stats-card";
 import { Activity, ArrowUpRight, Check, Clock, Server, Users, X } from "lucide-react";
-import RequestsTable from "@/components/requests-table";
 import Link from "next/link";
 import DepartmentAllocationsChart from "@/components/dashboard/department-allocations-chart";
 import SpeedChart from "@/components/dashboard/speed-chart";
