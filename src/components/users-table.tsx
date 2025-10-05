@@ -25,7 +25,6 @@ export default function UsersTable({ users = [] }: UsersTableProps) {
         <TableRow>
           <TableHead>Name</TableHead>
           <TableHead>Designation</TableHead>
-          <TableHead className="hidden md:table-cell">Department</TableHead>
           <TableHead>Role</TableHead>
           <TableHead>
             <span className="sr-only">Actions</span>
@@ -37,7 +36,6 @@ export default function UsersTable({ users = [] }: UsersTableProps) {
           <TableRow key={user.id}>
             <TableCell className="font-medium">{user.name}</TableCell>
             <TableCell>{user.designation || 'N/A'}</TableCell>
-            <TableCell className="hidden md:table-cell">{user.department_name || 'N/A'}</TableCell>
             <TableCell>
               <Badge variant="secondary">{user.role || 'N/A'}</Badge>
             </TableCell>
@@ -60,7 +58,7 @@ export default function UsersTable({ users = [] }: UsersTableProps) {
         ))}
         {users.length === 0 && (
             <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={4} className="h-24 text-center">
                     No users found.
                 </TableCell>
             </TableRow>

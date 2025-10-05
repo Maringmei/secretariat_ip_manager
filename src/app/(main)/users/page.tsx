@@ -52,7 +52,7 @@ export default function UserManagementPage() {
         const fetchAllData = async () => {
             setIsLoading(true);
             await Promise.all([
-                fetchData('https://iprequestapi.globizsapp.com/api/officials', setUsers, 'users'),
+                fetchData('https://iprequestapi.globizsapp.com/api/profiles?page=1&name=&designation=&username=&email=&status=', setUsers, 'users'),
                 fetchData('https://iprequestapi.globizsapp.com/api/auth/roles', setRoles, 'roles')
             ]);
             setIsLoading(false);
