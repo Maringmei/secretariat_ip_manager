@@ -34,9 +34,10 @@ const menuItems: MenuItem[] = [
 ];
 
 const requesterMenuItems: MenuItem[] = [
-    { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'] },
-    { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'] },
-    { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'] },
+    { href: '/requests/new', label: 'New IP Request', icon: FilePlus, types: ['requester'] },
+    { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'my_pending' },
+    { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'my_approved' },
+    { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'my_rejected' },
 ];
 
 const adminMenuItems: MenuItem[] = [
@@ -86,17 +87,21 @@ export default function AppSidebar() {
           
           {userType === 'requester' && <SidebarSeparator />}
 
-          {requesterMenuItems.map((item) => (
-            item.types && item.types.includes(userType) &&
-            <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                <Link href={item.href}>
-                    <item.icon />
-                    <span>{item.label}</span>
-                </Link>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {requesterMenuItems.map((item) => {
+            const count = item.countKey ? counts[item.countKey] : undefined;
+            return (
+                item.types && item.types.includes(userType) &&
+                <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                    <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                         {count ? <SidebarMenuBadge>{count}</SidebarMenuBadge> : null}
+                    </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            )
+          })}
           
           {userType === 'official' && <SidebarSeparator />}
           
