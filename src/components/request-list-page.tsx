@@ -122,7 +122,6 @@ export default function RequestListPage({ title, description, statusId }: Reques
                                 <SelectValue placeholder="Filter by Department" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">All Departments</SelectItem>
                                 {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
@@ -131,7 +130,6 @@ export default function RequestListPage({ title, description, statusId }: Reques
                                 <SelectValue placeholder="Filter by Block" />
                             </SelectTrigger>
                             <SelectContent>
-                                 <SelectItem value="">All Blocks</SelectItem>
                                 {blocks.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
