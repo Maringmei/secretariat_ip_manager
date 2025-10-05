@@ -93,7 +93,7 @@ export default function RequestListPage({ title, description, statusId }: Reques
 
         fetchFilterData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
         fetchFilterData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks);
-    }, [token, toast, statusId]);
+    }, [token, toast, statusId, title]);
 
     const handleFilter = () => {
         fetchRequests(statusId, searchName, requestNumber, selectedDept);
@@ -129,19 +129,17 @@ export default function RequestListPage({ title, description, statusId }: Reques
                         </div>
                         <Select value={selectedDept} onValueChange={setSelectedDept}>
                             <SelectTrigger className="w-full md:w-[180px]">
-                                <SelectValue placeholder="Filter by Department" />
+                                <SelectValue placeholder="All Departments" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">All Departments</SelectItem>
                                 {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
                         <Select value={selectedBlock} onValueChange={setSelectedBlock}>
                             <SelectTrigger className="w-full md:w-[180px]">
-                                <SelectValue placeholder="Filter by Block" />
+                                <SelectValue placeholder="All Blocks" />
                             </SelectTrigger>
                             <SelectContent>
-                                 <SelectItem value="">All Blocks</SelectItem>
                                 {blocks.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
