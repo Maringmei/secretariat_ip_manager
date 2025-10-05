@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
 
-export default function AppLayout({
+export default function  AppLayout({
   children,
 }: {
   children: React.ReactNode;

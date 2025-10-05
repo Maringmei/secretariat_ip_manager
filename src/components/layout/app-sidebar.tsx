@@ -57,8 +57,8 @@ export default function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2">
-            <ManipurEmblem className="size-8 text-sidebar-primary" />
-            <span className="truncate text-lg font-semibold font-headline">IP Manager</span>
+            <ManipurEmblem className="size-8 text-sidebar-primary bg-white rounded-full p-1"/>
+            <span className="text-lg font-semibold font-headline">Critical Infrastructure Portal, Manipur</span>
         </div>
       </SidebarHeader>
       <SidebarContent>

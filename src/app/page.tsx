@@ -29,7 +29,7 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="flex w-full max-w-md flex-col items-center text-center">
-        <ManipurEmblem className="mb-6 text-primary" width={80} height={80}/>
+        <ManipurEmblem className="mb-6 text-primary" width={150} height={150}/>
         <h1 className="font-headline text-3xl font-bold text-primary">
           Critical Infrastructure Portal, Manipur
         </h1>
@@ -51,7 +51,7 @@ export default function LoginPage() {
       </Card>
       <footer className="mt-8 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Government of Manipur. All rights reserved.</p>
-        <p className="mt-1 text-center">Powered By Globizs.</p>
+        <p className="mt-1 text-center">Powered By <span className='text-red-500'>Globizs</span></p>
       </footer>
     </main>
   );
