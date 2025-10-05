@@ -9,7 +9,7 @@ import type { Request, WorkflowStep } from '@/lib/types';
 import WorkflowTimeline from '@/components/workflow-timeline';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AssignIpDialog } from '@/components/requests/assign-ip-dialog';
 import { useCounter } from '@/components/counter/counter-provider';
@@ -205,8 +205,12 @@ export default function RequestDetailsPage() {
     return (
         <>
         <div className="flex flex-col gap-6">
-             <div className="flex items-center justify-between">
-                <div>
+            <div className="flex items-center gap-4">
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+                    <ArrowLeft className="h-4 w-4" />
+                    <span className="sr-only">Back</span>
+                </Button>
+                <div className="flex-1">
                     <h1 className="font-headline text-3xl font-bold">Request #{request.request_number}</h1>
                     <p className="text-muted-foreground">Submitted on {new Date(request.requestedAt).toLocaleString()}</p>
                 </div>
