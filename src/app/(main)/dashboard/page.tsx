@@ -12,6 +12,8 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import BlockDistributionChart from "@/components/dashboard/block-distribution-chart";
+import MonthlyRequestsChart from "@/components/dashboard/monthly-requests-chart";
 
 interface DashboardData {
     summary?: {
@@ -45,8 +47,8 @@ const AdminDashboard = ({ data }: { data: DashboardData }) => {
                 <StatsCard title="e-Office Onboarded" value={data.summary?.e_office_onboarded.toString() ?? '0'} icon={Activity} />
                 <StatsCard title="e-Office Not Onboarded" value={data.summary?.e_office_not_onboarded.toString() ?? '0'} icon={Users} />
             </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="lg:col-span-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+                <Card>
                     <CardHeader>
                         <CardTitle className="font-headline">Department-wise Allocations</CardTitle>
                     </CardHeader>
@@ -54,12 +56,28 @@ const AdminDashboard = ({ data }: { data: DashboardData }) => {
                         <DepartmentAllocationsChart data={data.by_department} />
                     </CardContent>
                 </Card>
-                <Card className="lg:col-span-3">
+                <Card>
                     <CardHeader>
                         <CardTitle className="font-headline">Connection Speed Distribution</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <SpeedChart data={data.by_connection_speed} />
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline">Requests by Block</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <BlockDistributionChart data={data.by_block} />
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline">Monthly Request Trend</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <MonthlyRequestsChart data={data.by_month} />
                     </CardContent>
                 </Card>
             </div>
