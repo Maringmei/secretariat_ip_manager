@@ -82,11 +82,11 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
   useEffect(() => {
     const fetchProfile = async () => {
-        if (!token || !authUser?.id || departments.length === 0) return;
+        if (!token || departments.length === 0) return;
         
         setIsLoading(true);
         try {
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/requesters/${authUser.id}`, {
+            const response = await fetch(`https://iprequestapi.globizsapp.com/api/requesters/0`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const result = await response.json();
@@ -99,7 +99,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     last_name: profileData.last_name || '',
                     designation: profileData.designation || '',
                     department: department ? String(department.id) : undefined,
-                    reportingOfficer: profileData.reporting_officer || '', // API response doesn't have this
+                    reportingOfficer: profileData.reporting_officer || 'N/A', // API response doesn't have this
                     ein_sin: profileData.ein_sin || '',
                     eofficeOnboarded: profileData.eoffice_onboarded ? 'yes' : 'no', // API response doesn't have this
                     email: profileData.email || '',
@@ -115,10 +115,11 @@ export function ProfileForm({ user }: ProfileFormProps) {
         }
     };
     
+    // Only run fetchProfile when departments are loaded.
     if (departments.length > 0) {
       fetchProfile();
     }
-  }, [token, authUser, departments, form, toast]);
+  }, [token, departments, form, toast]);
 
 
   function onSubmit(values: z.infer<typeof profileSchema>) {
