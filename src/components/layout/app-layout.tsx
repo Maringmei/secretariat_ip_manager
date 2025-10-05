@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from "@/components/auth/auth-provider";
@@ -68,7 +69,7 @@ export default function  AppLayout({
         </main>
       </SidebarInset>
 
-      <AlertDialog open={showProfileDialog}>
+      <AlertDialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Welcome! Let's set up your profile.</AlertDialogTitle>
@@ -77,7 +78,7 @@ export default function  AppLayout({
             </AlertDialogDescription>
           </AlertDialogHeader>
             <AlertDialogAction asChild>
-                <Link href="/profile">Go to Profile</Link>
+                <Link href="/profile" onClick={() => setShowProfileDialog(false)}>Go to Profile</Link>
             </AlertDialogAction>
         </AlertDialogContent>
       </AlertDialog>
