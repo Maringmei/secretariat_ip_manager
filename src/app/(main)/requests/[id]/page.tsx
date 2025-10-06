@@ -189,23 +189,31 @@ export default function RequestDetailsPage() {
         await handleWorkflowAction(5, remark);
     };
 
-    const handleAssignEngineer = async ({ engineerId, remark }: { engineerId: number, remark?: string }) => {
+    const handleAssignEngineer = async ({ engineerId, visitDateTime, remark }: { engineerId: number, visitDateTime: string, remark?: string }) => {
         if (!token || !request) return;
 
         setIsActionLoading(true);
         try {
-            // This is a placeholder for the actual API call
-            console.log("Assigning Engineer:", {
-                ip_request_id: request.id,
-                status_id: 4, // Assuming 4 is 'Assigned to Engineer'
-                assigned_to: engineerId,
-                remark: remark,
+            const response = await fetch(`${API_BASE_URL}/workflows`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                body: JSON.stringify({
+                    ip_request_id: request.id,
+                    status_id: 6, // Move to 'Ready'
+                    assigned_to: engineerId,
+                    remark: remark,
+                    visit_date: visitDateTime, // Sending the formatted date-time string
+                })
             });
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
 
-            toast({ title: "Success", description: "Network Engineer has been assigned." });
-            setIsAssignEngineerOpen(false);
-            refreshData();
+            const result = await response.json();
+            if (result.success) {
+                toast({ title: "Success", description: "Network Engineer has been assigned and request is marked as Ready." });
+                setIsAssignEngineerOpen(false);
+                refreshData();
+            } else {
+                 throw new Error(result.message || "Failed to assign engineer.");
+            }
 
         } catch(error: any) {
             toast({ title: "Error", description: error.message, variant: "destructive"});
@@ -351,6 +359,7 @@ export default function RequestDetailsPage() {
                 onClose={() => setIsAssignEngineerOpen(false)}
                 onConfirm={handleAssignEngineer}
                 isSubmitting={isActionLoading}
+                requestId={Number(id)}
             />
         )}
         </>
