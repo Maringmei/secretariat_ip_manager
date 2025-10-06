@@ -1,4 +1,3 @@
-
 'use client';
 import Image from 'next/image';
 import { LoginForm } from '@/components/auth/login-form';
@@ -53,9 +52,8 @@ export default function LoginPage() {
             <LoginForm />
             </CardContent>
         </Card>
-        <footer className="mt-8 text-sm text-muted-foreground">
+        <footer className="mt-8 text-center text-sm text-muted-foreground">
             <p>&copy; {new Date().getFullYear()} Government of Manipur. All rights reserved.</p>
-            <p className="mt-1 text-center">Powered By <span className='text-red-500'>Globizs</span></p>
         </footer>
       </div>
     </main>
