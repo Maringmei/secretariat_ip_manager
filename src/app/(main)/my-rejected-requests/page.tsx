@@ -17,7 +17,7 @@ export default function MyRejectedRequestsPage() {
                         title="Rejected Requests"
                         description="These requests have been rejected."
                         statusIds={[5]}
-                        showFilters={false}
+                        showFilters={true}
                     />
                 </CardContent>
             </Card>

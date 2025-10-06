@@ -17,7 +17,7 @@ export default function MyApprovedRequestsPage() {
                         title="Approved Requests"
                         description="These requests have been approved."
                         statusIds={[3]}
-                        showFilters={false}
+                        showFilters={true}
                     />
                 </CardContent>
             </Card>

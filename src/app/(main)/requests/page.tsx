@@ -24,7 +24,7 @@ export default function MyRequestsPage() {
                     <CardDescription>A log of all your submitted IP address requests.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <MyRequestsListPage title="All My Requests" description="A complete history of all your requests." statusIds={[]} showFilters={false} />
+                    <MyRequestsListPage title="All My Requests" description="A complete history of all your requests." statusIds={[]} showFilters={true} />
                 </CardContent>
             </Card>
         </div>

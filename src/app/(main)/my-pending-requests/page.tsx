@@ -17,7 +17,7 @@ export default function MyPendingRequestsPage() {
                         title="Pending Requests"
                         description="These requests are new or pending approval."
                         statusIds={[1, 2]}
-                        showFilters={false}
+                        showFilters={true}
                     />
                 </CardContent>
             </Card>
