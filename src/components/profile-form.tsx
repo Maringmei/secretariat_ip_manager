@@ -23,7 +23,13 @@ const profileSchema = z.object({
   reportingOfficer: z.string().min(2, 'Reporting officer is required'),
   ein_sin: z.string().min(1, 'A valid EIN/SIN is required'),
   eofficeOnboarded: z.enum(['yes', 'no'], { required_error: 'This field is required.' }),
-  email: z.string().email("Invalid email address"),
+  email: z
+    .string()
+    .email("Invalid email address")
+    .refine(
+      (email) => /@([a-zA-Z0-9-]+\.)?(nic\.in|gov\.in)$/.test(email),
+      { message: "Email must end with @nic.in or @gov.in" }
+    ),
   whatsapp_no: z.string().length(10, 'WhatsApp number must be 10 digits.'),
 });
 
