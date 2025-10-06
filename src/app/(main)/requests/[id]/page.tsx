@@ -227,7 +227,7 @@ export default function RequestDetailsPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="flex flex-col gap-6 lg:order-2 lg:col-span-1">
+                <div className="order-1 lg:order-2 space-y-6">
                     <Card>
                         <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
                         <CardContent className="space-y-2 text-sm">
@@ -257,8 +257,9 @@ export default function RequestDetailsPage() {
                             <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}</p>
                         </CardContent>
                     </Card>
-                    
-                    {isOfficial && (canAssignIp || canApprove || canReject) && (
+
+                     {isOfficial && (canAssignIp || canApprove || canReject) && (
+                        <div className="order-last">
                         <Card>
                             <CardHeader>
                                 <CardTitle className="font-headline text-lg">Actions</CardTitle>
@@ -275,10 +276,11 @@ export default function RequestDetailsPage() {
                                 )}
                             </CardContent>
                         </Card>
+                        </div>
                     )}
                 </div>
 
-                 <div className="lg:col-span-2 lg:order-1 flex flex-col gap-6">
+                 <div className="order-2 lg:order-1 lg:col-span-2">
                     <Card>
                         <CardHeader>
                             <CardTitle className="font-headline">Request Workflow</CardTitle>
