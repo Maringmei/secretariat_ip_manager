@@ -213,20 +213,38 @@ export default function RequestDetailsPage() {
                 </Button>
                 <div className="flex-1">
                     <h1 className="font-headline text-3xl font-bold">Request #{request.request_number}</h1>
-                    <p className="text-muted-foreground">Submitted on {new Date(request.requestedAt).toLocaleString()}</p>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span>Submitted on {new Date(request.requestedAt).toLocaleString()}</span>
+                        <Badge 
+                            className="border-transparent px-2 py-0.5 text-xs"
+                            style={{
+                                backgroundColor: request.status_background_color,
+                                color: request.status_foreground_color
+                            }}
+                        >
+                            {request.status_name}
+                        </Badge>
+                    </div>
                 </div>
-                <Badge 
-                    className="border-transparent px-4 py-2 text-base"
-                    style={{
-                        backgroundColor: request.status_background_color,
-                        color: request.status_foreground_color
-                    }}
-                >
-                    {request.status_name}
-                </Badge>
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                
+                 <div className="lg:col-span-2 order-3 lg:order-1">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline">Request Workflow</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {workflow.length > 0 ? (
+                                <WorkflowTimeline workflow={workflow} />
+                            ) : (
+                                <p className="text-muted-foreground">No workflow history available for this request.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+
                 <div className="flex flex-col gap-6 order-1 lg:order-2">
                     <Card>
                         <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
@@ -259,7 +277,7 @@ export default function RequestDetailsPage() {
                     </Card>
 
                     {isOfficial && (canAssignIp || canApprove || canReject) && (
-                        <div className="order-last lg:order-none">
+                        <div className="order-last lg:order-3">
                         <Card>
                             <CardHeader>
                                 <CardTitle className="font-headline text-lg">Actions</CardTitle>
@@ -280,20 +298,6 @@ export default function RequestDetailsPage() {
                     )}
                 </div>
 
-                 <div className="order-2 lg:order-1 lg:col-span-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline">Request Workflow</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {workflow.length > 0 ? (
-                                <WorkflowTimeline workflow={workflow} />
-                            ) : (
-                                <p className="text-muted-foreground">No workflow history available for this request.</p>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
             </div>
         </div>
         
