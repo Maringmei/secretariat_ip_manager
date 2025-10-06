@@ -4,7 +4,7 @@ import RequestsTable from "@/components/requests-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
-import type { Request, Department, Block } from "@/lib/types";
+import type { Request, Department } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Search } from "lucide-react";
 import { Input } from "./ui/input";
@@ -23,13 +23,11 @@ export default function RequestListPage({ title, description, statusId }: Reques
     const [requests, setRequests] = useState<Request[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [departments, setDepartments] = useState<Department[]>([]);
-    const [blocks, setBlocks] = useState<Block[]>([]);
 
     // Filter states
     const [searchName, setSearchName] = useState("");
     const [requestNumber, setRequestNumber] = useState("");
     const [selectedDept, setSelectedDept] = useState("");
-    const [selectedBlock, setSelectedBlock] = useState("");
 
     const fetchRequests = async (currentStatusId: number, name = "", reqNo = "", deptId = "") => {
         if (!token) {
@@ -92,7 +90,6 @@ export default function RequestListPage({ title, description, statusId }: Reques
         };
 
         fetchFilterData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
-        fetchFilterData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks);
     }, [token, toast, statusId, title]);
 
     const handleFilter = () => {
@@ -133,14 +130,6 @@ export default function RequestListPage({ title, description, statusId }: Reques
                             </SelectTrigger>
                             <SelectContent>
                                 {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Select value={selectedBlock} onValueChange={setSelectedBlock}>
-                            <SelectTrigger className="w-full md:w-[180px]">
-                                <SelectValue placeholder="All Blocks" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {blocks.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
                         <Button onClick={handleFilter}>Apply Filters</Button>
