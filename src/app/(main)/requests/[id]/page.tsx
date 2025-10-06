@@ -189,7 +189,7 @@ export default function RequestDetailsPage() {
         await handleWorkflowAction(5, remark);
     };
 
-    const handleAssignEngineer = async ({ engineerId, visitDateTime, remark }: { engineerId: number, visitDateTime: string, remark?: string }) => {
+    const handleAssignEngineer = async ({ visitDateTime }: { visitDateTime: string }) => {
         if (!token || !request) return;
 
         setIsActionLoading(true);
@@ -200,8 +200,6 @@ export default function RequestDetailsPage() {
                 body: JSON.stringify({
                     ip_request_id: request.id,
                     status_id: 6, // Move to 'Ready'
-                    assigned_to: engineerId,
-                    remark: remark,
                     visit_date: visitDateTime, // Sending the formatted date-time string
                 })
             });
