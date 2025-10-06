@@ -73,7 +73,7 @@ export interface Request {
   section?: string;
   room_no?: string;
   e_office_onboarded?: '0' | '1';
-  status_id?: number;
+  status_id?: string;
   ip_address?: string;
   connection_speed?: string;
   can_approve?: boolean;

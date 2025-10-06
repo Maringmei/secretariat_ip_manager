@@ -16,6 +16,7 @@ import { useCounter } from '@/components/counter/counter-provider';
 import { ApproveRequestDialog } from '@/components/requests/approve-request-dialog';
 import { RejectRequestDialog } from '@/components/requests/reject-request-dialog';
 import { API_BASE_URL } from '@/lib/api';
+import { AssignEngineerDialog } from '@/components/requests/assign-engineer-dialog';
 
 export default function RequestDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -33,6 +34,7 @@ export default function RequestDetailsPage() {
     const [isAssignIpOpen, setIsAssignIpOpen] = useState(false);
     const [isApproveOpen, setIsApproveOpen] = useState(false);
     const [isRejectOpen, setIsRejectOpen] = useState(false);
+    const [isAssignEngineerOpen, setIsAssignEngineerOpen] = useState(false);
 
 
     const fetchRequestDetails = async () => {
@@ -187,6 +189,31 @@ export default function RequestDetailsPage() {
         await handleWorkflowAction(5, remark);
     };
 
+    const handleAssignEngineer = async ({ engineerId, remark }: { engineerId: number, remark?: string }) => {
+        if (!token || !request) return;
+
+        setIsActionLoading(true);
+        try {
+            // This is a placeholder for the actual API call
+            console.log("Assigning Engineer:", {
+                ip_request_id: request.id,
+                status_id: 4, // Assuming 4 is 'Assigned to Engineer'
+                assigned_to: engineerId,
+                remark: remark,
+            });
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+
+            toast({ title: "Success", description: "Network Engineer has been assigned." });
+            setIsAssignEngineerOpen(false);
+            refreshData();
+
+        } catch(error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive"});
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex h-64 items-center justify-center">
@@ -200,9 +227,10 @@ export default function RequestDetailsPage() {
     }
     
     const isOfficial = user?.type === 'official';
-    const canAssignIp = isOfficial && request.status_id === 1;
-    const canApprove = isOfficial && request.status_id === 2 && request.can_approve;
-    const canReject = isOfficial && (request.status_id === 1 || canApprove);
+    const canAssignIp = isOfficial && request.status_id === "1";
+    const canApprove = isOfficial && request.status_id === "2" && request.can_approve;
+    const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2");
+    const canAssignEngineer = isOfficial && request.status_id === "3" && request.can_approve;
 
     return (
         <>
@@ -229,7 +257,7 @@ export default function RequestDetailsPage() {
                         </div>
                     </div>
                 </div>
-                 {isOfficial && (canAssignIp || canApprove || canReject) && (
+                 {isOfficial && (canAssignIp || canApprove || canReject || canAssignEngineer) && (
                     <div className="flex flex-wrap gap-4">
                         {canAssignIp && (
                             <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
@@ -239,6 +267,9 @@ export default function RequestDetailsPage() {
                         )}
                         {canReject && (
                             <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
+                        )}
+                         {canAssignEngineer && (
+                            <Button onClick={() => setIsAssignEngineerOpen(true)} disabled={isActionLoading}>Assign Network Engineer</Button>
                         )}
                     </div>
                 )}
@@ -313,6 +344,14 @@ export default function RequestDetailsPage() {
                 isSubmitting={isActionLoading}
             />
             </>
+        )}
+        {canAssignEngineer && (
+            <AssignEngineerDialog
+                isOpen={isAssignEngineerOpen}
+                onClose={() => setIsAssignEngineerOpen(false)}
+                onConfirm={handleAssignEngineer}
+                isSubmitting={isActionLoading}
+            />
         )}
         </>
     )
