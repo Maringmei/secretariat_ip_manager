@@ -227,25 +227,8 @@ export default function RequestDetailsPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2 lg:order-1 flex flex-col gap-6">
-                    {/* On mobile, this will be the 3rd card. On desktop, it's the first in the wide column. */}
-                    <Card className="lg:order-1">
-                        <CardHeader>
-                            <CardTitle className="font-headline">Request Workflow</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {workflow.length > 0 ? (
-                                <WorkflowTimeline workflow={workflow} />
-                            ) : (
-                                <p className="text-muted-foreground">No workflow history available for this request.</p>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div className="lg:col-span-1 lg:order-2 flex flex-col gap-6">
-                     {/* On mobile, this will be the 1st card. On desktop, it's the first in the narrow column. */}
-                    <Card className="lg:order-1">
+                <div className="flex flex-col gap-6 lg:order-2 lg:col-span-1">
+                    <Card>
                         <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
                         <CardContent className="space-y-2 text-sm">
                             <p><strong>Name:</strong> {request.first_name} {request.last_name}</p>
@@ -258,8 +241,7 @@ export default function RequestDetailsPage() {
                         </CardContent>
                     </Card>
                     
-                    {/* On mobile, this will be the 2nd card. On desktop, it's the second in the narrow column. */}
-                    <Card className="lg:order-2">
+                    <Card>
                         <CardHeader>
                             <CardTitle className="font-headline text-lg">Request Details</CardTitle>
                             <CardDescription>
@@ -276,9 +258,8 @@ export default function RequestDetailsPage() {
                         </CardContent>
                     </Card>
                     
-                    {/* On mobile, this will be the 4th card. On desktop, it's the third in the narrow column. */}
                     {isOfficial && (canAssignIp || canApprove || canReject) && (
-                        <Card className="lg:order-3">
+                        <Card>
                             <CardHeader>
                                 <CardTitle className="font-headline text-lg">Actions</CardTitle>
                             </CardHeader>
@@ -295,6 +276,21 @@ export default function RequestDetailsPage() {
                             </CardContent>
                         </Card>
                     )}
+                </div>
+
+                 <div className="lg:col-span-2 lg:order-1 flex flex-col gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline">Request Workflow</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {workflow.length > 0 ? (
+                                <WorkflowTimeline workflow={workflow} />
+                            ) : (
+                                <p className="text-muted-foreground">No workflow history available for this request.</p>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </div>
@@ -326,5 +322,3 @@ export default function RequestDetailsPage() {
         </>
     )
 }
-
-    
