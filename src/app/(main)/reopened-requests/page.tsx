@@ -6,16 +6,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export default function ReopenedRequestsPage() {
     return (
         <div className="flex flex-col gap-6">
-            <h1 className="font-headline text-3xl font-bold">Reopened Requests</h1>
+            <h1 className="font-headline text-3xl font-bold">Closed Requests</h1>
             <Card>
                 <CardHeader>
-                    <CardDescription>These are your requests that have been reopened for further action.</CardDescription>
+                    <CardDescription>These are your requests that have been closed.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <MyRequestsListPage
-                        title="Reopened Requests"
-                        description="These requests have been reopened."
-                        statusIds={[8]}
+                        title="Closed Requests"
+                        description="These requests have been closed."
+                        statusIds={[7]}
                         showFilters={true}
                     />
                 </CardContent>
