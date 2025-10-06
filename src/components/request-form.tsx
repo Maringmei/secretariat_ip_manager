@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,7 +14,7 @@ import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import type { Block, ConnectionSpeed, Department, User } from '@/lib/types';
-import { useAuth } from './auth-provider';
+import { useAuth } from '@/components/auth/auth-provider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { API_BASE_URL } from '@/lib/api';
 
@@ -270,7 +269,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                             <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="applicant.email@gov.in" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                         <FormField control={form.control} name="whatsapp_no" render={({ field }) => (
-                            <FormItem><FormLabel>WhatsApp No.</FormLabel><FormControl><Input placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>WhatsApp No.</FormLabel><FormControl><Input placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></Form.Item>
                         )}/>
                     </div>
                 </CardContent>
