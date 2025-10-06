@@ -42,7 +42,7 @@ export default function LoginPage() {
 
         <Card className="mt-8 w-full shadow-xl">
             <CardHeader>
-            <CardTitle className="font-headline text-2xl">Secure Login</CardTitle>
+            <CardTitle className="font-headline text-xl">Secure Login</CardTitle>
             <CardDescription>
                 Enter your mobile number to receive a One-Time Password (OTP).
             </CardDescription>
