@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useAuth } from './auth-provider';
+import { useAuth } from '@/components/auth/auth-provider';
 import { API_BASE_URL } from '@/lib/api';
 
 const profileSchema = z.object({
@@ -271,3 +271,5 @@ export function ProfileForm({ user }: ProfileFormProps) {
     </Form>
   );
 }
+
+    
