@@ -3,11 +3,12 @@
 import RequestsTable from "@/components/requests-table";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
-import type { Request } from "@/lib/types";
+import type { Request, Department } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Search } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface MyRequestsListPageProps {
     title: string;
@@ -16,16 +17,19 @@ interface MyRequestsListPageProps {
     showFilters?: boolean;
 }
 
-export default function MyRequestsListPage({ title, statusIds, showFilters = true }: MyRequestsListPageProps) {
+export default function MyRequestsListPage({ title, description, statusIds, showFilters = false }: MyRequestsListPageProps) {
     const { token } = useAuth();
     const { toast } = useToast();
     const [requests, setRequests] = useState<Request[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [departments, setDepartments] = useState<Department[]>([]);
 
     // Filter states
+    const [searchName, setSearchName] = useState("");
     const [requestNumber, setRequestNumber] = useState("");
+    const [selectedDept, setSelectedDept] = useState("");
 
-    const fetchRequests = async (reqNo = "") => {
+    const fetchRequests = async (name = "", reqNo = "", deptId = "") => {
         if (!token) {
             setIsLoading(false);
             return;
@@ -33,10 +37,18 @@ export default function MyRequestsListPage({ title, statusIds, showFilters = tru
         setIsLoading(true);
 
         const statusQuery = statusIds.map(id => `status_id[]=${id}`).join('&');
-        const requestNoQuery = reqNo ? `&request_no=${reqNo}` : '';
+        
+        const queryParams = new URLSearchParams({
+            page: '1',
+            request_no: reqNo,
+            name: name,
+            department_id: deptId,
+        });
+        
+        const statusParam = statusIds.length > 0 ? statusQuery : '';
 
         try {
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/ip-requests?${statusQuery}${requestNoQuery}`, {
+            const response = await fetch(`https://iprequestapi.globizsapp.com/api/ip-requests?${queryParams.toString()}&${statusParam}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -68,26 +80,56 @@ export default function MyRequestsListPage({ title, statusIds, showFilters = tru
     };
     
     useEffect(() => {
-        if (token) {
-            fetchRequests();
-        }
+        fetchRequests();
+
+        const fetchFilterData = async (url: string, setData: (data: any[]) => void) => {
+            if (!token) return;
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    setData(result.data);
+                }
+            } catch (error) {
+                 console.error("Error fetching filter data from", url, error);
+            }
+        };
+
+        fetchFilterData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
     }, [token, statusIds.join(',')]); // Depend on stringified statusIds to avoid re-fetches on array reference change
 
     const handleFilter = () => {
-        fetchRequests(requestNumber);
+        fetchRequests(searchName, requestNumber, selectedDept);
     }
     
     const handleClearFilters = () => {
+        setSearchName("");
         setRequestNumber("");
+        setSelectedDept("");
         fetchRequests();
     };
 
     return (
         <div>
             {showFilters && (
-                <div className="mb-4 flex flex-wrap items-center gap-4">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <div className="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-end">
+                    <div className="relative">
+                        <Label>Name</Label>
+                        <Search className="absolute left-2.5 top-10 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                            placeholder="Search by name..." 
+                            className="pl-8" 
+                            value={searchName}
+                            onChange={(e) => setSearchName(e.target.value)}
+                        />
+                    </div>
+                     <div className="relative">
+                        <Label>Request No</Label>
+                        <Search className="absolute left-2.5 top-10 h-4 w-4 text-muted-foreground" />
                         <Input 
                             placeholder="Search by request number..." 
                             className="pl-8" 
@@ -95,8 +137,21 @@ export default function MyRequestsListPage({ title, statusIds, showFilters = tru
                             onChange={(e) => setRequestNumber(e.target.value)}
                         />
                     </div>
-                    <Button onClick={handleFilter}>Apply Filter</Button>
-                    <Button onClick={handleClearFilters} variant="outline">Clear Filter</Button>
+                    <div>
+                         <Label>Department</Label>
+                         <Select value={selectedDept} onValueChange={setSelectedDept}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All Departments" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button onClick={handleFilter} className="w-full">Apply Filters</Button>
+                        <Button onClick={handleClearFilters} variant="outline" className="w-full">Clear Filter</Button>
+                    </div>
                 </div>
             )}
 
