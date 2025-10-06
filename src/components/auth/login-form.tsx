@@ -212,7 +212,7 @@ export function LoginForm() {
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
-                    placeholder="9856012345" 
+                    placeholder="Phone number" 
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '').slice(0, 10);
@@ -254,7 +254,7 @@ export function LoginForm() {
                 <div className="relative">
                   <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
-                    placeholder="123456" 
+                    placeholder="OTP" 
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '').slice(0, 6);
