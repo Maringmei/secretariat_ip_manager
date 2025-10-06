@@ -243,55 +243,49 @@ export default function RequestDetailsPage() {
                 )}
             </div>
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6">
+                <Card>
+                    <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                        <p><strong>Name:</strong> {request.first_name} {request.last_name}</p>
+                        <p><strong>Designation:</strong> {request.designation}</p>
+                        <p><strong>Department:</strong> {request.department_name}</p>
+                        <p><strong>EIN/SIN:</strong> {request.ein_sin}</p>
+                        <p><strong>Reporting Officer:</strong> {request.reporting_officer}</p>
+                        <p><strong>Email:</strong> {request.email}</p>
+                        <p><strong>WhatsApp:</strong> {request.mobile_no}</p>
+                    </CardContent>
+                </Card>
                 
-                <div className="lg:col-span-2 order-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline">Request Workflow</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {workflow.length > 0 ? (
-                                <WorkflowTimeline workflow={workflow} />
-                            ) : (
-                                <p className="text-muted-foreground">No workflow history available for this request.</p>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
-                
-                <div className="flex flex-col gap-6 order-1">
-                    <Card>
-                        <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <p><strong>Name:</strong> {request.first_name} {request.last_name}</p>
-                            <p><strong>Designation:</strong> {request.designation}</p>
-                            <p><strong>Department:</strong> {request.department_name}</p>
-                            <p><strong>EIN/SIN:</strong> {request.ein_sin}</p>
-                            <p><strong>Reporting Officer:</strong> {request.reporting_officer}</p>
-                            <p><strong>Email:</strong> {request.email}</p>
-                            <p><strong>WhatsApp:</strong> {request.mobile_no}</p>
-                        </CardContent>
-                    </Card>
-                    
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-lg">Request Details</CardTitle>
-                            <CardDescription>
-                                e-Office Onboarded: {request.e_office_onboarded === '1' ? 'Yes' : 'No'}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <p><strong>MAC Address:</strong> <span className="font-mono">{request.mac_address}</span></p>
-                            <p><strong>Room No:</strong> {request.room_no}</p>
-                             <p><strong>Section:</strong> {request.section}</p>
-                            <p><strong>Block:</strong> {request.block_name}</p>
-                            <p><strong>Assigned IP:</strong> <span className="font-mono">{request.ip_address || 'N/A'}</span></p>
-                            <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}</p>
-                        </CardContent>
-                    </Card>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline text-lg">Request Details</CardTitle>
+                        <CardDescription>
+                            e-Office Onboarded: {request.e_office_onboarded === '1' ? 'Yes' : 'No'}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                        <p><strong>MAC Address:</strong> <span className="font-mono">{request.mac_address}</span></p>
+                        <p><strong>Room No:</strong> {request.room_no}</p>
+                         <p><strong>Section:</strong> {request.section}</p>
+                        <p><strong>Block:</strong> {request.block_name}</p>
+                        <p><strong>Assigned IP:</strong> <span className="font-mono">{request.ip_address || 'N/A'}</span></p>
+                        <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}</p>
+                    </CardContent>
+                </Card>
 
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline">Request Workflow</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {workflow.length > 0 ? (
+                            <WorkflowTimeline workflow={workflow} />
+                        ) : (
+                            <p className="text-muted-foreground">No workflow history available for this request.</p>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </div>
         
