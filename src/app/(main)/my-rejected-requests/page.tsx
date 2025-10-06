@@ -9,7 +9,7 @@ export default function MyRejectedRequestsPage() {
             <h1 className="font-headline text-3xl font-bold">Rejected Requests</h1>
             <Card>
                 <CardHeader>
-                    <CardTitle>Rejected Requests</CardTitle>
+            
                     <CardDescription>These requests have been rejected.</CardDescription>
                 </CardHeader>
                 <CardContent>

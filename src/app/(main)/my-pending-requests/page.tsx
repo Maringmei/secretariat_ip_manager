@@ -9,7 +9,7 @@ export default function MyPendingRequestsPage() {
             <h1 className="font-headline text-3xl font-bold">Pending Requests</h1>
             <Card>
                 <CardHeader>
-                    <CardTitle>In-Progress Requests</CardTitle>
+            
                     <CardDescription>These are your requests that are currently being processed.</CardDescription>
                 </CardHeader>
                 <CardContent>

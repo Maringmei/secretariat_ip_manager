@@ -9,7 +9,7 @@ export default function MyApprovedRequestsPage() {
             <h1 className="font-headline text-3xl font-bold">Approved Requests</h1>
             <Card>
                 <CardHeader>
-                    <CardTitle>Approved Requests</CardTitle>
+                
                     <CardDescription>These requests have been approved and the IP should be active.</CardDescription>
                 </CardHeader>
                 <CardContent>

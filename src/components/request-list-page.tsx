@@ -95,13 +95,20 @@ export default function RequestListPage({ title, description, statusId }: Reques
     const handleFilter = () => {
         fetchRequests(statusId, searchName, requestNumber, selectedDept);
     }
+    
+    const handleClearFilters = () => {
+        setSearchName("");
+        setRequestNumber("");
+        setSelectedDept("");
+        fetchRequests(statusId);
+    };
 
     return (
         <div className="flex flex-col gap-6">
             <h1 className="font-headline text-3xl font-bold">{title}</h1>
             <Card>
                 <CardHeader>
-                    <CardTitle>{title}</CardTitle>
+                  
                     <CardDescription>{description}</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -133,6 +140,7 @@ export default function RequestListPage({ title, description, statusId }: Reques
                             </SelectContent>
                         </Select>
                         <Button onClick={handleFilter}>Apply Filters</Button>
+                        <Button onClick={handleClearFilters} variant="outline">Clear Filter</Button>
                     </div>
 
                     {isLoading ? (

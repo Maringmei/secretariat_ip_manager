@@ -41,9 +41,9 @@ const AdminDashboard = ({ data }: { data: DashboardData }) => {
         <div className="flex flex-col gap-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <StatsCard title="Total Requests" value={data.summary?.total.toString() ?? '0'} icon={Server} />
-                <StatsCard title="Pending Requests" value={data.summary?.pending.toString() ?? '0'} icon={Clock} />
-                <StatsCard title="Approved Requests" value={data.summary?.approved.toString() ?? '0'} icon={Check} />
-                <StatsCard title="Rejected Requests" value={data.summary?.rejected.toString() ?? '0'} icon={X} />
+                <Link href={"/pending-approval"}><StatsCard title="Pending Requests" value={data.summary?.pending.toString() ?? '0'} icon={Clock} /></Link>
+                <Link href={"/approved-requests"}><StatsCard title="Approved Requests" value={data.summary?.approved.toString() ?? '0'} icon={Check} /></Link>
+                <Link href={"/rejected-requests"}><StatsCard title="Rejected Requests" value={data.summary?.rejected.toString() ?? '0'} icon={X} /></Link>
                 <StatsCard title="e-Office Onboarded" value={data.summary?.e_office_onboarded.toString() ?? '0'} icon={Activity} />
                 <StatsCard title="e-Office Not Onboarded" value={data.summary?.e_office_not_onboarded.toString() ?? '0'} icon={Users} />
             </div>
@@ -103,9 +103,9 @@ const StaffDashboard = ({ data }: { data: DashboardData }) => {
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatsCard title="Total Requests" value={data.total?.toString() ?? '0'} icon={Server} />
-                <StatsCard title="Pending" value={data.pending?.toString() ?? '0'} icon={Clock} />
-                <StatsCard title="Approved" value={data.approved?.toString() ?? '0'} icon={Check} />
-                <StatsCard title="Rejected" value={data.rejected?.toString() ?? '0'} icon={X} />
+                <Link href={"/my-pending-requests"}> <StatsCard title="Pending" value={data.pending?.toString() ?? '0'} icon={Clock} /> </Link>
+                <Link href={"/my-approved-requests"}> <StatsCard title="Approved" value={data.approved?.toString() ?? '0'} icon={Check} /> </Link>
+                <Link href={"/my-rejected-requests"}>  <StatsCard title="Rejected" value={data.rejected?.toString() ?? '0'} icon={X} /></Link>
             </div>
         </div>
     );
