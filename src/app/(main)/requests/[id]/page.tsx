@@ -189,7 +189,7 @@ export default function RequestDetailsPage() {
         await handleWorkflowAction(5, remark);
     };
 
-    const handleAssignEngineer = async ({ visitDateTime }: { visitDateTime: string }) => {
+    const handleAssignEngineer = async ({ remark }: { remark: string }) => {
         if (!token || !request) return;
 
         setIsActionLoading(true);
@@ -200,7 +200,7 @@ export default function RequestDetailsPage() {
                 body: JSON.stringify({
                     ip_request_id: request.id,
                     status_id: 6, // Move to 'Ready'
-                    visit_date: visitDateTime, // Sending the formatted date-time string
+                    remark: remark,
                 })
             });
 

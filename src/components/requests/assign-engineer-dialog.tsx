@@ -18,7 +18,6 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import type { User } from '@/lib/types';
 import { useAuth } from '../auth/auth-provider';
 import { useToast } from '@/hooks/use-toast';
 import { API_BASE_URL } from '@/lib/api';
@@ -33,7 +32,7 @@ import { Card, CardContent } from '../ui/card';
 interface AssignEngineerDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (data: { visitDateTime: string }) => Promise<void>;
+  onConfirm: (data: { remark: string }) => Promise<void>;
   isSubmitting: boolean;
   requestId: number;
 }
@@ -47,6 +46,7 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
     const { token } = useAuth();
     const { toast } = useToast();
     const [messageTemplate, setMessageTemplate] = useState('');
+    const [messagePreview, setMessagePreview] = useState('');
   
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -59,12 +59,17 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
     const visitDate = form.watch('visitDate');
     const visitTime = form.watch('visitTime');
     
-    const formattedDateTime = () => {
-        if (!visitDate || !visitTime) return '';
-        const [hours, minutes] = visitTime.split(':');
-        const dateWithTime = set(visitDate, { hours: parseInt(hours), minutes: parseInt(minutes) });
-        return format(dateWithTime, "PPP 'at' h:mm a");
-    }
+    useEffect(() => {
+        if (messageTemplate && visitDate && visitTime) {
+            const [hours, minutes] = visitTime.split(':');
+            const dateWithTime = set(visitDate, { hours: parseInt(hours), minutes: parseInt(minutes) });
+            const formattedDateTime = format(dateWithTime, "PPP 'at' h:mm a");
+            setMessagePreview(messageTemplate.replace('$', formattedDateTime));
+        } else {
+            setMessagePreview('Please select a date and time to see the message preview.');
+        }
+    }, [visitDate, visitTime, messageTemplate]);
+
 
     useEffect(() => {
         const fetchMessageTemplate = async () => {
@@ -90,12 +95,8 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
     }, [isOpen, token, toast]);
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-        const [hours, minutes] = values.visitTime.split(':');
-        const dateWithTime = set(values.visitDate, { hours: parseInt(hours), minutes: parseInt(minutes) });
-        const visitDateTimeString = format(dateWithTime, "yyyy-MM-dd HH:mm:ss");
-
         await onConfirm({
-            visitDateTime: visitDateTimeString,
+            remark: messagePreview,
         });
     };
 
@@ -175,10 +176,7 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
                         <Label>Message Preview</Label>
                         <Card className="mt-2 bg-muted/80">
                             <CardContent className="p-3 text-sm text-muted-foreground">
-                                {messageTemplate && visitDate && visitTime
-                                    ? messageTemplate.replace('$', formattedDateTime())
-                                    : 'Please select a date and time to see the message preview.'
-                                }
+                                {messagePreview}
                             </CardContent>
                         </Card>
                     </div>
