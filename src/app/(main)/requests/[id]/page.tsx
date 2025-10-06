@@ -206,31 +206,46 @@ export default function RequestDetailsPage() {
     return (
         <>
         <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-4">
-                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => router.back()}>
-                    <ArrowLeft className="h-4 w-4" />
-                    <span className="sr-only">Back</span>
-                </Button>
-                <div className="flex-1">
-                    <h1 className="font-headline text-3xl font-bold">Request #{request.request_number}</h1>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>Submitted on {new Date(request.requestedAt).toLocaleString()}</span>
-                        <Badge 
-                            className="border-transparent px-2 py-0.5 text-xs"
-                            style={{
-                                backgroundColor: request.status_background_color,
-                                color: request.status_foreground_color
-                            }}
-                        >
-                            {request.status_name}
-                        </Badge>
+            <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+                        <ArrowLeft className="h-4 w-4" />
+                        <span className="sr-only">Back</span>
+                    </Button>
+                    <div className="flex-1">
+                        <h1 className="font-headline text-3xl font-bold">Request #{request.request_number}</h1>
+                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>Submitted on {new Date(request.requestedAt).toLocaleString()}</span>
+                            <Badge 
+                                className="border-transparent px-2 py-0.5 text-xs"
+                                style={{
+                                    backgroundColor: request.status_background_color,
+                                    color: request.status_foreground_color
+                                }}
+                            >
+                                {request.status_name}
+                            </Badge>
+                        </div>
                     </div>
                 </div>
+                 {isOfficial && (canAssignIp || canApprove || canReject) && (
+                    <div className="flex flex-wrap gap-4">
+                        {canAssignIp && (
+                            <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
+                        )}
+                        {canApprove && (
+                            <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
+                        )}
+                        {canReject && (
+                            <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 
-                 <div className="lg:col-span-2 order-3 lg:order-1">
+                <div className="lg:col-span-2 order-3 lg:order-1">
                     <Card>
                         <CardHeader>
                             <CardTitle className="font-headline">Request Workflow</CardTitle>
@@ -244,7 +259,7 @@ export default function RequestDetailsPage() {
                         </CardContent>
                     </Card>
                 </div>
-
+                
                 <div className="flex flex-col gap-6 order-1 lg:order-2">
                     <Card>
                         <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
@@ -275,27 +290,6 @@ export default function RequestDetailsPage() {
                             <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}</p>
                         </CardContent>
                     </Card>
-
-                    {isOfficial && (canAssignIp || canApprove || canReject) && (
-                        <div className="order-last lg:order-3">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="font-headline text-lg">Actions</CardTitle>
-                            </CardHeader>
-                            <CardContent className="flex flex-wrap gap-4">
-                                {canAssignIp && (
-                                    <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
-                                )}
-                                {canApprove && (
-                                    <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
-                                )}
-                                {canReject && (
-                                    <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
-                                )}
-                            </CardContent>
-                        </Card>
-                        </div>
-                    )}
                 </div>
 
             </div>
