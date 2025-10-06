@@ -1,3 +1,4 @@
+
 'use client';
 import Image from 'next/image';
 import { LoginForm } from '@/components/auth/login-form';
@@ -25,12 +26,12 @@ export default function LoginPage() {
       </div>
     );
   }
-  
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="flex w-full max-w-md flex-col items-center text-center">
-        <ManipurEmblem className="mb-6 text-primary" width={150} height={150}/>
-        <h1 className="font-headline text-3xl font-bold text-primary">
+        <ManipurEmblem className="text-primary" width={80} height={80} />
+        <h1 className="mt-4 font-headline text-2xl font-bold text-primary">
           Critical Infrastructure Portal, Government of Manipur
         </h1>
         <p className="mt-2 text-muted-foreground">
