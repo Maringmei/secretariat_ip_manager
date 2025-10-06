@@ -245,7 +245,7 @@ export default function RequestDetailsPage() {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 
-                <div className="lg:col-span-2 order-3 lg:order-1">
+                <div className="lg:col-span-2 order-2">
                     <Card>
                         <CardHeader>
                             <CardTitle className="font-headline">Request Workflow</CardTitle>
@@ -260,7 +260,7 @@ export default function RequestDetailsPage() {
                     </Card>
                 </div>
                 
-                <div className="flex flex-col gap-6 order-1 lg:order-2">
+                <div className="flex flex-col gap-6 order-1">
                     <Card>
                         <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
                         <CardContent className="space-y-2 text-sm">
