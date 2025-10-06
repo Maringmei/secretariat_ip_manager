@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import type { Block, ConnectionSpeed, Department } from '@/lib/types';
+import type { Block, ConnectionSpeed, Department, User } from '@/lib/types';
 import { useAuth } from './auth/auth-provider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
@@ -48,6 +48,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFormLoading, setIsFormLoading] = useState(true);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const { token, user } = useAuth();
@@ -66,28 +67,70 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
       whatsapp_no: '',
       designation: '',
       ein_sin: '',
+      e_office_onboarded: '0',
     },
   });
 
   useEffect(() => {
-    if (user && isForSelf) {
-        form.reset({
-            first_name: user.first_name || user.name?.split(' ')[0] || '',
-            last_name: user.last_name || user.name?.split(' ').slice(1).join(' ') || '',
-            email: user.email || '',
-            whatsapp_no: user.whatsapp_no || '',
-            designation: user.designation || '',
-            department_id: user.department || undefined,
-            ein_sin: user.ein_sin || '',
-            // Reset other fields to their defaults
+    const fetchProfileForSelf = async () => {
+        if (token && isForSelf) {
+            setIsFormLoading(true);
+            try {
+                const response = await fetch(`https://iprequestapi.globizsapp.com/api/requesters/0`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                if (result.success && result.data) {
+                    const profile: User = result.data;
+                    form.reset({
+                        first_name: profile.first_name || '',
+                        last_name: profile.last_name || '',
+                        email: profile.email || '',
+                        whatsapp_no: profile.whatsapp_no || '',
+                        designation: profile.designation || '',
+                        department_id: profile.department_id ? String(profile.department_id) : undefined,
+                        ein_sin: profile.ein_sin || '',
+                        // Reset other fields
+                        mac_address: '',
+                        room_no: '',
+                        reporting_officer: 'N/A',
+                        section: '',
+                        consent: false,
+                        e_office_onboarded: '0',
+                    });
+                } else {
+                     toast({ title: "Note", description: "Could not fetch profile. Please fill out the form manually.", variant: "default" });
+                }
+            } catch (error) {
+                 toast({ title: "Error", description: "An error occurred while fetching your profile.", variant: "destructive" });
+            } finally {
+                setIsFormLoading(false);
+            }
+        } else {
+            setIsFormLoading(false);
+        }
+    }
+
+    if (isForSelf) {
+        fetchProfileForSelf();
+    } else {
+         form.reset({
             mac_address: '',
             room_no: '',
             reporting_officer: '',
             section: '',
             consent: false,
+            first_name: '',
+            last_name: '',
+            email: '',
+            whatsapp_no: '',
+            designation: '',
+            ein_sin: '',
+            e_office_onboarded: '0',
         });
+        setIsFormLoading(false);
     }
-  }, [user, form, isForSelf]);
+  }, [user, form, isForSelf, token, toast]);
 
 
   useEffect(() => {
@@ -101,7 +144,8 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
             });
             const result = await response.json();
             if (result.success) {
-                setData(result.data);
+                const activeItems = result.data.filter((item: any) => item.is_active !== 0);
+                setData(activeItems);
             } else {
                 toast({ title: 'Error', description: `Could not load ${type}.`, variant: 'destructive' });
             }
@@ -170,6 +214,10 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
     } finally {
         setIsLoading(false);
     }
+  }
+  
+  if (isFormLoading) {
+      return <div className="flex justify-center items-center p-8"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
 
   return (

@@ -13,6 +13,7 @@ export interface User {
   access?: string[];
   // from profile API
   department_name?: string;
+  department_id?: number;
   // from login response or user list
   role?: Role;
 
