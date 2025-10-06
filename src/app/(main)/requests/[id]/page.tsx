@@ -18,7 +18,7 @@ import { RejectRequestDialog } from '@/components/requests/reject-request-dialog
 
 export default function RequestDetailsPage() {
     const { id } = useParams<{ id: string }>();
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const { toast } = useToast();
     const router = useRouter();
     const { refreshCounts } = useCounter();
@@ -197,10 +197,11 @@ export default function RequestDetailsPage() {
     if (!request) {
         return notFound();
     }
-
-    const canAssignIp = request.status_id === 1;
-    const canApprove = request.status_id === 2 && request.can_approve;
-    const canReject = request.status_id === 1 || canApprove;
+    
+    const isOfficial = user?.type === 'official';
+    const canAssignIp = isOfficial && request.status_id === 1;
+    const canApprove = isOfficial && request.status_id === 2 && request.can_approve;
+    const canReject = isOfficial && (request.status_id === 1 || canApprove);
 
     return (
         <>
@@ -316,3 +317,5 @@ export default function RequestDetailsPage() {
         </>
     )
 }
+
+    
