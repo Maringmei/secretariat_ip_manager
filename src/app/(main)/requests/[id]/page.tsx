@@ -256,8 +256,22 @@ export default function RequestDetailsPage() {
                             <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}</p>
                         </CardContent>
                     </Card>
+                </div>
+                <div className="flex flex-col gap-6 lg:col-span-2 lg:order-1">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline">Request Workflow</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {workflow.length > 0 ? (
+                                <WorkflowTimeline workflow={workflow} />
+                            ) : (
+                                <p className="text-muted-foreground">No workflow history available for this request.</p>
+                            )}
+                        </CardContent>
+                    </Card>
                     {isOfficial && (canAssignIp || canApprove || canReject) && (
-                        <Card>
+                        <Card className="lg:order-3">
                             <CardHeader>
                                 <CardTitle className="font-headline text-lg">Actions</CardTitle>
                             </CardHeader>
@@ -274,20 +288,6 @@ export default function RequestDetailsPage() {
                             </CardContent>
                         </Card>
                     )}
-                </div>
-                <div className="lg:col-span-2 lg:order-1">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline">Request Workflow</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {workflow.length > 0 ? (
-                                <WorkflowTimeline workflow={workflow} />
-                            ) : (
-                                <p className="text-muted-foreground">No workflow history available for this request.</p>
-                            )}
-                        </CardContent>
-                    </Card>
                 </div>
             </div>
         </div>
