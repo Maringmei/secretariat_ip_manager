@@ -30,14 +30,16 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="flex w-full max-w-md flex-col items-center">
-        <div className="flex flex-col items-center text-center">
-            <ManipurEmblem className="text-primary" width={80} height={80} />
-            <h1 className="mt-4 font-headline text-xl font-bold text-primary">
-                Critical Infrastructure Portal, Government of Manipur
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-                Streamlining IP Address Requests and Allocation
-            </p>
+        <div className="flex items-center gap-4 text-left">
+            <ManipurEmblem className="text-primary" width={60} height={60} />
+            <div>
+              <h1 className="font-headline text-xl font-bold text-primary">
+                  Critical Infrastructure Portal, Government of Manipur
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                  Streamlining IP Address Requests and Allocation
+              </p>
+            </div>
         </div>
 
         <Card className="mt-8 w-full shadow-xl">
