@@ -241,6 +241,18 @@ export default function RequestDetailsPage() {
                 </Card>
                 <div className="space-y-6">
                     <Card>
+                        <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                            <p><strong>Name:</strong> {request.first_name} {request.last_name}</p>
+                            <p><strong>Designation:</strong> {request.designation}</p>
+                            <p><strong>Department:</strong> {request.department_name}</p>
+                            <p><strong>EIN/SIN:</strong> {request.ein_sin}</p>
+                            <p><strong>Reporting Officer:</strong> {request.reporting_officer}</p>
+                            <p><strong>Email:</strong> {request.email}</p>
+                            <p><strong>WhatsApp:</strong> {request.mobile_no}</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
                         <CardHeader>
                             <CardTitle className="font-headline text-lg">Request Details</CardTitle>
                             <CardDescription>
@@ -254,18 +266,6 @@ export default function RequestDetailsPage() {
                             <p><strong>Block:</strong> {request.block_name}</p>
                             <p><strong>Assigned IP:</strong> <span className="font-mono">{request.ip_address || 'N/A'}</span></p>
                             <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}</p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <p><strong>Name:</strong> {request.first_name} {request.last_name}</p>
-                            <p><strong>Designation:</strong> {request.designation}</p>
-                            <p><strong>Department:</strong> {request.department_name}</p>
-                            <p><strong>EIN/SIN:</strong> {request.ein_sin}</p>
-                            <p><strong>Reporting Officer:</strong> {request.reporting_officer}</p>
-                            <p><strong>Email:</strong> {request.email}</p>
-                            <p><strong>WhatsApp:</strong> {request.mobile_no}</p>
                         </CardContent>
                     </Card>
                     {(canAssignIp || canApprove || canReject) && (
@@ -317,5 +317,7 @@ export default function RequestDetailsPage() {
         </>
     )
 }
+
+    
 
     
