@@ -29,31 +29,33 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="flex w-full max-w-md flex-col items-center text-center">
-        <ManipurEmblem className="text-primary" width={80} height={80} />
-        <h1 className="mt-4 font-headline text-2xl font-bold text-primary">
-          Critical Infrastructure Portal, Government of Manipur
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Streamlining IP Address Requests and Allocation
-        </p>
-      </div>
+      <div className="flex w-full max-w-md flex-col items-center">
+        <div className="flex flex-col items-center text-center">
+            <ManipurEmblem className="text-primary" width={80} height={80} />
+            <h1 className="mt-4 font-headline text-2xl font-bold text-primary">
+                Critical Infrastructure Portal, Government of Manipur
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+                Streamlining IP Address Requests and Allocation
+            </p>
+        </div>
 
-      <Card className="mt-8 w-full max-w-md shadow-xl">
-        <CardHeader>
-          <CardTitle className="font-headline text-2xl">Secure Login</CardTitle>
-          <CardDescription>
-            Enter your mobile number to receive a One-Time Password (OTP).
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LoginForm />
-        </CardContent>
-      </Card>
-      <footer className="mt-8 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Government of Manipur. All rights reserved.</p>
-        <p className="mt-1 text-center">Powered By <span className='text-red-500'>Globizs</span></p>
-      </footer>
+        <Card className="mt-8 w-full shadow-xl">
+            <CardHeader>
+            <CardTitle className="font-headline text-2xl">Secure Login</CardTitle>
+            <CardDescription>
+                Enter your mobile number to receive a One-Time Password (OTP).
+            </CardDescription>
+            </CardHeader>
+            <CardContent>
+            <LoginForm />
+            </CardContent>
+        </Card>
+        <footer className="mt-8 text-sm text-muted-foreground">
+            <p>&copy; {new Date().getFullYear()} Government of Manipur. All rights reserved.</p>
+            <p className="mt-1 text-center">Powered By <span className='text-red-500'>Globizs</span></p>
+        </footer>
+      </div>
     </main>
   );
 }
