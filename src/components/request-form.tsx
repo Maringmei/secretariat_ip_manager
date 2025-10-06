@@ -73,7 +73,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
 
   useEffect(() => {
     const fetchProfileForSelf = async () => {
-        if (token && isForSelf) {
+        if (token && isForSelf && departments.length > 0) {
             setIsFormLoading(true);
             try {
                 const response = await fetch(`https://iprequestapi.globizsapp.com/api/requesters/0`, {
@@ -82,13 +82,15 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                 const result = await response.json();
                 if (result.success && result.data) {
                     const profile: User = result.data;
+                    const userDepartment = departments.find(d => d.name === profile.department_name);
+
                     form.reset({
                         first_name: profile.first_name || '',
                         last_name: profile.last_name || '',
                         email: profile.email || '',
                         whatsapp_no: profile.whatsapp_no || '',
                         designation: profile.designation || '',
-                        department_id: profile.department_id ? String(profile.department_id) : undefined,
+                        department_id: userDepartment ? String(userDepartment.id) : undefined,
                         ein_sin: profile.ein_sin || '',
                         // Reset other fields
                         mac_address: '',
@@ -112,7 +114,10 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
     }
 
     if (isForSelf) {
-        fetchProfileForSelf();
+        // We wait for departments to be loaded before fetching profile to ensure we can match it.
+        if (departments.length > 0) {
+            fetchProfileForSelf();
+        }
     } else {
          form.reset({
             mac_address: '',
@@ -130,7 +135,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
         });
         setIsFormLoading(false);
     }
-  }, [user, form, isForSelf, token, toast]);
+  }, [user, form, isForSelf, token, toast, departments]);
 
 
   useEffect(() => {
