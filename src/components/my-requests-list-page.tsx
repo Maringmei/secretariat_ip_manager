@@ -10,6 +10,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Label } from "./ui/label";
+import { API_BASE_URL } from "@/lib/api";
 
 interface MyRequestsListPageProps {
     title: string;
@@ -49,7 +50,7 @@ export default function MyRequestsListPage({ title, description, statusIds, show
         const statusParam = statusIds.length > 0 ? statusQuery : '';
 
         try {
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/ip-requests?${queryParams.toString()}&${statusParam}`, {
+            const response = await fetch(`${API_BASE_URL}/ip-requests?${queryParams.toString()}&${statusParam}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -100,7 +101,7 @@ export default function MyRequestsListPage({ title, description, statusIds, show
             }
         };
 
-        fetchFilterData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
+        fetchFilterData(`${API_BASE_URL}/departments`, setDepartments);
     }, [token, statusIds.join(',')]); // Depend on stringified statusIds to avoid re-fetches on array reference change
 
     const handleFilter = () => {

@@ -10,6 +10,7 @@ import { Loader2, Search } from "lucide-react";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Button } from "./ui/button";
+import { API_BASE_URL } from "@/lib/api";
 
 interface RequestListPageProps {
     title: string;
@@ -38,7 +39,7 @@ export default function RequestListPage({ title, description, statusId }: Reques
         try {
             // Block filter is not supported by API, so it will be client side if needed.
             // For now, we only filter by what the API supports: name/request_no and department_id
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/ip-requests?page=1&request_no=${reqNo}&name=${name}&department_id=${deptId}&status_id=${currentStatusId}`, {
+            const response = await fetch(`${API_BASE_URL}/ip-requests?page=1&request_no=${reqNo}&name=${name}&department_id=${deptId}&status_id=${currentStatusId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -89,7 +90,7 @@ export default function RequestListPage({ title, description, statusId }: Reques
             }
         };
 
-        fetchFilterData('https://iprequestapi.globizsapp.com/api/departments', setDepartments);
+        fetchFilterData(`${API_BASE_URL}/departments`, setDepartments);
     }, [token, toast, statusId, title]);
 
     const handleFilter = () => {

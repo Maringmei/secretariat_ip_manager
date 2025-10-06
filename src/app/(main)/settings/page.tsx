@@ -12,6 +12,7 @@ import { EditSettingDialog } from "@/components/settings/edit-setting-dialog";
 import { DeleteSettingDialog } from "@/components/settings/delete-setting-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 type SettingType = 'departments' | 'blocks' | 'speeds';
 
@@ -63,9 +64,9 @@ export default function SettingsPage() {
 
     const getApiEndpoint = (type: SettingType, id?: number | string) => {
         const baseEndpoints: Record<SettingType, string> = {
-            departments: 'https://iprequestapi.globizsapp.com/api/departments',
-            blocks: 'https://iprequestapi.globizsapp.com/api/blocks',
-            speeds: 'https://iprequestapi.globizsapp.com/api/connectionspeeds',
+            departments: `${API_BASE_URL}/departments`,
+            blocks: `${API_BASE_URL}/blocks`,
+            speeds: `${API_BASE_URL}/connectionspeeds`,
         };
         return id ? `${baseEndpoints[type]}/${id}` : baseEndpoints[type];
     }

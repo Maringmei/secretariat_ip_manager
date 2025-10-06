@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import BlockDistributionChart from "@/components/dashboard/block-distribution-chart";
 import MonthlyRequestsChart from "@/components/dashboard/monthly-requests-chart";
+import { API_BASE_URL } from "@/lib/api";
 
 interface DashboardData {
     summary?: {
@@ -145,8 +146,8 @@ export default function DashboardPage() {
             setIsLoading(true);
 
             const url = isOfficial 
-                ? 'https://iprequestapi.globizsapp.com/api/dashboard'
-                : 'https://iprequestapi.globizsapp.com/api/dashboard/0'; // 0 is a placeholder for current user
+                ? `${API_BASE_URL}/dashboard`
+                : `${API_BASE_URL}/dashboard/0`; // 0 is a placeholder for current user
 
             try {
                 const response = await fetch(url, {

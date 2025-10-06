@@ -1,3 +1,4 @@
+
 'use client';
 import UsersTable from "@/components/users-table";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { AddUserDialog } from "@/components/users/add-user-dialog";
 import { EditUserDialog } from "@/components/users/edit-user-dialog";
 import { Input } from "@/components/ui/input";
 import type { Role as RoleType } from "@/lib/types";
+import { API_BASE_URL } from "@/lib/api";
 
 
 export default function UserManagementPage() {
@@ -49,7 +51,7 @@ export default function UserManagementPage() {
         });
 
          try {
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/profiles?${queryParams.toString()}`, {
+            const response = await fetch(`${API_BASE_URL}/profiles?${queryParams.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const result = await response.json();
@@ -76,7 +78,7 @@ export default function UserManagementPage() {
     const fetchRoles = async () => {
          if (!token) return;
          try {
-            const response = await fetch('https://iprequestapi.globizsapp.com/api/auth/roles', {
+            const response = await fetch(`${API_BASE_URL}/auth/roles`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const result = await response.json();
@@ -129,7 +131,7 @@ export default function UserManagementPage() {
     const handleCreateUser = async (newUser: Omit<User, 'id'>) => {
         if (!token) return;
         try {
-            const response = await fetch('https://iprequestapi.globizsapp.com/api/profiles', {
+            const response = await fetch(`${API_BASE_URL}/profiles`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -153,7 +155,7 @@ export default function UserManagementPage() {
     const handleUpdateUser = async (updatedUser: User) => {
         if (!token || !selectedUser) return;
         try {
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/profiles/${selectedUser.id}`, {
+            const response = await fetch(`${API_BASE_URL}/profiles/${selectedUser.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

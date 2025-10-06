@@ -4,6 +4,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from '@/components/auth/auth-provider';
 import { useToast } from '@/hooks/use-toast';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Counts {
   // For admins
@@ -36,7 +37,7 @@ export function CounterProvider({ children }: { children: ReactNode }) {
     if (!token || !isAuthenticated) return;
 
     try {
-      const response = await fetch('https://iprequestapi.globizsapp.com/api/counts', {
+      const response = await fetch(`${API_BASE_URL}/counts`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

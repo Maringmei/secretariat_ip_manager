@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Textarea } from '../ui/textarea';
 import { useAuth } from '../auth/auth-provider';
 import { useToast } from '@/hooks/use-toast';
+import { API_BASE_URL } from '@/lib/api';
 
 interface AssignIpDialogProps {
   isOpen: boolean;
@@ -58,7 +59,7 @@ export function AssignIpDialog({ isOpen, onClose, onConfirm, isSubmitting }: Ass
         const fetchSpeeds = async () => {
             if (!token) return;
             try {
-                const response = await fetch('https://iprequestapi.globizsapp.com/api/connectionspeeds', {
+                const response = await fetch(`${API_BASE_URL}/connectionspeeds`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const result = await response.json();

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useAuth } from './auth/auth-provider';
+import { useAuth } from './auth-provider';
+import { API_BASE_URL } from '@/lib/api';
 
 const profileSchema = z.object({
   first_name: z.string().min(2, 'First name is required'),
@@ -64,7 +66,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     const fetchDepartments = async () => {
       if (!token) return;
       try {
-        const response = await fetch('https://iprequestapi.globizsapp.com/api/departments', {
+        const response = await fetch(`${API_BASE_URL}/departments`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -92,7 +94,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         
         setIsLoading(true);
         try {
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/requesters/0`, {
+            const response = await fetch(`${API_BASE_URL}/requesters/0`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const result = await response.json();
@@ -140,7 +142,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     setIsSubmitting(true);
     
     try {
-        const response = await fetch('https://iprequestapi.globizsapp.com/api/requesters', {
+        const response = await fetch(`${API_BASE_URL}/requesters`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

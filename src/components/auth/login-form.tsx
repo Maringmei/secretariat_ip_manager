@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Phone, KeyRound, Send, User, Building } from 'lucide-react';
 import { useAuth } from './auth-provider';
+import { API_BASE_URL } from '@/lib/api';
 
 
 const formSchema = z.object({
@@ -89,7 +90,7 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://iprequestapi.globizsapp.com/api/auth/verify-otp', {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -146,7 +147,7 @@ export function LoginForm() {
     setOtpLoading(true);
 
     try {
-        const response = await fetch('https://iprequestapi.globizsapp.com/api/auth/send-otp', {
+        const response = await fetch(`${API_BASE_URL}/auth/send-otp`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

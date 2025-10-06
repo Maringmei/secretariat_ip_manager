@@ -15,6 +15,7 @@ import { AssignIpDialog } from '@/components/requests/assign-ip-dialog';
 import { useCounter } from '@/components/counter/counter-provider';
 import { ApproveRequestDialog } from '@/components/requests/approve-request-dialog';
 import { RejectRequestDialog } from '@/components/requests/reject-request-dialog';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function RequestDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -41,7 +42,7 @@ export default function RequestDetailsPage() {
         }
         setIsLoading(true);
         try {
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/ip-requests/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/ip-requests/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -71,7 +72,7 @@ export default function RequestDetailsPage() {
     const fetchWorkflow = async () => {
         if (!token || !id) return;
         try {
-             const response = await fetch(`https://iprequestapi.globizsapp.com/api/ip-requests/${id}/workflows`, {
+             const response = await fetch(`${API_BASE_URL}/ip-requests/${id}/workflows`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -116,7 +117,7 @@ export default function RequestDetailsPage() {
 
         setIsActionLoading(true);
         try {
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/workflows`, {
+            const response = await fetch(`${API_BASE_URL}/workflows`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
                 body: JSON.stringify({
@@ -150,7 +151,7 @@ export default function RequestDetailsPage() {
 
         setIsActionLoading(true);
         try {
-            const response = await fetch(`https://iprequestapi.globizsapp.com/api/workflows`, {
+            const response = await fetch(`${API_BASE_URL}/workflows`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
                 body: JSON.stringify({

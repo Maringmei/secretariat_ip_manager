@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,8 +15,9 @@ import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import type { Block, ConnectionSpeed, Department, User } from '@/lib/types';
-import { useAuth } from './auth/auth-provider';
+import { useAuth } from './auth-provider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { API_BASE_URL } from '@/lib/api';
 
 const macAddressRegex = /^(?:[0-9A-Fa-f]{2}([:-]?))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}$|^[0-9A-Fa-f]{12}$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@(gov\.in|nic\.in)$/;
@@ -76,7 +78,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
         if (token && isForSelf && departments.length > 0) {
             setIsFormLoading(true);
             try {
-                const response = await fetch(`https://iprequestapi.globizsapp.com/api/requesters/0`, {
+                const response = await fetch(`${API_BASE_URL}/requesters/0`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const result = await response.json();
@@ -159,8 +161,8 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
         }
     };
 
-    fetchData('https://iprequestapi.globizsapp.com/api/blocks', setBlocks, 'blocks');
-    fetchData('https://iprequestapi.globizsapp.com/api/departments', setDepartments, 'departments');
+    fetchData(`${API_BASE_URL}/blocks`, setBlocks, 'blocks');
+    fetchData(`${API_BASE_URL}/departments`, setDepartments, 'departments');
 
   }, [toast, token]);
 
@@ -189,7 +191,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
     };
 
     try {
-        const response = await fetch('https://iprequestapi.globizsapp.com/api/ip-requests', {
+        const response = await fetch(`${API_BASE_URL}/ip-requests`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
