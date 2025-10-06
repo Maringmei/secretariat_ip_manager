@@ -18,6 +18,7 @@ import { RejectRequestDialog } from '@/components/requests/reject-request-dialog
 import { API_BASE_URL } from '@/lib/api';
 import { AssignEngineerDialog } from '@/components/requests/assign-engineer-dialog';
 import { CloseRequestDialog } from '@/components/requests/close-request-dialog';
+import { ReopenRequestDialog } from '@/components/requests/reopen-request-dialog';
 
 export default function RequestDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -37,6 +38,7 @@ export default function RequestDetailsPage() {
     const [isRejectOpen, setIsRejectOpen] = useState(false);
     const [isAssignEngineerOpen, setIsAssignEngineerOpen] = useState(false);
     const [isCloseRequestOpen, setIsCloseRequestOpen] = useState(false);
+    const [isReopenRequestOpen, setIsReopenRequestOpen] = useState(false);
 
 
     const fetchRequestDetails = async () => {
@@ -139,6 +141,7 @@ export default function RequestDetailsPage() {
                 setIsApproveOpen(false);
                 setIsRejectOpen(false);
                 setIsCloseRequestOpen(false);
+                setIsReopenRequestOpen(false);
                 refreshData();
             } else {
                 throw new Error(result.message || "Failed to update workflow.");
@@ -195,6 +198,10 @@ export default function RequestDetailsPage() {
     const handleReject = async ({ remark }: { remark: string }) => {
         await handleWorkflowAction(5, remark);
     };
+    
+    const handleReopen = async ({ remark }: { remark?: string }) => {
+        await handleWorkflowAction(1, remark);
+    };
 
     const handleAssignEngineer = async ({ remark }: { remark: string }) => {
         if (!token || !request) return;
@@ -245,6 +252,7 @@ export default function RequestDetailsPage() {
     const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2" || request.status_id === "6");
     const canAssignEngineer = isOfficial && request.status_id === "3" && request.can_approve;
     const canCloseRequest = isOfficial && request.status_id === "6" && request.can_approve;
+    const canReopen = !isOfficial && request.status_id === "7";
 
 
     return (
@@ -272,25 +280,26 @@ export default function RequestDetailsPage() {
                         </div>
                     </div>
                 </div>
-                 {isOfficial && (canAssignIp || canApprove || canReject || canAssignEngineer || canCloseRequest) && (
-                    <div className="flex flex-wrap gap-4">
-                        {canAssignIp && (
-                            <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
-                        )}
-                        {canApprove && (
-                            <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
-                        )}
-                        {canCloseRequest && (
-                             <Button onClick={() => setIsCloseRequestOpen(true)} disabled={isActionLoading}>Close the issue</Button>
-                        )}
-                        {canReject && (
-                            <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
-                        )}
-                         {canAssignEngineer && (
-                            <Button onClick={() => setIsAssignEngineerOpen(true)} disabled={isActionLoading}>Assign Network Engineer</Button>
-                        )}
-                    </div>
-                )}
+                 <div className="flex flex-wrap gap-4">
+                    {canAssignIp && (
+                        <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
+                    )}
+                    {canApprove && (
+                        <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
+                    )}
+                    {canCloseRequest && (
+                            <Button onClick={() => setIsCloseRequestOpen(true)} disabled={isActionLoading}>Close the issue</Button>
+                    )}
+                    {canReject && (
+                        <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
+                    )}
+                        {canAssignEngineer && (
+                        <Button onClick={() => setIsAssignEngineerOpen(true)} disabled={isActionLoading}>Assign Network Engineer</Button>
+                    )}
+                    {canReopen && (
+                        <Button onClick={() => setIsReopenRequestOpen(true)} disabled={isActionLoading}>Reopen</Button>
+                    )}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 gap-6">
@@ -347,28 +356,26 @@ export default function RequestDetailsPage() {
                 isSubmitting={isActionLoading}
             />
         )}
-        {(canApprove || canReject || canCloseRequest) && (
-            <>
-            <ApproveRequestDialog
-                isOpen={isApproveOpen}
-                onClose={() => setIsApproveOpen(false)}
-                onConfirm={handleApprove}
-                isSubmitting={isActionLoading}
-            />
-            <RejectRequestDialog
-                isOpen={isRejectOpen}
-                onClose={() => setIsRejectOpen(false)}
-                onConfirm={handleReject}
-                isSubmitting={isActionLoading}
-            />
-             <CloseRequestDialog
-                isOpen={isCloseRequestOpen}
-                onClose={() => setIsCloseRequestOpen(false)}
-                onConfirm={handleClose}
-                isSubmitting={isActionLoading}
-            />
-            </>
-        )}
+        
+        <ApproveRequestDialog
+            isOpen={isApproveOpen}
+            onClose={() => setIsApproveOpen(false)}
+            onConfirm={handleApprove}
+            isSubmitting={isActionLoading}
+        />
+        <RejectRequestDialog
+            isOpen={isRejectOpen}
+            onClose={() => setIsRejectOpen(false)}
+            onConfirm={handleReject}
+            isSubmitting={isActionLoading}
+        />
+            <CloseRequestDialog
+            isOpen={isCloseRequestOpen}
+            onClose={() => setIsCloseRequestOpen(false)}
+            onConfirm={handleClose}
+            isSubmitting={isActionLoading}
+        />
+        
         {canAssignEngineer && (
             <AssignEngineerDialog
                 isOpen={isAssignEngineerOpen}
@@ -376,6 +383,14 @@ export default function RequestDetailsPage() {
                 onConfirm={handleAssignEngineer}
                 isSubmitting={isActionLoading}
                 requestId={Number(id)}
+            />
+        )}
+        {canReopen && (
+            <ReopenRequestDialog
+                isOpen={isReopenRequestOpen}
+                onClose={() => setIsReopenRequestOpen(false)}
+                onConfirm={handleReopen}
+                isSubmitting={isActionLoading}
             />
         )}
         </>
