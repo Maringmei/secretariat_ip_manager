@@ -15,7 +15,7 @@ import {
   SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { ManipurEmblem } from '../icons/manipur-emblem';
-import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus } from 'lucide-react';
+import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus, CheckCheck, Archive } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
 import { useCounter } from '../counter/counter-provider';
 import type { LucideIcon } from 'lucide-react';
@@ -33,6 +33,8 @@ const menuItems: MenuItem[] = [
 ];
 
 const requesterMenuItems: MenuItem[] = [
+    { href: '/requests/new', label: 'New Request', icon: FilePlus, types: ['requester'] },
+    { href: '/requests', label: 'All My Requests', icon: History, types: ['requester'] },
     { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'my_pending' },
     { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'my_approved' },
     { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'my_rejected' },
@@ -42,6 +44,9 @@ const adminMenuItems: MenuItem[] = [
     { href: '/new-requests', label: 'New Requests', icon: Inbox, types: ['official'], countKey: 'new' },
     { href: '/pending-approval', label: 'Pending Approval', icon: FileClock, types: ['official'], countKey: 'pending_approval' },
     { href: '/approved-requests', label: 'Approved', icon: FileCheck, types: ['official'], countKey: 'approved' },
+    { href: '/ready-requests', label: 'Ready', icon: CheckCheck, types: ['official'], countKey: 'ready' },
+    { href: '/closed-requests', label: 'Closed', icon: Archive, types: ['official'], countKey: 'closed' },
+    { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['official'], countKey: 'reopened' },
     { href: '/rejected-requests', label: 'Rejected', icon: FileX, types: ['official'], countKey: 'rejected_requests' },
     { href: '/settings', label: 'Settings', icon: Settings, types: ['official'] },
     { href: '/users', label: 'User Management', icon: Users, types: ['official'] },

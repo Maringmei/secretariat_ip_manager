@@ -1,1 +1,1 @@
-export const API_BASE_URL = 'https://criticalinfra.mn.gov.in/api';
+export const API_BASE_URL = 'https://iprequestapi.globizsapp.com/api';
