@@ -227,7 +227,7 @@ export default function RequestDetailsPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="space-y-6 order-1 lg:order-2">
+                <div className="flex flex-col gap-6 order-1 lg:order-2">
                     <Card>
                         <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
                         <CardContent className="space-y-2 text-sm">
@@ -257,9 +257,30 @@ export default function RequestDetailsPage() {
                             <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}</p>
                         </CardContent>
                     </Card>
+
+                    {isOfficial && (canAssignIp || canApprove || canReject) && (
+                        <div className="order-last lg:order-none">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="font-headline text-lg">Actions</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex flex-wrap gap-4">
+                                {canAssignIp && (
+                                    <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
+                                )}
+                                {canApprove && (
+                                    <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
+                                )}
+                                {canReject && (
+                                    <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
+                                )}
+                            </CardContent>
+                        </Card>
+                        </div>
+                    )}
                 </div>
 
-                 <div className="order-3 lg:order-1 lg:col-span-2">
+                 <div className="order-2 lg:order-1 lg:col-span-2">
                     <Card>
                         <CardHeader>
                             <CardTitle className="font-headline">Request Workflow</CardTitle>
@@ -273,27 +294,6 @@ export default function RequestDetailsPage() {
                         </CardContent>
                     </Card>
                 </div>
-
-                {isOfficial && (canAssignIp || canApprove || canReject) && (
-                    <div className="order-last lg:order-3">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-lg">Actions</CardTitle>
-                        </CardHeader>
-                         <CardContent className="flex flex-wrap gap-4">
-                            {canAssignIp && (
-                                 <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
-                            )}
-                            {canApprove && (
-                                <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
-                            )}
-                            {canReject && (
-                                <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
-                            )}
-                        </CardContent>
-                    </Card>
-                    </div>
-                )}
             </div>
         </div>
         
