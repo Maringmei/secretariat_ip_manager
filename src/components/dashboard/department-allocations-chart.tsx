@@ -28,7 +28,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface DepartmentAllocationsChartProps {
-    data?: { block_name: string; total: number; pending: number; approved: number; rejected: number; }[];
+    data?: { block_name: string; total: number | string; pending: number; approved: number; rejected: number; }[];
 }
 
 export default function DepartmentAllocationsChart({ data }: DepartmentAllocationsChartProps) {
@@ -36,9 +36,9 @@ export default function DepartmentAllocationsChart({ data }: DepartmentAllocatio
 
     const chartData = data.map(dept => ({
         department: dept.block_name.split(" ")[0], // Use short name
-        approved: dept.approved,
-        pending: dept.pending,
-        rejected: dept.rejected,
+        approved: Number(dept.approved),
+        pending: Number(dept.pending),
+        rejected: Number(dept.rejected),
     }));
 
     if (chartData.length === 0) {

@@ -18,7 +18,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface BlockDistributionChartProps {
-    data?: { block_name: string; count: number }[];
+    data?: { block_name: string; count: number | string }[];
 }
 
 export default function BlockDistributionChart({ data }: BlockDistributionChartProps) {
@@ -26,7 +26,7 @@ export default function BlockDistributionChart({ data }: BlockDistributionChartP
 
     const chartData = data.map(block => ({
         block: block.block_name,
-        requests: block.count,
+        requests: Number(block.count),
     }));
 
     if (chartData.length === 0) {

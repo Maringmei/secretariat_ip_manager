@@ -25,10 +25,10 @@ interface DashboardData {
         e_office_onboarded: number;
         e_office_not_onboarded: number;
     };
-    by_connection_speed?: { connection_speed_name: string; count: number }[];
-    by_department?: { block_name: string; total: number; pending: number; approved: number; rejected: number;}[];
-    by_block?: { block_name: string; count: number }[];
-    by_month?: { label: string; count: number }[];
+    by_connection_speed?: { connection_speed_name: string; count: number | string }[];
+    by_department?: { block_name: string; total: number | string; pending: number; approved: number; rejected: number;}[];
+    by_block?: { block_name: string; count: number | string }[];
+    by_month?: { label: string; count: number | string }[];
     // For requester
     total?: number;
     pending?: number;
@@ -155,11 +155,7 @@ export default function DashboardPage() {
                 });
                 const result = await response.json();
                 if (result.success) {
-                    if (isOfficial) {
-                        setData(result.data);
-                    } else {
-                        setData(result.data)
-                    }
+                    setData(result.data);
                 } else {
                     throw new Error(result.message || "Failed to load dashboard data.");
                 }

@@ -12,14 +12,14 @@ import {
 } from "@/components/ui/chart"
 
 interface SpeedChartProps {
-    data?: { connection_speed_name: string; count: number }[];
+    data?: { connection_speed_name: string; count: number | string }[];
 }
 
 export default function SpeedChart({ data }: SpeedChartProps) {
     if (!data) return null;
 
     const chartData = data.map((speed, index) => {
-        return { name: speed.connection_speed_name, count: speed.count, fill: `hsl(var(--chart-${index + 1}))` };
+        return { name: speed.connection_speed_name, count: Number(speed.count), fill: `hsl(var(--chart-${index + 1}))` };
     }).filter(d => d.count > 0);
 
     const chartConfig = {

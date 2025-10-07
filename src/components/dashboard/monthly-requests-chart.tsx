@@ -18,7 +18,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 interface MonthlyRequestsChartProps {
-    data?: { label: string; count: number }[];
+    data?: { label: string; count: number | string }[];
 }
 
 export default function MonthlyRequestsChart({ data }: MonthlyRequestsChartProps) {
@@ -26,7 +26,7 @@ export default function MonthlyRequestsChart({ data }: MonthlyRequestsChartProps
 
     const chartData = data.map(month => ({
         month: month.label,
-        requests: month.count,
+        requests: Number(month.count),
     }));
 
      if (chartData.length === 0) {
