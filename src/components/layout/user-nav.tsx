@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -15,16 +16,25 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { LogOut, User } from "lucide-react";
 import { useAuth } from '../auth/auth-provider';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { LogoutConfirmationDialog } from '../auth/logout-confirmation-dialog';
 
 export function UserNav() {
     const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar-1');
     const { user, logout } = useAuth();
     const router = useRouter();
+    const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
 
     const handleLogout = () => {
         logout();
         router.push('/');
     }
+
+    const openLogoutDialog = (e: Event) => {
+        e.preventDefault();
+        setLogoutDialogOpen(true);
+    };
 
     if (!user) {
         return null;
@@ -35,6 +45,7 @@ export function UserNav() {
 
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -63,11 +74,17 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onSelect={openLogoutDialog}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    <LogoutConfirmationDialog
+        isOpen={isLogoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+        onConfirm={handleLogout}
+    />
+    </>
   )
 }

@@ -19,6 +19,8 @@ import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbo
 import { useAuth } from '../auth/auth-provider';
 import { useCounter } from '../counter/counter-provider';
 import type { LucideIcon } from 'lucide-react';
+import { useState } from 'react';
+import { LogoutConfirmationDialog } from '../auth/logout-confirmation-dialog';
 
 interface MenuItem {
     href: string;
@@ -33,6 +35,8 @@ const menuItems: MenuItem[] = [
 ];
 
 const requesterMenuItems: MenuItem[] = [
+    { href: '/requests', label: 'All My Requests', icon: History, types: ['requester'] },
+    { href: '/requests/new', label: 'New Request', icon: FilePlus, types: ['requester'] },
     { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'my_pending' },
     { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'my_approved' },
     { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'my_rejected' },
@@ -56,6 +60,7 @@ export default function AppSidebar() {
     const { user, logout } = useAuth();
     const { counts } = useCounter();
     const router = useRouter();
+    const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
     const userType = user?.type || 'requester'; 
 
@@ -64,7 +69,12 @@ export default function AppSidebar() {
       router.push('/');
     };
 
+    const openLogoutDialog = () => {
+        setLogoutDialogOpen(true);
+    };
+
   return (
+    <>
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-3">
@@ -125,11 +135,17 @@ export default function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
+        <SidebarMenuButton onClick={openLogoutDialog} tooltip="Logout">
           <LogOut />
           <span>Logout</span>
         </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>
+    <LogoutConfirmationDialog
+        isOpen={isLogoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+        onConfirm={handleLogout}
+    />
+    </>
   );
 }

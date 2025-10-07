@@ -57,7 +57,7 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOtpSent, setOtpSent] = useState(false);
   const [isOtpLoading, setOtpLoading] = useState(false);
-  const [loginType, setLoginType] = useState<LoginType>('official');
+  const [loginType, setLoginType] = useState<LoginType>('requester');
   const router = useRouter();
   const { toast } = useToast();
   const { login } = useAuth();
@@ -213,7 +213,7 @@ export function LoginForm() {
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
-                    placeholder="Phone number" 
+                    placeholder="Enter 10-digit mobile number" 
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '').slice(0, 10);
