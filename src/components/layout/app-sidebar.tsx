@@ -38,7 +38,7 @@ const requesterMenuItems: MenuItem[] = [
     { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'my_pending' },
     { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'my_approved' },
     { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'my_rejected' },
-    // { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['requester'], countKey: 'reopened' },
+    { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['requester'], countKey: 'reopened' },
 ];
 
 const adminMenuItems: MenuItem[] = [
