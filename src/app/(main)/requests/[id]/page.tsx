@@ -253,7 +253,7 @@ export default function RequestDetailsPage() {
     const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2" || request.status_id === "6");
     const canAssignEngineer = isOfficial && request.status_id === "3" && request.can_approve;
     const canCloseRequest = isOfficial && request.status_id === "6" && request.can_approve;
-    const canReopen = request.status_id === "7" || (isRequester && request.status_id === "3");
+    const canReopen = request.status_id === "7" || (isRequester && (request.status_id === "3" || request.status_id === "7"));
 
 
     return (
