@@ -183,25 +183,28 @@ export function LoginForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-2 gap-2 rounded-lg bg-muted p-1">
-            <Button
-                type="button"
-                variant={loginType === 'requester' ? 'default' : 'ghost'}
-                onClick={() => setLoginType('requester')}
-                disabled={isOtpSent}
-            >
-                <User className="mr-2" />
-                Requester
-            </Button>
-             <Button
-                type="button"
-                variant={loginType === 'official' ? 'default' : 'ghost'}
-                onClick={() => setLoginType('official')}
-                disabled={isOtpSent}
-            >
-                <Building className="mr-2" />
-                Official
-            </Button>
+        <div className="space-y-2">
+            <FormLabel>Login as</FormLabel>
+            <div className="grid grid-cols-2 gap-2 rounded-lg bg-muted p-1">
+                <Button
+                    type="button"
+                    variant={loginType === 'requester' ? 'default' : 'ghost'}
+                    onClick={() => setLoginType('requester')}
+                    disabled={isOtpSent}
+                >
+                    <User className="mr-2" />
+                    Requester
+                </Button>
+                <Button
+                    type="button"
+                    variant={loginType === 'official' ? 'default' : 'ghost'}
+                    onClick={() => setLoginType('official')}
+                    disabled={isOtpSent}
+                >
+                    <Building className="mr-2" />
+                    Official
+                </Button>
+            </div>
         </div>
         <FormField
           control={form.control}
