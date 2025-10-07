@@ -13,34 +13,37 @@ import {
 
 interface StatusOverviewChartProps {
     data?: {
-        pending: number;
+        new?: number;
+        pending_approval?: number;
         approved: number;
+        ready?: number;
+        closed?: number;
+        re_opened?: number;
         rejected: number;
     };
 }
 
 const chartConfig = {
-  Approved: {
-    label: "Approved",
-    color: "#10b981",
-  },
-  Rejected: {
-    label: "Rejected",
-    color: "#ef4444",
-  },
-  Pending: {
-    label: "Pending",
-    color: "#f59e0b",
-  },
+  New: { label: "New", color: "#3b82f6" },
+  'Pending Approval': { label: "Pending Approval", color: "#f59e0b" },
+  Approved: { label: "Approved", color: "#10b981" },
+  Ready: { label: "Ready", color: "#84cc16" },
+  Closed: { label: "Closed", color: "#6b7280" },
+  'Re-opened': { label: "Re-opened", color: "#a855f7" },
+  Rejected: { label: "Rejected", color: "#ef4444" },
 };
 
 export default function StatusOverviewChart({ data }: StatusOverviewChartProps) {
     if (!data) return null;
 
     const chartData = [
+        { name: 'New', count: data.new ?? 0, fill: chartConfig.New.color },
+        { name: 'Pending Approval', count: data.pending_approval ?? 0, fill: chartConfig['Pending Approval'].color },
         { name: 'Approved', count: data.approved, fill: chartConfig.Approved.color },
+        { name: 'Ready', count: data.ready ?? 0, fill: chartConfig.Ready.color },
+        { name: 'Closed', count: data.closed ?? 0, fill: chartConfig.Closed.color },
+        { name: 'Re-opened', count: data.re_opened ?? 0, fill: chartConfig['Re-opened'].color },
         { name: 'Rejected', count: data.rejected, fill: chartConfig.Rejected.color },
-        { name: 'Pending', count: data.pending, fill: chartConfig.Pending.color },
     ].filter(d => d.count > 0);
 
     if (chartData.length === 0) {

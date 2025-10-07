@@ -17,7 +17,7 @@ export default function StatsCard({ title, value, icon: Icon, description }: Sta
         <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</CardTitle>
         {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
       </CardHeader>
-      <CardContent className="flex-grow pl-4">
+      <CardContent className="flex-grow pl-4 flex flex-col justify-center">
         <div className="text-3xl font-bold">{value}</div>
         {description && <p className="text-xs text-muted-foreground">{description}</p>}
       </CardContent>
