@@ -68,7 +68,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
       whatsapp_no: '',
       designation: '',
       ein_sin: '',
-      e_office_onboarded: '0',
+      e_office_onboarded: undefined,
     },
   });
 
@@ -96,10 +96,10 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                         // Reset other fields
                         mac_address: '',
                         room_no: '',
-                        reporting_officer: 'N/A',
+                        reporting_officer: '',
                         section: '',
                         consent: false,
-                        e_office_onboarded: '0',
+                        e_office_onboarded: undefined,
                     });
                 } else {
                      toast({ title: "Note", description: "Could not fetch profile. Please fill out the form manually.", variant: "default" });
@@ -132,7 +132,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
             whatsapp_no: '',
             designation: '',
             ein_sin: '',
-            e_office_onboarded: '0',
+            e_office_onboarded: undefined,
         });
         setIsFormLoading(false);
     }
