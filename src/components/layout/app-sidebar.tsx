@@ -35,8 +35,6 @@ const menuItems: MenuItem[] = [
 ];
 
 const requesterMenuItems: MenuItem[] = [
-    { href: '/requests', label: 'All My Requests', icon: History, types: ['requester'] },
-    { href: '/requests/new', label: 'New Request', icon: FilePlus, types: ['requester'] },
     { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'my_pending' },
     { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'my_approved' },
     { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'my_rejected' },
