@@ -247,12 +247,13 @@ export default function RequestDetailsPage() {
     }
     
     const isOfficial = user?.type === 'official';
+    const isRequester = user?.type === 'requester';
     const canAssignIp = isOfficial && request.status_id === "1";
     const canApprove = isOfficial && request.status_id === "2" && request.can_approve;
     const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2" || request.status_id === "6");
     const canAssignEngineer = isOfficial && request.status_id === "3" && request.can_approve;
     const canCloseRequest = isOfficial && request.status_id === "6" && request.can_approve;
-    const canReopen = request.status_id === "7";
+    const canReopen = request.status_id === "7" || (isRequester && request.status_id === "3");
 
 
     return (
@@ -329,7 +330,7 @@ export default function RequestDetailsPage() {
                          <p><strong>Section:</strong> {request.section}</p>
                         <p><strong>Block:</strong> {request.block_name}</p>
                         <p><strong>Assigned IP:</strong> <span className="font-mono">{request.ip_address || 'N/A'}</span></p>
-                        <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}</p>
+                        <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}></p>
                     </CardContent>
                 </Card>
 
