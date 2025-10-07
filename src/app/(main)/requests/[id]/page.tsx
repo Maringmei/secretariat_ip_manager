@@ -258,7 +258,7 @@ export default function RequestDetailsPage() {
     const isApproved = request.status_id === "3";
 
     const canReopenAsOfficial = isOfficial && isClosed;
-    const canReopenAsRequester = !isOfficial && isApproved;
+    const canReopenAsRequester = !isOfficial && isClosed;
     const canReopen = canReopenAsOfficial || canReopenAsRequester;
 
 
