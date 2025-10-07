@@ -16,4 +16,10 @@ export default function MyReadyRequestsPage() {
                         title="Ready Requests"
                         description="These requests are ready for use."
                         statusIds={[6]}
-                        showFilters={true
+                        showFilters={true}
+                    />
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
