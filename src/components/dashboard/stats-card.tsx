@@ -14,7 +14,12 @@ export default function StatsCard({ title, value, icon: Icon, description }: Sta
     <Card className="relative overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg flex flex-col">
        <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-primary to-accent" />
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pl-4">
-        <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</CardTitle>
+        <CardTitle 
+            className="font-semibold uppercase tracking-wider text-muted-foreground"
+            style={{ fontSize: '0.65rem' }}
+        >
+            {title}
+        </CardTitle>
         {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
       </CardHeader>
       <CardContent className="flex-grow pl-4 flex flex-col justify-center">
