@@ -250,9 +250,10 @@ export default function RequestDetailsPage() {
     const isRequester = user?.type === 'requester';
     const canAssignIp = isOfficial && request.status_id === "1";
     const canApprove = isOfficial && request.status_id === "2" && request.can_approve;
-    const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2" || request.status_id === "6");
+    const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2");
     const canAssignEngineer = isOfficial && request.status_id === "3" && request.can_approve;
-    const canCloseRequest = isOfficial && request.status_id === "6" && request.can_approve;
+    const canCloseRequest = isOfficial && (request.status_id === "6" || request.status_id === "8") && request.can_close;
+    const canCloseRequestByRequester = !isOfficial && (request.status_id === "6" || request.status_id === "8") && request.can_close;
     
     const isClosed = request.status_id === "7";
     const isApproved = request.status_id === "3";
@@ -295,7 +296,10 @@ export default function RequestDetailsPage() {
                         <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
                     )}
                     {canCloseRequest && (
-                            <Button onClick={() => setIsCloseRequestOpen(true)} disabled={isActionLoading}>Close the issue</Button>
+                            <Button onClick={() => setIsCloseRequestOpen(true)} disabled={isActionLoading}>Close request</Button>
+                    )}
+                    {canCloseRequestByRequester && (
+                            <Button onClick={() => setIsCloseRequestOpen(true)} disabled={isActionLoading}>Close request</Button>
                     )}
                     {canReject && (
                         <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>

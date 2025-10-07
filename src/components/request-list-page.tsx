@@ -11,11 +11,19 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Button } from "./ui/button";
 import { API_BASE_URL } from "@/lib/api";
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from "@/components/ui/pagination";
 
 interface RequestListPageProps {
     title: string;
     description: string;
     statusId: number;
+}
+
+interface PaginationState {
+    totalCount: number;
+    pageCount: number;
+    currentPage: number;
+    perPage: number;
 }
 
 export default function RequestListPage({ title, description, statusId }: RequestListPageProps) {
@@ -24,34 +32,47 @@ export default function RequestListPage({ title, description, statusId }: Reques
     const [requests, setRequests] = useState<Request[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [departments, setDepartments] = useState<Department[]>([]);
+    const [pagination, setPagination] = useState<PaginationState>({
+        totalCount: 0,
+        pageCount: 1,
+        currentPage: 1,
+        perPage: 20
+    });
 
     // Filter states
     const [searchName, setSearchName] = useState("");
     const [requestNumber, setRequestNumber] = useState("");
     const [selectedDept, setSelectedDept] = useState("");
 
-    const fetchRequests = async (currentStatusId: number, name = "", reqNo = "", deptId = "") => {
+    const fetchRequests = async (page: number, currentStatusId: number, name = "", reqNo = "", deptId = "") => {
         if (!token) {
             setIsLoading(false);
             return;
         };
         setIsLoading(true);
         try {
-            // Block filter is not supported by API, so it will be client side if needed.
-            // For now, we only filter by what the API supports: name/request_no and department_id
-            const response = await fetch(`${API_BASE_URL}/ip-requests?page=1&request_no=${reqNo}&name=${name}&department_id=${deptId}&status_id=${currentStatusId}`, {
+            const queryParams = new URLSearchParams({
+                page: String(page),
+                request_no: reqNo,
+                name: name,
+                department_id: deptId,
+                status_id: String(currentStatusId),
+            });
+
+            const response = await fetch(`${API_BASE_URL}/ip-requests?${queryParams.toString()}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
             const result = await response.json();
-            if (result.success) {
-                const apiRequests = result.data || [];
+            if (result.success && result.data) {
+                const apiRequests = result.data.ip_requests || [];
                 const formattedRequests: Request[] = apiRequests.map((req: any) => ({
                     ...req,
                     requestedAt: new Date(req.created_at),
                 }));
                 setRequests(formattedRequests);
+                setPagination(result.data.pagination);
             } else {
                 toast({
                     title: "Error",
@@ -71,7 +92,7 @@ export default function RequestListPage({ title, description, statusId }: Reques
     };
     
     useEffect(() => {
-        fetchRequests(statusId);
+        fetchRequests(1, statusId);
 
         const fetchFilterData = async (url: string, setData: (data: any[]) => void) => {
             if (!token) return;
@@ -94,14 +115,20 @@ export default function RequestListPage({ title, description, statusId }: Reques
     }, [token, toast, statusId, title]);
 
     const handleFilter = () => {
-        fetchRequests(statusId, searchName, requestNumber, selectedDept);
+        fetchRequests(1, statusId, searchName, requestNumber, selectedDept);
     }
     
     const handleClearFilters = () => {
         setSearchName("");
         setRequestNumber("");
         setSelectedDept("");
-        fetchRequests(statusId);
+        fetchRequests(1, statusId);
+    };
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage > 0 && newPage <= pagination.pageCount) {
+            fetchRequests(newPage, statusId, searchName, requestNumber, selectedDept);
+        }
     };
 
     return (
@@ -149,7 +176,34 @@ export default function RequestListPage({ title, description, statusId }: Reques
                             <Loader2 className="h-8 w-8 animate-spin" />
                         </div>
                     ) : (
-                        <RequestsTable requests={requests} />
+                        <>
+                            <RequestsTable requests={requests} />
+                            {pagination && pagination.totalCount > 0 && (
+                                <Pagination className="mt-4">
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious 
+                                                href="#"
+                                                onClick={(e) => { e.preventDefault(); handlePageChange(pagination.currentPage - 1); }} 
+                                                className={pagination.currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                                            />
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <span className="px-4 text-sm">
+                                                Page {pagination.currentPage} of {pagination.pageCount}
+                                            </span>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationNext 
+                                                href="#"
+                                                onClick={(e) => { e.preventDefault(); handlePageChange(pagination.currentPage + 1); }}
+                                                className={pagination.currentPage === pagination.pageCount ? 'pointer-events-none opacity-50' : ''}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            )}
+                        </>
                     )}
                 </CardContent>
             </Card>

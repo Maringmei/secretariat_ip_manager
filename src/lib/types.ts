@@ -77,6 +77,7 @@ export interface Request {
   ip_address?: string;
   connection_speed?: string;
   can_approve?: boolean;
+  can_close?: boolean;
 
   // Fields for table view (might be deprecated if details are always fetched)
   userId?: string | number;

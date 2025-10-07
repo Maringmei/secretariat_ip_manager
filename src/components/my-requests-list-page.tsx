@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Label } from "./ui/label";
 import { API_BASE_URL } from "@/lib/api";
+import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "./ui/pagination";
 
 interface MyRequestsListPageProps {
     title: string;
@@ -19,19 +20,32 @@ interface MyRequestsListPageProps {
     showFilters?: boolean;
 }
 
+interface PaginationState {
+    totalCount: number;
+    pageCount: number;
+    currentPage: number;
+    perPage: number;
+}
+
 export default function MyRequestsListPage({ title, description, statusIds, showFilters = false }: MyRequestsListPageProps) {
     const { token } = useAuth();
     const { toast } = useToast();
     const [requests, setRequests] = useState<Request[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [departments, setDepartments] = useState<Department[]>([]);
+    const [pagination, setPagination] = useState<PaginationState>({
+        totalCount: 0,
+        pageCount: 1,
+        currentPage: 1,
+        perPage: 20
+    });
 
     // Filter states
     const [searchName, setSearchName] = useState("");
     const [requestNumber, setRequestNumber] = useState("");
     const [selectedDept, setSelectedDept] = useState("");
 
-    const fetchRequests = async (name = "", reqNo = "", deptId = "") => {
+    const fetchRequests = async (page: number, name = "", reqNo = "", deptId = "") => {
         if (!token) {
             setIsLoading(false);
             return;
@@ -41,7 +55,7 @@ export default function MyRequestsListPage({ title, description, statusIds, show
         const statusQuery = statusIds.map(id => `status_id[]=${id}`).join('&');
         
         const queryParams = new URLSearchParams({
-            page: '1',
+            page: String(page),
             request_no: reqNo,
             name: name,
             department_id: deptId,
@@ -56,13 +70,14 @@ export default function MyRequestsListPage({ title, description, statusIds, show
                 }
             });
             const result = await response.json();
-            if (result.success) {
-                const apiRequests = result.data || [];
+            if (result.success && result.data) {
+                const apiRequests = result.data.ip_requests || [];
                 const formattedRequests: Request[] = apiRequests.map((req: any) => ({
                     ...req,
                     requestedAt: new Date(req.created_at),
                 }));
                 setRequests(formattedRequests);
+                setPagination(result.data.pagination);
             } else {
                 toast({
                     title: "Error",
@@ -82,7 +97,7 @@ export default function MyRequestsListPage({ title, description, statusIds, show
     };
     
     useEffect(() => {
-        fetchRequests();
+        fetchRequests(1);
 
         const fetchFilterData = async (url: string, setData: (data: any[]) => void) => {
             if (!token) return;
@@ -105,14 +120,20 @@ export default function MyRequestsListPage({ title, description, statusIds, show
     }, [token, statusIds.join(',')]); // Depend on stringified statusIds to avoid re-fetches on array reference change
 
     const handleFilter = () => {
-        fetchRequests(searchName, requestNumber, selectedDept);
+        fetchRequests(1, searchName, requestNumber, selectedDept);
     }
     
     const handleClearFilters = () => {
         setSearchName("");
         setRequestNumber("");
         setSelectedDept("");
-        fetchRequests();
+        fetchRequests(1);
+    };
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage > 0 && newPage <= pagination.pageCount) {
+            fetchRequests(newPage, searchName, requestNumber, selectedDept);
+        }
     };
 
     return (
@@ -162,7 +183,34 @@ export default function MyRequestsListPage({ title, description, statusIds, show
                     <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
             ) : (
-                <RequestsTable requests={requests} />
+                <>
+                    <RequestsTable requests={requests} />
+                    {pagination && pagination.totalCount > 0 && (
+                        <Pagination className="mt-4">
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious 
+                                        href="#"
+                                        onClick={(e) => { e.preventDefault(); handlePageChange(pagination.currentPage - 1); }} 
+                                        className={pagination.currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                                    />
+                                </PaginationItem>
+                                <PaginationItem>
+                                    <span className="px-4 text-sm">
+                                        Page {pagination.currentPage} of {pagination.pageCount}
+                                    </span>
+                                </PaginationItem>
+                                <PaginationItem>
+                                    <PaginationNext 
+                                        href="#"
+                                        onClick={(e) => { e.preventDefault(); handlePageChange(pagination.currentPage + 1); }}
+                                        className={pagination.currentPage === pagination.pageCount ? 'pointer-events-none opacity-50' : ''}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    )}
+                </>
             )}
         </div>
     );
