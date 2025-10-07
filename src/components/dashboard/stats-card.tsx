@@ -11,7 +11,7 @@ interface StatsCardProps {
 
 export default function StatsCard({ title, value, icon: Icon, description }: StatsCardProps) {
   return (
-    <Card className="relative flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg">
+    <Card className="relative overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg flex flex-col">
        <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-primary to-accent" />
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pl-4">
         <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</CardTitle>
