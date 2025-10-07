@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -623,15 +624,31 @@ const SidebarMenuAction = React.forwardRef<
 })
 SidebarMenuAction.displayName = "SidebarMenuAction"
 
+const badgeVariants = cva(
+  "absolute right-2 flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium",
+  {
+    variants: {
+      variant: {
+        default: "bg-muted text-muted-foreground",
+        destructive: "bg-destructive text-destructive-foreground",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
+
+
 const SidebarMenuBadge = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => (
+  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof badgeVariants>
+>(({ className, variant, ...props }, ref) => (
   <div
     ref={ref}
     data-sidebar="menu-badge"
     className={cn(
-      "absolute right-2 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs font-medium text-destructive-foreground",
+      badgeVariants({ variant }),
       "peer-data-[size=sm]/menu-button:top-1",
       "peer-data-[size=default]/menu-button:top-1.5",
       "peer-data-[size=lg]/menu-button:top-3.5",

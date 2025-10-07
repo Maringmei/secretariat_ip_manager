@@ -6,20 +6,27 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { useToast } from '@/hooks/use-toast';
 import { API_BASE_URL } from '@/lib/api';
 
-interface Counts {
-  // For admins
-  new?: number;
-  pending_approval?: number;
-  approved?: number;
-  rejected_requests?: number;
-  
-  // For requesters - assuming API returns keys like these
-  my_pending?: number;
-  my_approved?: number;
-  my_rejected?: number;
-
-  [key: string]: number | undefined;
+export interface CountData {
+  highlight: boolean;
+  count: number;
 }
+
+export interface Counts {
+  new?: CountData;
+  pending_approval?: CountData;
+  approved?: CountData;
+  ready?: CountData;
+  closed?: CountData;
+  re_opened?: CountData;
+  rejected?: CountData;
+  my_pending?: CountData;
+  my_approved?: CountData;
+  my_rejected?: CountData;
+  my_ready?: CountData;
+  my_closed?: CountData;
+  [key: string]: CountData | undefined;
+}
+
 
 interface CounterContextType {
   counts: Counts;

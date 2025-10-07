@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
@@ -16,7 +17,7 @@ import {
 import { ManipurEmblem } from '../icons/manipur-emblem';
 import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus, CheckCheck, Archive } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
-import { useCounter } from '../counter/counter-provider';
+import { useCounter, Counts } from '../counter/counter-provider';
 import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { LogoutConfirmationDialog } from '../auth/logout-confirmation-dialog';
@@ -26,7 +27,7 @@ interface MenuItem {
     label: string;
     icon: LucideIcon;
     types?: string[];
-    countKey?: string;
+    countKey?: keyof Counts;
 }
 
 const menuItems: MenuItem[] = [
@@ -38,7 +39,7 @@ const requesterMenuItems: MenuItem[] = [
     { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'my_approved' },
     { href: '/my-ready-requests', label: 'Ready', icon: CheckCheck, types: ['requester'], countKey: 'my_ready' },
     { href: '/my-closed-requests', label: 'Closed', icon: Archive, types: ['requester'], countKey: 'my_closed' },
-    { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['requester'], countKey: 'reopened' },
+    { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['requester'], countKey: 're_opened' },
     { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'my_rejected' },
 ];
 
@@ -48,8 +49,8 @@ const adminMenuItems: MenuItem[] = [
     { href: '/approved-requests', label: 'Approved', icon: FileCheck, types: ['official'], countKey: 'approved' },
     { href: '/ready-requests', label: 'Ready', icon: CheckCheck, types: ['official'], countKey: 'ready' },
     { href: '/closed-requests', label: 'Closed', icon: Archive, types: ['official'], countKey: 'closed' },
-    { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['official'], countKey: 'reopened' },
-    { href: '/rejected-requests', label: 'Rejected', icon: FileX, types: ['official'], countKey: 'rejected_requests' },
+    { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['official'], countKey: 're_opened' },
+    { href: '/rejected-requests', label: 'Rejected', icon: FileX, types: ['official'], countKey: 'rejected' },
     { href: '/settings', label: 'Settings', icon: Settings, types: ['official'] },
     { href: '/users', label: 'User Management', icon: Users, types: ['official'] },
 ];
@@ -73,6 +74,29 @@ export default function AppSidebar() {
         setLogoutDialogOpen(true);
     };
 
+    const renderMenuItem = (item: MenuItem) => {
+      const countData = item.countKey ? counts[item.countKey] : undefined;
+      const count = countData?.count;
+      const highlight = countData?.highlight;
+
+      return (
+        (!item.types || item.types.includes(userType)) &&
+        <SidebarMenuItem key={item.href}>
+          <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+            <Link href={item.href}>
+              <item.icon />
+              <span>{item.label}</span>
+              {count && count > 0 ? (
+                <SidebarMenuBadge variant={highlight ? 'destructive' : 'default'}>
+                  {count}
+                </SidebarMenuBadge>
+              ) : null}
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      );
+    }
+
   return (
     <>
     <Sidebar>
@@ -84,54 +108,15 @@ export default function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {menuItems.map((item) => (
-            (!item.types || item.types.includes(userType)) &&
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {menuItems.map(renderMenuItem)}
           
           {(userType === 'requester' && requesterMenuItems.length > 0) && <SidebarSeparator />}
 
-          {requesterMenuItems.map((item) => {
-            const count = item.countKey ? counts[item.countKey] : undefined;
-            return (
-                item.types && item.types.includes(userType) &&
-                <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                    <Link href={item.href}>
-                        <item.icon />
-                        <span>{item.label}</span>
-                         {count && count > 0 ? <SidebarMenuBadge>{count}</SidebarMenuBadge> : null}
-                    </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            )
-          })}
+          {requesterMenuItems.map(renderMenuItem)}
           
           {userType === 'official' && <SidebarSeparator />}
           
-          {adminMenuItems.map((item) => {
-            const count = item.countKey ? counts[item.countKey as keyof typeof counts] : undefined;
-            return (
-              item.types && item.types.includes(userType) && (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                  <Link href={item.href}>
-                    <item.icon />
-                    <span>{item.label}</span>
-                    {count && count > 0 ? <SidebarMenuBadge>{count}</SidebarMenuBadge> : null}
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              )
-            )
-          })}
+          {adminMenuItems.map(renderMenuItem)}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
