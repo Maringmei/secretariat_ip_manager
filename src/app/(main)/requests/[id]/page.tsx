@@ -200,7 +200,7 @@ export default function RequestDetailsPage() {
     };
     
     const handleReopen = async ({ remark }: { remark?: string }) => {
-        await handleWorkflowAction(1, remark);
+        await handleWorkflowAction(8, remark);
     };
 
     const handleAssignEngineer = async ({ remark }: { remark: string }) => {
@@ -252,7 +252,7 @@ export default function RequestDetailsPage() {
     const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2" || request.status_id === "6");
     const canAssignEngineer = isOfficial && request.status_id === "3" && request.can_approve;
     const canCloseRequest = isOfficial && request.status_id === "6" && request.can_approve;
-    const canReopen = !isOfficial && request.status_id === "7";
+    const canReopen = request.status_id === "7";
 
 
     return (

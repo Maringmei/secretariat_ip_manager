@@ -53,7 +53,7 @@ export function ReopenRequestDialog({ isOpen, onClose, onConfirm, isSubmitting }
             <form onSubmit={form.handleSubmit(handleSubmit)}>
                 <DialogHeader>
                     <DialogTitle>Reopen Request</DialogTitle>
-                    <DialogDescription>Are you sure you want to reopen this request? This will move it back to the 'New' status. You can add an optional remark.</DialogDescription>
+                    <DialogDescription>Are you sure you want to reopen this request? This will move it to the 'Reopened' status for review. You can add an optional remark.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-6">
                     <FormField control={form.control} name="remark" render={({ field }) => (
