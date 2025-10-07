@@ -55,12 +55,12 @@ const AdminDashboard = ({ data }: { data: DashboardData }) => {
             </Card>
 
             <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
-                <StatsCard title="Total" value={summary.total.toString()} />
+                <Link href="#"><StatsCard title="Total" value={summary.total.toString()} /></Link>
                 <Link href={"/pending-approval"}><StatsCard title="Pending" value={summary.pending.toString()} /></Link>
                 <Link href={"/approved-requests"}><StatsCard title="Approved" value={summary.approved.toString()} /></Link>
                 <Link href={"/rejected-requests"}><StatsCard title="Rejected" value={summary.rejected.toString()} /></Link>
-                <StatsCard title="e-Office Onboarded" value={summary.e_office_onboarded.toString()} />
-                <StatsCard title="Not Onboarded" value={summary.e_office_not_onboarded.toString()} />
+                <Link href="#"><StatsCard title="e-Office Onboarded" value={summary.e_office_onboarded.toString()} /></Link>
+                <Link href="#"><StatsCard title="Not Onboarded" value={summary.e_office_not_onboarded.toString()} /></Link>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
