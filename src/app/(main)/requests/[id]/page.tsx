@@ -258,7 +258,7 @@ export default function RequestDetailsPage() {
     const isApproved = request.status_id === "3";
 
     const canReopenAsOfficial = isOfficial && isClosed;
-    const canReopenAsRequester = isRequester && (isApproved || isClosed);
+    const canReopenAsRequester = !isOfficial && isApproved;
     const canReopen = canReopenAsOfficial || canReopenAsRequester;
 
 
@@ -306,6 +306,7 @@ export default function RequestDetailsPage() {
                     {canReopen && (
                         <Button onClick={() => setIsReopenRequestOpen(true)} disabled={isActionLoading}>Reopen</Button>
                     )}
+                
                 </div>
             </div>
 
