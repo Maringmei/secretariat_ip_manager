@@ -4,9 +4,8 @@ import type { Role } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import StatsCard from "@/components/dashboard/stats-card";
-import { Activity, ArrowUpRight, Check, Clock, Server, Users, X } from "lucide-react";
+import { Check, Clock, FileText, Server, Users, X, Activity, BarChart2 } from "lucide-react";
 import Link from "next/link";
-import DepartmentAllocationsChart from "@/components/dashboard/department-allocations-chart";
 import SpeedChart from "@/components/dashboard/speed-chart";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
@@ -15,6 +14,8 @@ import { Loader2 } from "lucide-react";
 import BlockDistributionChart from "@/components/dashboard/block-distribution-chart";
 import MonthlyRequestsChart from "@/components/dashboard/monthly-requests-chart";
 import { API_BASE_URL } from "@/lib/api";
+import StatusOverviewChart from "@/components/dashboard/status-overview-chart";
+import DepartmentAllocationsTable from "@/components/dashboard/department-allocations-table";
 
 interface DashboardData {
     summary?: {
@@ -38,25 +39,31 @@ interface DashboardData {
 
 
 const AdminDashboard = ({ data }: { data: DashboardData }) => {
+    const summary = data.summary || { total: 0, pending: 0, approved: 0, rejected: 0, e_office_onboarded: 0, e_office_not_onboarded: 0 };
     return (
         <div className="flex flex-col gap-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <StatsCard title="Total Requests" value={data.summary?.total.toString() ?? '0'} icon={Server} />
-                <Link href={"/pending-approval"}><StatsCard title="Pending Requests" value={data.summary?.pending.toString() ?? '0'} icon={Clock} /></Link>
-                <Link href={"/approved-requests"}><StatsCard title="Approved Requests" value={data.summary?.approved.toString() ?? '0'} icon={Check} /></Link>
-                <Link href={"/rejected-requests"}><StatsCard title="Rejected Requests" value={data.summary?.rejected.toString() ?? '0'} icon={X} /></Link>
-                <StatsCard title="e-Office Onboarded" value={data.summary?.e_office_onboarded.toString() ?? '0'} icon={Activity} />
-                <StatsCard title="e-Office Not Onboarded" value={data.summary?.e_office_not_onboarded.toString() ?? '0'} icon={Users} />
+            <Card className="bg-card/80 backdrop-blur-sm">
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                         <BarChart2 className="h-8 w-8 text-primary" />
+                        <div>
+                            <CardTitle className="font-headline text-3xl">Dashboard Analytics</CardTitle>
+                            <CardDescription>Real-time overview of IP request status</CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
+            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+                <StatsCard title="Total" value={summary.total.toString()} />
+                <Link href={"/pending-approval"}><StatsCard title="Pending" value={summary.pending.toString()} /></Link>
+                <Link href={"/approved-requests"}><StatsCard title="Approved" value={summary.approved.toString()} /></Link>
+                <Link href={"/rejected-requests"}><StatsCard title="Rejected" value={summary.rejected.toString()} /></Link>
+                <StatsCard title="e-Office Onboarded" value={summary.e_office_onboarded.toString()} />
+                <StatsCard title="Not Onboarded" value={summary.e_office_not_onboarded.toString()} />
             </div>
+
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline">Department-wise Allocations</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <DepartmentAllocationsChart data={data.by_department} />
-                    </CardContent>
-                </Card>
                 <Card>
                     <CardHeader>
                         <CardTitle className="font-headline">Connection Speed Distribution</CardTitle>
@@ -81,7 +88,24 @@ const AdminDashboard = ({ data }: { data: DashboardData }) => {
                         <MonthlyRequestsChart data={data.by_month} />
                     </CardContent>
                 </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline">Status Overview</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <StatusOverviewChart data={summary} />
+                    </CardContent>
+                </Card>
             </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline">Department Details</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <DepartmentAllocationsTable data={data.by_department} />
+                </CardContent>
+            </Card>
         </div>
     );
 };
