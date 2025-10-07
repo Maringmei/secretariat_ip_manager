@@ -35,12 +35,12 @@ const menuItems: MenuItem[] = [
 ];
 
 const requesterMenuItems: MenuItem[] = [
-    { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'my_pending' },
-    { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'my_approved' },
-    { href: '/my-ready-requests', label: 'Ready', icon: CheckCheck, types: ['requester'], countKey: 'my_ready' },
-    { href: '/my-closed-requests', label: 'Closed', icon: Archive, types: ['requester'], countKey: 'my_closed' },
+    { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'pending_approval' },
+    { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'approved' },
+    { href: '/my-ready-requests', label: 'Ready', icon: CheckCheck, types: ['requester'], countKey: 'ready' },
+    { href: '/my-closed-requests', label: 'Closed', icon: Archive, types: ['requester'], countKey: 'closed' },
     { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['requester'], countKey: 're_opened' },
-    { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'my_rejected' },
+    { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'rejected' },
 ];
 
 const adminMenuItems: MenuItem[] = [
