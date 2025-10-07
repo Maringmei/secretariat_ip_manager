@@ -26,7 +26,7 @@ export default function SpeedChart({ data }: SpeedChartProps) {
         count: {
             label: "Count",
         },
-        ...Object.fromEntries(chartData.map(d => [d.name.replace(/\s/g,''), {label: d.name}]))
+        ...Object.fromEntries(chartData.map(d => [d.name.replace(/\s/g, ''), { label: d.name }]))
     };
 
     if (chartData.length === 0) {
