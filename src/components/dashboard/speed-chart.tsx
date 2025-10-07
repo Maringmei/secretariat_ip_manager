@@ -19,14 +19,19 @@ export default function SpeedChart({ data }: SpeedChartProps) {
     if (!data) return null;
 
     const chartData = data.map((speed, index) => {
-        return { name: speed.connection_speed_name, count: Number(speed.count), fill: `hsl(var(--chart-${index + 1}))` };
+        const hue = (index * 137.5) % 360; // Use golden angle for distinct colors
+        return { 
+            name: speed.connection_speed_name, 
+            count: Number(speed.count), 
+            fill: `hsl(${hue}, 70%, 50%)` 
+        };
     }).filter(d => d.count > 0);
 
     const chartConfig = {
         count: {
             label: "Count",
         },
-        ...Object.fromEntries(chartData.map(d => [d.name.replace(/\s/g, ''), { label: d.name }]))
+        ...Object.fromEntries(chartData.map(d => [d.name.replace(/\s/g, ''), { label: d.name, color: d.fill }]))
     };
 
     if (chartData.length === 0) {
