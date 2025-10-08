@@ -78,6 +78,7 @@ export interface Request {
   connection_speed?: string;
   can_approve?: boolean;
   can_close?: boolean;
+  can_assign_network_engineer? : boolean; 
 
   // Fields for table view (might be deprecated if details are always fetched)
   userId?: string | number;
