@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Button } from "./ui/button";
 import { API_BASE_URL } from "@/lib/api";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from "@/components/ui/pagination";
+import { Combobox } from "./ui/combobox";
 
 interface RequestListPageProps {
     title: string;
@@ -159,14 +160,15 @@ export default function RequestListPage({ title, description, statusId }: Reques
                                 onChange={(e) => setRequestNumber(e.target.value)}
                             />
                         </div>
-                        <Select value={selectedDept} onValueChange={setSelectedDept}>
-                            <SelectTrigger className="w-full md:w-[180px]">
-                                <SelectValue placeholder="All Departments" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
+                        <div className="w-full md:w-[200px]">
+                            <Combobox
+                                options={departments.map(d => ({ value: String(d.id), label: d.name }))}
+                                value={selectedDept}
+                                onChange={setSelectedDept}
+                                placeholder="All Departments"
+                                searchPlaceholder="Search department..."
+                            />
+                        </div>
                         <Button onClick={handleFilter}>Apply Filters</Button>
                         <Button onClick={handleClearFilters} variant="outline">Clear Filter</Button>
                     </div>

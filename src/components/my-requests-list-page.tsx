@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Label } from "./ui/label";
 import { API_BASE_URL } from "@/lib/api";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "./ui/pagination";
+import { Combobox } from "./ui/combobox";
 
 interface MyRequestsListPageProps {
     title: string;
@@ -162,14 +163,13 @@ export default function MyRequestsListPage({ title, description, statusIds, show
                     </div>
                     <div>
                          <Label>Department</Label>
-                         <Select value={selectedDept} onValueChange={setSelectedDept}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="All Departments" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
+                         <Combobox
+                            options={departments.map(d => ({ value: String(d.id), label: d.name }))}
+                            value={selectedDept}
+                            onChange={setSelectedDept}
+                            placeholder="All Departments"
+                            searchPlaceholder="Search department..."
+                        />
                     </div>
                     <div className="flex gap-2">
                         <Button onClick={handleFilter} className="w-full">Apply Filters</Button>
