@@ -30,33 +30,27 @@ export default function LoginPage() {
     <main className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="flex w-full max-w-md flex-col items-center">
         <div className="flex items-center gap-4 text-left">
-            <ManipurEmblem className="text-primary" width={60} height={60} />
-            <div>
-              <h1 className="font-headline text-xl font-bold text-primary text-center">
-                  Critical Infrastructure Portal
-              </h1>
-              <h1 className="font-headline text-sm font-bold text-primary text-center">
-                  Government of Manipur
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground text-center">
-              Streamlining critical infrastructure and services delivery and support
-              </p>
-            </div>
+          <ManipurEmblem className="text-primary" width={60} height={60} />
+          <div>
+            <h1 className="font-headline text-xl font-bold text-primary text-center">
+              Critical Infrastructure Portal
+            </h1>
+            <h1 className="font-headline text-sm font-bold text-primary text-center">
+              Government of Manipur
+            </h1>
+          </div>
         </div>
-
-        <Card className="mt-8 w-full shadow-xl">
-            <CardHeader>
-            <CardTitle className="font-headline text-xl">Secure Login</CardTitle>
-            <CardDescription>
-                Enter your mobile number to receive a One-Time Password (OTP).
-            </CardDescription>
-            </CardHeader>
-            <CardContent>
+        <div className='pt-4'>
+          <p className="text-sm text-muted-foreground text-center">
+            Streamlining critical infrastructure and services delivery and support
+          </p>
+        </div>
+    
+          <CardContent className='mt-4 w-full shadow-sm'>
             <LoginForm />
-            </CardContent>
-        </Card>
+          </CardContent>
         <footer className="mt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} Government of Manipur. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Government of Manipur. All rights reserved.</p>
         </footer>
       </div>
     </main>
