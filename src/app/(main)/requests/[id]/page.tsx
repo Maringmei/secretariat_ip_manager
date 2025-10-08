@@ -314,9 +314,9 @@ export default function RequestDetailsPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-6 ">
                 {request.service_time_label && request.service_time && (
-                     <Card className="bg-blue-50 border-blue-200">
+                     <Card className="bg-white border-blue-200">
                         <CardContent className="p-4 flex items-center gap-4">
                             <Timer className="h-6 w-6 text-blue-600" />
                             <div>
