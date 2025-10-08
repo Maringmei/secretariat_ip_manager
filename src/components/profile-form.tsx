@@ -16,7 +16,7 @@ import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/auth-provider';
 import { API_BASE_URL } from '@/lib/api';
-import { Combobox } from '../ui/combobox';
+import { Combobox } from '@/components/ui/combobox';
 
 const profileSchema = z.object({
   first_name: z.string().min(2, 'First name is required'),

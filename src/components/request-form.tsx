@@ -18,7 +18,7 @@ import type { Block, ConnectionSpeed, Department, User } from '@/lib/types';
 import { useAuth } from '@/components/auth/auth-provider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { API_BASE_URL } from '@/lib/api';
-import { Combobox } from './ui/combobox';
+import { Combobox } from '@/components/ui/combobox';
 
 const macAddressRegex = /^(?:[0-9A-Fa-f]{2}([:-]?))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}$|^[0-9A-Fa-f]{12}$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@(gov\.in|nic\.in)$/;
