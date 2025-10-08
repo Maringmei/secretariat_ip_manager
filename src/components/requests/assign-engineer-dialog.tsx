@@ -47,6 +47,7 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
     const { toast } = useToast();
     const [messageTemplate, setMessageTemplate] = useState('');
     const [messagePreview, setMessagePreview] = useState('');
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -124,7 +125,7 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
                                 name="visitDate"
                                 render={({ field }) => (
                                     <FormItem className="flex flex-col">
-                                    <Popover>
+                                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
@@ -147,7 +148,10 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
                                         <Calendar
                                             mode="single"
                                             selected={field.value}
-                                            onSelect={field.onChange}
+                                            onSelect={(date) => {
+                                                field.onChange(date);
+                                                setIsCalendarOpen(false);
+                                            }}
                                             disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
                                             initialFocus
                                         />
@@ -173,7 +177,7 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
                     </div>
 
                     <div>
-                        <Label>Message Preview</Label>
+                        <Label>The message below will be shared with the ip requester on WhatsApp</Label>
                         <Card className="mt-2 bg-muted/80">
                             <CardContent className="p-3 text-sm text-muted-foreground">
                                 {messagePreview}
