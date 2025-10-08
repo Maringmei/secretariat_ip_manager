@@ -54,9 +54,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
         last_name: '',
         designation: '',
         department: undefined,
-        reportingOfficer: 'N/A',
+        reportingOfficer: '',
         ein_sin: '',
-        eofficeOnboarded: 'no',
+        eofficeOnboarded: undefined,
         email: '',
         whatsapp_no: user?.whatsapp_no || '',
     },
@@ -107,9 +107,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     last_name: profileData.last_name || '',
                     designation: profileData.designation || '',
                     department: department ? String(department.id) : undefined,
-                    reportingOfficer: 'N/A', // API response doesn't have this
+                    reportingOfficer: '', // API response doesn't have this
                     ein_sin: profileData.ein_sin || '',
-                    eofficeOnboarded: 'no', // API response doesn't have this
+                    eofficeOnboarded: undefined, // API response doesn't have this
                     email: profileData.email || '',
                     whatsapp_no: profileData.whatsapp_no || authUser?.whatsapp_no || '',
                 });
