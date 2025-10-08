@@ -47,7 +47,7 @@ export default function BlockDistributionChart({ data }: BlockDistributionChartP
           />
           <XAxis dataKey="requests" type="number" hide />
           <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-          <Bar dataKey="requests" fill="var(--color-requests)" radius={4} />
+          <Bar dataKey="requests" fill="red" radius={4} />
         </BarChart>
       </ChartContainer>
   )

@@ -79,6 +79,9 @@ export interface Request {
   can_approve?: boolean;
   can_close?: boolean;
   can_assign_network_engineer? : boolean; 
+  service_time? : string;
+  service_time_label? : string;
+
 
   // Fields for table view (might be deprecated if details are always fetched)
   userId?: string | number;

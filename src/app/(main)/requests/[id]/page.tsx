@@ -9,7 +9,7 @@ import type { Request, WorkflowStep } from '@/lib/types';
 import WorkflowTimeline from '@/components/workflow-timeline';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AssignIpDialog } from '@/components/requests/assign-ip-dialog';
 import { useCounter } from '@/components/counter/counter-provider';
@@ -315,6 +315,18 @@ export default function RequestDetailsPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-6">
+                {request.service_time_label && request.service_time && (
+                     <Card className="bg-blue-50 border-blue-200">
+                        <CardContent className="p-4 flex items-center gap-4">
+                            <Timer className="h-6 w-6 text-blue-600" />
+                            <div>
+                                <p className="font-semibold text-blue-800">{request.service_time_label}</p>
+                                <p className="text-xl font-bold text-blue-900">{request.service_time}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
                 <Card>
                     <CardHeader><CardTitle className="font-headline text-lg">Applicant Information</CardTitle></CardHeader>
                     <CardContent className="space-y-2 text-sm">
