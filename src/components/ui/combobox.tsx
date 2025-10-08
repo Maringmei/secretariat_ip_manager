@@ -65,14 +65,15 @@ export function Combobox({ options, value, onChange, placeholder, searchPlacehol
                     onChange(option.value)
                     setOpen(false)
                   }}
+                   className="relative"
                 >
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "absolute left-2 h-4 w-4",
                       option.value === value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {option.label}
+                  <span className="pl-6">{option.label}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
