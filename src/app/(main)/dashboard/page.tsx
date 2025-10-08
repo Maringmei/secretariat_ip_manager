@@ -128,7 +128,7 @@ const StaffDashboard = ({ data }: { data: DashboardData }) => {
     const { user } = useAuth();
     if (!user) return null;
 
-    const pendingCount = (data.new ?? 0) + (data.pending ?? 0) + (data.pending_approval ?? 0);
+    const pendingCount = (data.pending ?? 0) ;
 
     return (
         <div className="flex flex-col gap-6">
