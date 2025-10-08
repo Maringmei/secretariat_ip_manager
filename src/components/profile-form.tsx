@@ -16,6 +16,7 @@ import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/auth-provider';
 import { API_BASE_URL } from '@/lib/api';
+import { Combobox } from '../ui/combobox';
 
 const profileSchema = z.object({
   first_name: z.string().min(2, 'First name is required'),
@@ -224,16 +225,23 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <FormField control={form.control} name="designation" render={({ field }) => (
                 <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="Your designation" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
-            <FormField control={form.control} name="department" render={({ field }) => (
-            <FormItem>
-                <FormLabel>Department</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl><SelectTrigger><SelectValue placeholder="Select a department" /></SelectTrigger></FormControl>
-                <SelectContent>{departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}</SelectContent>
-                </Select>
-                <FormMessage />
-            </FormItem>
-            )}/>
+            <FormField
+              control={form.control}
+              name="department"
+              render={({ field }) => (
+                <FormItem className='flex flex-col'>
+                  <FormLabel>Department</FormLabel>
+                   <Combobox
+                        options={departments.map(d => ({ value: String(d.id), label: d.name }))}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select a department"
+                        searchPlaceholder='Search departments...'
+                    />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField control={form.control} name="reportingOfficer" render={({ field }) => (
                 <FormItem><FormLabel>Reporting Officer</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
@@ -271,5 +279,3 @@ export function ProfileForm({ user }: ProfileFormProps) {
     </Form>
   );
 }
-
-    

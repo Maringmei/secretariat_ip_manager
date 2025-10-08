@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +18,7 @@ import type { Block, ConnectionSpeed, Department, User } from '@/lib/types';
 import { useAuth } from '@/components/auth/auth-provider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { API_BASE_URL } from '@/lib/api';
+import { Combobox } from './ui/combobox';
 
 const macAddressRegex = /^(?:[0-9A-Fa-f]{2}([:-]?))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}$|^[0-9A-Fa-f]{12}$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@(gov\.in|nic\.in)$/;
@@ -252,16 +254,23 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                         <FormField control={form.control} name="designation" render={({ field }) => (
                             <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="Applicant's designation" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
-                        <FormField control={form.control} name="department_id" render={({ field }) => (
-                            <FormItem>
+                        <FormField
+                            control={form.control}
+                            name="department_id"
+                            render={({ field }) => (
+                                <FormItem className='flex flex-col'>
                                 <FormLabel>Department</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select a department" /></SelectTrigger></FormControl>
-                                <SelectContent>{departments.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}</SelectContent>
-                                </Select>
+                                <Combobox
+                                    options={departments.map(d => ({ value: String(d.id), label: d.name }))}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    placeholder="Select a department"
+                                    searchPlaceholder='Search departments...'
+                                />
                                 <FormMessage />
-                            </FormItem>
-                        )}/>
+                                </FormItem>
+                            )}
+                        />
                          <FormField control={form.control} name="ein_sin" render={({ field }) => (
                             <FormItem><FormLabel>EIN / SIN</FormLabel><FormControl><Input placeholder="Applicant's Employee/Service ID" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
