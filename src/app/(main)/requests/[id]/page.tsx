@@ -215,7 +215,7 @@ export default function RequestDetailsPage() {
                     ip_request_id: request.id,
                     status_id: 6, // Move to 'Ready'
                     remark: remark,
-                    network_engineer_id: engineerId
+                    network_engineer_user_id: engineerId
                 })
             });
 
