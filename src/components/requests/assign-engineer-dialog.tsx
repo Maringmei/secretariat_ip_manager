@@ -28,16 +28,19 @@ import { cn } from '@/lib/utils';
 import { format, set } from 'date-fns';
 import { Input } from '../ui/input';
 import { Card, CardContent } from '../ui/card';
+import type { NetworkEngineer } from '@/lib/types';
+import { Combobox } from '../ui/combobox';
 
 interface AssignEngineerDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (data: { remark: string }) => Promise<void>;
+  onConfirm: (data: { remark: string; engineerId: number; }) => Promise<void>;
   isSubmitting: boolean;
   requestId: number;
 }
 
 const formSchema = z.object({
+  engineerId: z.string({ required_error: "Please select an engineer." }),
   visitDate: z.date({ required_error: "A visit date is required." }),
   visitTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)"),
 });
@@ -45,6 +48,7 @@ const formSchema = z.object({
 export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting, requestId }: AssignEngineerDialogProps) {
     const { token } = useAuth();
     const { toast } = useToast();
+    const [engineers, setEngineers] = useState<NetworkEngineer[]>([]);
     const [messageTemplate, setMessageTemplate] = useState('');
     const [messagePreview, setMessagePreview] = useState('');
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -52,6 +56,7 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            engineerId: undefined,
             visitDate: undefined,
             visitTime: '09:00',
         },
@@ -73,31 +78,45 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
 
 
     useEffect(() => {
-        const fetchMessageTemplate = async () => {
+        const fetchDialogData = async () => {
              if (!token) return;
             try {
-                const response = await fetch(`${API_BASE_URL}/workflows/template`, {
+                // Fetch message template
+                const templateResponse = await fetch(`${API_BASE_URL}/workflows/template`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const result = await response.json();
-                if (result.success) {
-                    setMessageTemplate(result.data);
+                const templateResult = await templateResponse.json();
+                if (templateResult.success) {
+                    setMessageTemplate(templateResult.data);
                 } else {
                     toast({ title: 'Error', description: 'Could not load message template.', variant: 'destructive'});
                 }
+
+                 // Fetch network engineers
+                const engineerResponse = await fetch(`${API_BASE_URL}/profiles/network-engineers`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const engineerResult = await engineerResponse.json();
+                if (engineerResult.success) {
+                    setEngineers(engineerResult.data);
+                } else {
+                    toast({ title: 'Error', description: 'Could not load network engineers.', variant: 'destructive'});
+                }
+
             } catch (error) {
-                 toast({ title: 'Error', description: 'Failed to fetch message template.', variant: 'destructive'});
+                 toast({ title: 'Error', description: 'Failed to fetch required data for dialog.', variant: 'destructive'});
             }
         }
 
         if (isOpen) {
-            fetchMessageTemplate();
+            fetchDialogData();
         }
     }, [isOpen, token, toast]);
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
         await onConfirm({
             remark: messagePreview,
+            engineerId: parseInt(values.engineerId, 10),
         });
     };
 
@@ -114,9 +133,26 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
             <form onSubmit={form.handleSubmit(handleSubmit)}>
                 <DialogHeader>
                     <DialogTitle>Assign Network Engineer</DialogTitle>
-                    <DialogDescription>Schedule a visit and a notification will be sent.</DialogDescription>
+                    <DialogDescription>Schedule a visit and a notification will be sent to the requester.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-6 py-6">
+                    <FormField
+                        control={form.control}
+                        name="engineerId"
+                        render={({ field }) => (
+                            <FormItem className='flex flex-col'>
+                                <Label>Network Engineer</Label>
+                                <Combobox
+                                    options={engineers.map(e => ({ value: String(e.id), label: e.name }))}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    placeholder="Select an engineer"
+                                    searchPlaceholder='Search engineers...'
+                                />
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <div>
                         <Label>Visit Date and Time</Label>
                         <div className='grid grid-cols-2 gap-2 mt-2'>
@@ -152,7 +188,7 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
                                                 field.onChange(date);
                                                 setIsCalendarOpen(false);
                                             }}
-                                            disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
+                                            disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
                                             initialFocus
                                         />
                                         </PopoverContent>

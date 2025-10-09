@@ -42,6 +42,8 @@ export interface ConnectionSpeed extends SettingItem {
   speed?: string; // e.g., '10 Mbps', '100 Mbps'
 }
 
+export interface NetworkEngineer extends SettingItem {}
+
 export interface WorkflowStep {
   step: string;
   timestamp: Date | string; // Allow string to handle API response

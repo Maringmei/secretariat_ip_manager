@@ -203,7 +203,7 @@ export default function RequestDetailsPage() {
         await handleWorkflowAction(8, remark);
     };
 
-    const handleAssignEngineer = async ({ remark }: { remark: string }) => {
+    const handleAssignEngineer = async ({ remark, engineerId }: { remark: string, engineerId: number }) => {
         if (!token || !request) return;
 
         setIsActionLoading(true);
@@ -215,6 +215,7 @@ export default function RequestDetailsPage() {
                     ip_request_id: request.id,
                     status_id: 6, // Move to 'Ready'
                     remark: remark,
+                    network_engineer_id: engineerId
                 })
             });
 
