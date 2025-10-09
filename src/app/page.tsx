@@ -32,17 +32,17 @@ export default function LoginPage() {
         <div className="flex items-center gap-4 text-left">
           <ManipurEmblem className="text-primary" width={60} height={60} />
           <div>
-            <h1 className="font-headline text-xl font-bold text-primary text-center">
+            <h1 className="font-headline text-[1.5rem] font-bold text-primary text-start">
               Critical Infrastructure Portal
             </h1>
-            <h1 className="font-headline text-sm font-bold text-primary text-center">
+            <h1 className="font-headline text-[1.4rem] font-bold text-primary text-start">
               Government of Manipur
             </h1>
           </div>
         </div>
         <div className='pt-4'>
           <p className="text-sm text-muted-foreground text-center">
-            Streamlining critical infrastructure and services delivery and support
+            Streamlining critical infrastructure and services delivery and support.
           </p>
         </div>
     
