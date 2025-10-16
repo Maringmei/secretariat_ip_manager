@@ -69,7 +69,7 @@ export function FindMacAddressDialog({ isOpen, onClose }: FindMacAddressDialogPr
                   <li>Look for "Physical Address". This is your MAC address.</li>
                 </ol>
                 <Button variant="secondary" asChild>
-                  <Link href="https://www.youtube.com/watch?v=vher3Ls2POc" target="_blank" rel="noopener noreferrer">
+                  <Link href="https://www.youtube.com/watch?v=V_rs20osJ1c" target="_blank" rel="noopener noreferrer">
                     Watch on YouTube
                   </Link>
                 </Button>
