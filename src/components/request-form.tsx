@@ -18,6 +18,7 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { API_BASE_URL } from '@/lib/api';
 import { Combobox } from '@/components/ui/combobox';
+import { FindMacAddressDialog } from './requests/find-mac-address-dialog';
 
 const macAddressRegex = /^(?:[0-9A-Fa-f]{2}([:-]?))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}$|^[0-9A-Fa-f]{12}$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@(gov\.in|nic\.in)$/;
@@ -57,6 +58,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
   const [isFloorsLoading, setIsFloorsLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
   const { token, user } = useAuth();
+  const [isMacAddressDialogOpen, setIsMacAddressDialogOpen] = useState(false);
 
   const form = useForm<z.infer<typeof requestSchema>>({
     resolver: zodResolver(requestSchema),
@@ -267,6 +269,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
   }
 
   return (
+    <>
     <div className="space-y-8">
         <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -330,7 +333,15 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                 <CardContent className="space-y-6 pt-6">
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <FormField control={form.control} name="mac_address" render={({ field }) => (
-                            <FormItem><FormLabel>Computer MAC Address</FormLabel><FormControl><Input placeholder="00:1A:2B:3C:4D:5E" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem>
+                                <div className="flex items-center justify-between">
+                                    <FormLabel>Computer MAC Address</FormLabel>
+                                    <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => setIsMacAddressDialogOpen(true)}>
+                                        How to find?
+                                    </Button>
+                                </div>
+                                <FormControl><Input placeholder="00:1A:2B:3C:4D:5E" {...field} /></FormControl><FormMessage />
+                            </FormItem>
                         )}/>
                         <FormField control={form.control} name="room_no" render={({ field }) => (
                             <FormItem><FormLabel>Room No.</FormLabel><FormControl><Input placeholder="e.g., 301" {...field} /></FormControl><FormMessage /></FormItem>
@@ -410,5 +421,10 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
         </form>
         </Form>
     </div>
+    <FindMacAddressDialog
+        isOpen={isMacAddressDialogOpen}
+        onClose={() => setIsMacAddressDialogOpen(false)}
+    />
+    </>
   );
 }
