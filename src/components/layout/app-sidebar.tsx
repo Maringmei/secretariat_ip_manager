@@ -15,7 +15,7 @@ import {
   SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { ManipurEmblem } from '../icons/manipur-emblem';
-import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus, CheckCheck, Archive } from 'lucide-react';
+import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus, CheckCheck, Archive, Search } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
 import { useCounter, Counts } from '../counter/counter-provider';
 import type { LucideIcon } from 'lucide-react';
@@ -51,6 +51,7 @@ const adminMenuItems: MenuItem[] = [
     { href: '/closed-requests', label: 'Closed', icon: Archive, types: ['official'], countKey: 'closed' },
     { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['official'], countKey: 're_opened' },
     { href: '/rejected-requests', label: 'Rejected', icon: FileX, types: ['official'], countKey: 'rejected' },
+    { href: '/search-ip', label: 'Search IP', icon: Search, types: ['official'] },
     { href: '/settings', label: 'Settings', icon: Settings, types: ['official'] },
     { href: '/users', label: 'User Management', icon: Users, types: ['official'] },
 ];
