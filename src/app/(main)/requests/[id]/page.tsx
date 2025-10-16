@@ -154,7 +154,7 @@ export default function RequestDetailsPage() {
         }
     }
 
-    const handleAssignIp = async (data: { ipAddress: string; speedId: number; remark?: string }) => {
+    const handleAssignIp = async (data: { ipAddressId: number; speedId: number; remark?: string }) => {
         if (!token || !request) return;
 
         setIsActionLoading(true);
@@ -165,7 +165,7 @@ export default function RequestDetailsPage() {
                 body: JSON.stringify({
                     ip_request_id: request.id,
                     status_id: 2, // Move from New (1) to IP Assigned (2)
-                    ip_address: data.ipAddress,
+                    ip_address_id: data.ipAddressId,
                     connection_speed_id: data.speedId,
                     remark: data.remark,
                 })

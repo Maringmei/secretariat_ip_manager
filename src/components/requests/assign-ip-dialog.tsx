@@ -28,13 +28,13 @@ import { API_BASE_URL } from '@/lib/api';
 interface AssignIpDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (data: { ipAddress: string, speedId: number, remark?: string }) => Promise<void>;
+  onConfirm: (data: { ipAddressId: number, speedId: number, remark?: string }) => Promise<void>;
   isSubmitting: boolean;
   requestId: number;
 }
 
 const formSchema = z.object({
-  ipAddress: z.string({ required_error: 'Please select an IP address.' }),
+  ipAddressId: z.string({ required_error: 'Please select an IP address.' }),
   speedId: z.string({ required_error: 'Please select a connection speed.' }),
   remark: z.string().optional(),
 });
@@ -49,7 +49,7 @@ export function AssignIpDialog({ isOpen, onClose, onConfirm, isSubmitting, reque
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            ipAddress: undefined,
+            ipAddressId: undefined,
             speedId: undefined,
             remark: '',
         },
@@ -95,7 +95,7 @@ export function AssignIpDialog({ isOpen, onClose, onConfirm, isSubmitting, reque
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
         await onConfirm({
-            ipAddress: values.ipAddress,
+            ipAddressId: parseInt(values.ipAddressId, 10),
             speedId: parseInt(values.speedId, 10),
             remark: values.remark
         });
@@ -124,7 +124,7 @@ export function AssignIpDialog({ isOpen, onClose, onConfirm, isSubmitting, reque
                     </div>
                 ) : (
                     <div className="grid gap-4 py-6">
-                        <FormField control={form.control} name="ipAddress" render={({ field }) => (
+                        <FormField control={form.control} name="ipAddressId" render={({ field }) => (
                            <FormItem>
                                 <Label>IP Address</Label>
                                 <Select onValueChange={field.onChange} value={field.value}>
@@ -132,7 +132,7 @@ export function AssignIpDialog({ isOpen, onClose, onConfirm, isSubmitting, reque
                                 <SelectContent>
                                     {ipAddresses.length > 0 ? (
                                         ipAddresses.map((ip) => (
-                                            <SelectItem key={ip.id} value={ip.value}>{ip.value}</SelectItem>
+                                            <SelectItem key={ip.id} value={String(ip.id)}>{ip.value}</SelectItem>
                                         ))
                                     ) : (
                                         <div className='p-4 text-sm text-muted-foreground'>No available IPs.</div>
