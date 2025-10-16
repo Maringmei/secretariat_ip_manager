@@ -72,7 +72,6 @@ export default function SearchIpPage() {
             <h1 className="font-headline text-3xl font-bold">Search by IP Address</h1>
             <Card>
                 <CardHeader>
-                    <CardTitle>Find Request by IP</CardTitle>
                     <CardDescription>Enter an IP address to find the associated request details.</CardDescription>
                 </CardHeader>
                 <CardContent>
