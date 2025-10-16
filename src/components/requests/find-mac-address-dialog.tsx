@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -11,11 +12,25 @@ import {
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
+import { Apple } from 'lucide-react';
 
 interface FindMacAddressDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+// Simple Windows logo SVG
+const WindowsLogo = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="mr-2 h-4 w-4"
+  >
+    <path d="M11.025 4.5H4.5v6.525h6.525V4.5zM20 4.5h-7.05v6.525H20V4.5zM11.025 13.425H4.5V20h6.525v-6.575zM20 13.425h-7.05V20H20v-6.575z" />
+  </svg>
+);
+
 
 export function FindMacAddressDialog({ isOpen, onClose }: FindMacAddressDialogProps) {
 
@@ -35,8 +50,14 @@ export function FindMacAddressDialog({ isOpen, onClose }: FindMacAddressDialogPr
         <div className="py-4">
           <Tabs defaultValue="windows">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="windows">Windows</TabsTrigger>
-              <TabsTrigger value="macos">macOS</TabsTrigger>
+              <TabsTrigger value="windows">
+                <WindowsLogo />
+                Windows
+              </TabsTrigger>
+              <TabsTrigger value="macos">
+                <Apple className="mr-2 h-4 w-4" />
+                macOS
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="windows" className="mt-4">
               <div className="space-y-3">
