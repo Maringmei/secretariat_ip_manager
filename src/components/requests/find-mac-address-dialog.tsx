@@ -77,7 +77,7 @@ export function FindMacAddressDialog({ isOpen, onClose }: FindMacAddressDialogPr
             </TabsContent>
             <TabsContent value="macos" className="mt-4">
                 <div className="space-y-3">
-                    <h3 className="font-semibold">Instructions for macOS</h3>
+                    <h3 className="font-semibold">Instructions for Apple(macOS)</h3>
                     <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
                         <li>Go to System Settings {'>'} Network.</li>
                         <li>Select your active connection (Wi-Fi or Ethernet).</li>
