@@ -56,7 +56,7 @@ export function FindMacAddressDialog({ isOpen, onClose }: FindMacAddressDialogPr
               </TabsTrigger>
               <TabsTrigger value="macos">
                 <Apple className="mr-2 h-4 w-4" />
-                macOS
+                Apple(macOS)
               </TabsTrigger>
             </TabsList>
             <TabsContent value="windows" className="mt-4">
