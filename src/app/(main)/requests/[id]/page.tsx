@@ -379,6 +379,7 @@ export default function RequestDetailsPage() {
                 onClose={() => setIsAssignIpOpen(false)}
                 onConfirm={handleAssignIp}
                 isSubmitting={isActionLoading}
+                requestId={Number(id)}
             />
         )}
         

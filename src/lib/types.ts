@@ -46,6 +46,11 @@ export interface ConnectionSpeed extends SettingItem {
 
 export interface NetworkEngineer extends SettingItem {}
 
+export interface IpAddress {
+    id: number;
+    value: string;
+}
+
 export interface WorkflowStep {
   step: string;
   timestamp: Date | string; // Allow string to handle API response

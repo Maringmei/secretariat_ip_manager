@@ -20,7 +20,7 @@ import { Loader2 } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
 
-interface RejectRequestDialogProps {
+interface RevertRequestDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (data: { remark: string }) => Promise<void>;
@@ -28,10 +28,10 @@ interface RejectRequestDialogProps {
 }
 
 const formSchema = z.object({
-  remark: z.string().min(10, { message: 'Please provide a clear reason for rejecting (at least 10 characters).' }),
+  remark: z.string().min(10, { message: 'Please provide a clear reason for reverting (at least 10 characters).' }),
 });
 
-export function RejectRequestDialog({ isOpen, onClose, onConfirm, isSubmitting }: RejectRequestDialogProps) {
+export function RevertRequestDialog({ isOpen, onClose, onConfirm, isSubmitting }: RevertRequestDialogProps) {
   
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -52,15 +52,15 @@ export function RejectRequestDialog({ isOpen, onClose, onConfirm, isSubmitting }
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
                 <DialogHeader>
-                    <DialogTitle>Reject Request</DialogTitle>
-                    <DialogDescription>Please provide a reason for rejecting this request. The request will be moved to the rejected list.</DialogDescription>
+                    <DialogTitle>Revert Request</DialogTitle>
+                    <DialogDescription>Please provide a reason for reverting this request. It will be sent back to the previous step for correction.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-6">
                     <FormField control={form.control} name="remark" render={({ field }) => (
                         <FormItem>
-                            <Label>Reason for Rejecting</Label>
+                            <Label>Reason for Reverting</Label>
                             <FormControl>
-                                <Textarea placeholder="Explain why this request is being rejected..." {...field} />
+                                <Textarea placeholder="Explain why this request needs changes..." {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -74,7 +74,7 @@ export function RejectRequestDialog({ isOpen, onClose, onConfirm, isSubmitting }
                     </DialogClose>
                     <Button type="submit" variant="destructive" disabled={isSubmitting}>
                          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Confirm Reject
+                        Confirm Revert
                     </Button>
                 </DialogFooter>
             </form>

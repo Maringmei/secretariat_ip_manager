@@ -11,7 +11,6 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,7 +18,7 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import type { ConnectionSpeed } from '@/lib/types';
+import type { ConnectionSpeed, IpAddress } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Textarea } from '../ui/textarea';
 import { useAuth } from '../auth/auth-provider';
@@ -31,52 +30,68 @@ interface AssignIpDialogProps {
   onClose: () => void;
   onConfirm: (data: { ipAddress: string, speedId: number, remark?: string }) => Promise<void>;
   isSubmitting: boolean;
+  requestId: number;
 }
 
-const ipAddressRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-
 const formSchema = z.object({
-  ipAddress: z.string().regex(ipAddressRegex, 'Please enter a valid IP address.'),
+  ipAddress: z.string({ required_error: 'Please select an IP address.' }),
   speedId: z.string({ required_error: 'Please select a connection speed.' }),
   remark: z.string().optional(),
 });
 
-export function AssignIpDialog({ isOpen, onClose, onConfirm, isSubmitting }: AssignIpDialogProps) {
+export function AssignIpDialog({ isOpen, onClose, onConfirm, isSubmitting, requestId }: AssignIpDialogProps) {
     const { token } = useAuth();
     const { toast } = useToast();
     const [speeds, setSpeeds] = useState<ConnectionSpeed[]>([]);
+    const [ipAddresses, setIpAddresses] = useState<IpAddress[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
   
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            ipAddress: '',
+            ipAddress: undefined,
             speedId: undefined,
             remark: '',
         },
     });
 
     useEffect(() => {
-        const fetchSpeeds = async () => {
-            if (!token) return;
+        const fetchData = async () => {
+            if (!token || !isOpen) return;
+            setIsLoading(true);
+
             try {
-                const response = await fetch(`${API_BASE_URL}/connectionspeeds`, {
+                // Fetch speeds
+                const speedsResponse = await fetch(`${API_BASE_URL}/connectionspeeds`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const result = await response.json();
-                if (result.success) {
-                    setSpeeds(result.data);
+                const speedsResult = await speedsResponse.json();
+                if (speedsResult.success) {
+                    setSpeeds(speedsResult.data);
                 } else {
                     toast({ title: 'Error', description: 'Could not load connection speeds.', variant: 'destructive'});
                 }
+
+                // Fetch IP addresses
+                const ipResponse = await fetch(`${API_BASE_URL}/ip-addresses?request_id=${requestId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const ipResult = await ipResponse.json();
+                if (ipResult.success) {
+                    setIpAddresses(ipResult.data);
+                } else {
+                    toast({ title: 'Error', description: ipResult.message || 'Could not load available IP addresses.', variant: 'destructive'});
+                }
+
             } catch (error: any) {
-                toast({ title: 'Error', description: error.message || 'Failed to fetch speeds.', variant: 'destructive' });
+                toast({ title: 'Error', description: error.message || 'Failed to fetch dialog data.', variant: 'destructive' });
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        if (isOpen) {
-            fetchSpeeds();
-        }
-    }, [isOpen, token, toast]);
+        fetchData();
+    }, [isOpen, token, toast, requestId]);
 
     const handleSubmit = async (values: z.infer<typeof formSchema>) => {
         await onConfirm({
@@ -89,6 +104,8 @@ export function AssignIpDialog({ isOpen, onClose, onConfirm, isSubmitting }: Ass
     useEffect(() => {
         if (!isOpen) {
           form.reset();
+          setIpAddresses([]);
+          setSpeeds([]);
         }
       }, [isOpen, form]);
 
@@ -101,31 +118,52 @@ export function AssignIpDialog({ isOpen, onClose, onConfirm, isSubmitting }: Ass
                     <DialogTitle>Assign IP Address</DialogTitle>
                     <DialogDescription>Fill in the details to assign an IP to this request.</DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-6">
-                    <FormField control={form.control} name="ipAddress" render={({ field }) => (
-                        <FormItem><Label>IP Address</Label><FormControl><Input placeholder="e.g., 192.168.1.100" {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <FormField control={form.control} name="speedId" render={({ field }) => (
-                        <FormItem>
-                            <Label>Connection Speed</Label>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Select a speed" /></SelectTrigger></FormControl>
-                            <SelectContent>{speeds.map((s) => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}</SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}/>
-                    <FormField control={form.control} name="remark" render={({ field }) => (
-                        <FormItem><Label>Remark (Optional)</Label><FormControl><Textarea placeholder="Add any relevant remarks..." {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                </div>
+                {isLoading ? (
+                    <div className="flex h-48 items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>
+                ) : (
+                    <div className="grid gap-4 py-6">
+                        <FormField control={form.control} name="ipAddress" render={({ field }) => (
+                           <FormItem>
+                                <Label>IP Address</Label>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Select an IP Address" /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    {ipAddresses.length > 0 ? (
+                                        ipAddresses.map((ip) => (
+                                            <SelectItem key={ip.id} value={ip.value}>{ip.value}</SelectItem>
+                                        ))
+                                    ) : (
+                                        <div className='p-4 text-sm text-muted-foreground'>No available IPs.</div>
+                                    )}
+                                </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}/>
+                        <FormField control={form.control} name="speedId" render={({ field }) => (
+                            <FormItem>
+                                <Label>Connection Speed</Label>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Select a speed" /></SelectTrigger></FormControl>
+                                <SelectContent>{speeds.map((s) => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}</SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}/>
+                        <FormField control={form.control} name="remark" render={({ field }) => (
+                            <FormItem><Label>Remark (Optional)</Label><FormControl><Textarea placeholder="Add any relevant remarks..." {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                    </div>
+                )}
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
+                        <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting || isLoading}>
                             Cancel
                         </Button>
                     </DialogClose>
-                    <Button type="submit" disabled={isSubmitting}>
+                    <Button type="submit" disabled={isSubmitting || isLoading}>
                          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Submit
                     </Button>
