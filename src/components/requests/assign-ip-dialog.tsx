@@ -24,6 +24,7 @@ import { Textarea } from '../ui/textarea';
 import { useAuth } from '../auth/auth-provider';
 import { useToast } from '@/hooks/use-toast';
 import { API_BASE_URL } from '@/lib/api';
+import { Combobox } from '../ui/combobox';
 
 interface AssignIpDialogProps {
   isOpen: boolean;
@@ -124,24 +125,23 @@ export function AssignIpDialog({ isOpen, onClose, onConfirm, isSubmitting, reque
                     </div>
                 ) : (
                     <div className="grid gap-4 py-6">
-                        <FormField control={form.control} name="ipAddressId" render={({ field }) => (
-                           <FormItem>
-                                <Label>IP Address</Label>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select an IP Address" /></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    {ipAddresses.length > 0 ? (
-                                        ipAddresses.map((ip) => (
-                                            <SelectItem key={ip.id} value={String(ip.id)}>{ip.value}</SelectItem>
-                                        ))
-                                    ) : (
-                                        <div className='p-4 text-sm text-muted-foreground'>No available IPs.</div>
-                                    )}
-                                </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}/>
+                        <FormField
+                            control={form.control}
+                            name="ipAddressId"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <Label>IP Address</Label>
+                                    <Combobox
+                                        options={ipAddresses.map(ip => ({ value: String(ip.id), label: ip.value }))}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Select an IP Address"
+                                        searchPlaceholder="Search IP..."
+                                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField control={form.control} name="speedId" render={({ field }) => (
                             <FormItem>
                                 <Label>Connection Speed</Label>
