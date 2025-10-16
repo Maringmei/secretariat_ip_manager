@@ -353,6 +353,7 @@ export default function RequestDetailsPage() {
                         <p><strong>Room No:</strong> {request.room_no}</p>
                          <p><strong>Section:</strong> {request.section}</p>
                         <p><strong>Block:</strong> {request.block_name}</p>
+                        <p><strong>Floor:</strong> {request.floor_name}</p>
                         <p><strong>Assigned IP:</strong> <span className="font-mono">{request.ip_address || 'N/A'}</span></p>
                         <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}</p>
                     </CardContent>

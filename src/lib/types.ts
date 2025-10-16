@@ -79,6 +79,7 @@ export interface Request {
   email?: string;
   mac_address?: string;
   block_name?: string;
+  floor_name?: string;
   section?: string;
   room_no?: string;
   e_office_onboarded?: '0' | '1';
