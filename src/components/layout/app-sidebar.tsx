@@ -28,10 +28,11 @@ interface MenuItem {
     icon: LucideIcon;
     types?: string[];
     countKey?: keyof Counts;
+    accessKey?: string;
 }
 
 const menuItems: MenuItem[] = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['official', 'requester'] },
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['official', 'requester'], accessKey: 'Dashboard' },
 ];
 
 const requesterMenuItems: MenuItem[] = [
@@ -44,16 +45,16 @@ const requesterMenuItems: MenuItem[] = [
 ];
 
 const adminMenuItems: MenuItem[] = [
-    { href: '/new-requests', label: 'New Requests', icon: Inbox, types: ['official'], countKey: 'new' },
-    { href: '/pending-approval', label: 'Pending Approval', icon: FileClock, types: ['official'], countKey: 'pending_approval' },
-    { href: '/approved-requests', label: 'Approved', icon: FileCheck, types: ['official'], countKey: 'approved' },
-    { href: '/ready-requests', label: 'Ready', icon: CheckCheck, types: ['official'], countKey: 'ready' },
-    { href: '/closed-requests', label: 'Closed', icon: Archive, types: ['official'], countKey: 'closed' },
-    { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['official'], countKey: 're_opened' },
-    { href: '/rejected-requests', label: 'Rejected', icon: FileX, types: ['official'], countKey: 'rejected' },
-    { href: '/search-ip', label: 'Search IP', icon: Search, types: ['official'] },
-    { href: '/settings', label: 'Settings', icon: Settings, types: ['official'] },
-    { href: '/users', label: 'User Management', icon: Users, types: ['official'] },
+    { href: '/new-requests', label: 'New Requests', icon: Inbox, types: ['official'], countKey: 'new', accessKey: 'New Requests' },
+    { href: '/pending-approval', label: 'Pending Approval', icon: FileClock, types: ['official'], countKey: 'pending_approval', accessKey: 'Pending' },
+    { href: '/approved-requests', label: 'Approved', icon: FileCheck, types: ['official'], countKey: 'approved', accessKey: 'Approved' },
+    { href: '/ready-requests', label: 'Ready', icon: CheckCheck, types: ['official'], countKey: 'ready', accessKey: 'Ready' },
+    { href: '/closed-requests', label: 'Closed', icon: Archive, types: ['official'], countKey: 'closed', accessKey: 'Closed' },
+    { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['official'], countKey: 're_opened', accessKey: 'Reopened' },
+    { href: '/rejected-requests', label: 'Rejected', icon: FileX, types: ['official'], countKey: 'rejected', accessKey: 'Rejected' },
+    { href: '/search-ip', label: 'Search by IP', icon: Search, types: ['official'], accessKey: 'Search by IP' },
+    { href: '/settings', label: 'Settings', icon: Settings, types: ['official'], accessKey: 'Settings' },
+    { href: '/users', label: 'User Management', icon: Users, types: ['official'], accessKey: 'User Management' },
 ];
 
 
@@ -65,6 +66,7 @@ export default function AppSidebar() {
     const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
     const userType = user?.type || 'requester'; 
+    const userAccess = user?.access || [];
 
     const handleLogout = () => {
       logout();
@@ -75,13 +77,27 @@ export default function AppSidebar() {
         setLogoutDialogOpen(true);
     };
 
+    const isMenuItemVisible = (item: MenuItem) => {
+        if (!item.types?.includes(userType)) {
+            return false;
+        }
+        if (userType === 'official' && userAccess.length > 0 && item.accessKey) {
+            return userAccess.includes(item.accessKey);
+        }
+        // Show for requesters or if access control is not applicable
+        return true;
+    };
+
     const renderMenuItem = (item: MenuItem) => {
+      if (!isMenuItemVisible(item)) {
+        return null;
+      }
+      
       const countData = item.countKey ? counts[item.countKey] : undefined;
       const count = countData?.count;
       const highlight = countData?.highlight;
 
       return (
-        (!item.types || item.types.includes(userType)) &&
         <SidebarMenuItem key={item.href}>
           <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
             <Link href={item.href}>
