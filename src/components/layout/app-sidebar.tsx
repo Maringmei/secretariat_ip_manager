@@ -36,12 +36,12 @@ const menuItems: MenuItem[] = [
 ];
 
 const requesterMenuItems: MenuItem[] = [
-    { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'pending_approval' },
-    { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'approved' },
-    { href: '/my-ready-requests', label: 'Ready', icon: CheckCheck, types: ['requester'], countKey: 'ready' },
-    { href: '/my-closed-requests', label: 'Closed', icon: Archive, types: ['requester'], countKey: 'closed' },
-    { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['requester'], countKey: 're_opened' },
-    { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'rejected' },
+    { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'pending_approval', accessKey: 'Pending' },
+    { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'approved', accessKey: 'Approved' },
+    { href: '/my-ready-requests', label: 'Ready', icon: CheckCheck, types: ['requester'], countKey: 'ready', accessKey: 'Ready' },
+    { href: '/my-closed-requests', label: 'Closed', icon: Archive, types: ['requester'], countKey: 'closed', accessKey: 'Closed' },
+    { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['requester'], countKey: 're_opened', accessKey: 'Reopened' },
+    { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'rejected', accessKey: 'Rejected' },
 ];
 
 const adminMenuItems: MenuItem[] = [
@@ -81,11 +81,18 @@ export default function AppSidebar() {
         if (!item.types?.includes(userType)) {
             return false;
         }
-        if (userType === 'official' && userAccess.length > 0 && item.accessKey) {
+        // If the user has a specific list of accessible items, check against it.
+        if (userAccess.length > 0 && item.accessKey) {
             return userAccess.includes(item.accessKey);
         }
-        // Show for requesters or if access control is not applicable
-        return true;
+        // If no access list is provided, default to showing the item based on type.
+        // Or if the item doesn't have an accessKey, it's considered public for that type.
+        if (userAccess.length === 0) {
+            return true;
+        }
+        
+        // Hide items with an accessKey if userAccess is populated but doesn't include the key
+        return !item.accessKey;
     };
 
     const renderMenuItem = (item: MenuItem) => {
@@ -127,11 +134,11 @@ export default function AppSidebar() {
         <SidebarMenu>
           {menuItems.map(renderMenuItem)}
           
-          {(userType === 'requester' && requesterMenuItems.length > 0) && <SidebarSeparator />}
+          {(userType === 'requester' && requesterMenuItems.some(isMenuItemVisible)) && <SidebarSeparator />}
 
           {requesterMenuItems.map(renderMenuItem)}
           
-          {userType === 'official' && <SidebarSeparator />}
+          {(userType === 'official' && adminMenuItems.some(isMenuItemVisible)) && <SidebarSeparator />}
           
           {adminMenuItems.map(renderMenuItem)}
         </SidebarMenu>
