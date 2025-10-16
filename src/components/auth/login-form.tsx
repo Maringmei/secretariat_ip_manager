@@ -259,7 +259,7 @@ export function LoginForm() {
                         type="button"
                         title="Send OTP"
                         variant="ghost"
-                        className="absolute right-1 h-8 px-3 text-sm font-medium text-primary hover:bg-gray-100 dark:hover:bg-gray-800"
+                        className="absolute right-1 h-8 px-3 text-sm font-medium text-primary hover:bg-primary dark:hover:bg-primary"
                         onClick={sendOtp}
                         disabled={
                           isOtpSent ||
