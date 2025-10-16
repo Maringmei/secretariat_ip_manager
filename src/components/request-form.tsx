@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import type { Block, ConnectionSpeed, Department, User } from '@/lib/types';
+import type { Block, ConnectionSpeed, Department, User, Floor } from '@/lib/types';
 import { useAuth } from '@/components/auth/auth-provider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { API_BASE_URL } from '@/lib/api';
@@ -35,6 +34,7 @@ const requestSchema = z.object({
   mac_address: z.string().regex(macAddressRegex, 'Invalid MAC address format.'),
   room_no: z.string().min(1, 'Room number is required'),
   block_id: z.string({ required_error: 'Please select a block.' }),
+  floor_id: z.string({ required_error: 'Please select a floor.' }),
   reporting_officer: z.string().min(2, 'Reporting officer is required'),
   section: z.string().min(1, 'Section is required'),
   e_office_onboarded: z.enum(['1', '0'], { required_error: 'This field is required.' }),
@@ -53,6 +53,8 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFormLoading, setIsFormLoading] = useState(true);
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [floors, setFloors] = useState<Floor[]>([]);
+  const [isFloorsLoading, setIsFloorsLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
   const { token, user } = useAuth();
 
@@ -71,8 +73,12 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
       designation: '',
       ein_sin: '',
       e_office_onboarded: undefined,
+      block_id: undefined,
+      floor_id: undefined,
     },
   });
+
+  const selectedBlockId = form.watch('block_id');
 
   useEffect(() => {
     const fetchProfileForSelf = async () => {
@@ -167,6 +173,37 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
 
   }, [toast, token]);
 
+  useEffect(() => {
+    const fetchFloors = async (blockId: string) => {
+        if (!token || !blockId) return;
+        setIsFloorsLoading(true);
+        setFloors([]);
+        form.setValue('floor_id', '');
+        try {
+            const response = await fetch(`${API_BASE_URL}/blocks/${blockId}/floors`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const result = await response.json();
+            if (result.success) {
+                setFloors(result.data);
+            } else {
+                setFloors([]);
+                toast({ title: 'Error', description: 'Could not load floors for the selected block.', variant: 'destructive' });
+            }
+        } catch (error) {
+            setFloors([]);
+            toast({ title: 'Error', description: 'An error occurred while fetching floors.', variant: 'destructive' });
+        } finally {
+            setIsFloorsLoading(false);
+        }
+    };
+
+    if (selectedBlockId) {
+        fetchFloors(selectedBlockId);
+    }
+  }, [selectedBlockId, token, toast, form]);
+
+
   async function onSubmit(values: z.infer<typeof requestSchema>) {
     if (!token || !user) {
         toast({ title: 'Authentication Error', description: 'Could not verify user. Please log in again.', variant: 'destructive'});
@@ -187,6 +224,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
         section: values.section,
         room_no: values.room_no,
         block_id: parseInt(values.block_id, 10),
+        floor_id: parseInt(values.floor_id, 10),
         e_office_onboarded: values.e_office_onboarded,
         mac_address: values.mac_address,
     };
@@ -308,12 +346,32 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                         <FormField control={form.control} name="block_id" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Block</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select a block" /></SelectTrigger></FormControl>
                             <SelectContent>{blocks.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>)}</SelectContent>
                             </Select>
                             <FormMessage />
                         </FormItem>
+                        )}/>
+                        <FormField control={form.control} name="floor_id" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Floor</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedBlockId || isFloorsLoading}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={
+                                                isFloorsLoading ? "Loading floors..." :
+                                                !selectedBlockId ? "Select a block first" :
+                                                "Select a floor"
+                                            } />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {floors.map(f => <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
                         )}/>
                         <FormField control={form.control} name="e_office_onboarded" render={({ field }) => (
                             <FormItem className="space-y-3">

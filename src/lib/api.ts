@@ -1,1 +1,3 @@
-export const API_BASE_URL = 'https://iprequestapi.globizsapp.com/api';
+const isStaging = true;
+
+export const API_BASE_URL = isStaging ? 'https://iprequeststagingapi.globizsapp.com/api' : 'https://iprequestapi.globizsapp.com/api'; 

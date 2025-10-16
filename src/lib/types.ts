@@ -38,6 +38,8 @@ export interface Department extends SettingItem {}
 
 export interface Block extends SettingItem {}
 
+export interface Floor extends SettingItem {}
+
 export interface ConnectionSpeed extends SettingItem {
   speed?: string; // e.g., '10 Mbps', '100 Mbps'
 }
