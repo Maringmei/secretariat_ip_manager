@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -33,7 +34,10 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters long.' }),
   designation: z.string().min(2, { message: 'Designation is required.' }),
   username: z.string().length(10, { message: 'Username must be a 10-digit mobile number.' }),
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }).refine(
+    (email) => /^[^@]+@([a-z0-9.-]+\.)?(gov\.in|nic\.in)$/i.test(email),
+    { message: "Email must be a valid gov.in or nic.in address." }
+  ),
   role: z.string({ required_error: 'Please select a role.' }),
 });
 
@@ -125,3 +129,5 @@ export function EditUserDialog({ isOpen, onClose, onConfirm, roles, user }: Edit
     </Dialog>
   );
 }
+
+    

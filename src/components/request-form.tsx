@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,7 +22,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { FindMacAddressDialog } from './requests/find-mac-address-dialog';
 
 const macAddressRegex = /^(?:[0-9A-Fa-f]{2}([:-]?))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}$|^[0-9A-Fa-f]{12}$/;
-const emailRegex = /^[a-zA-Z0-9._%+-]+@(gov\.in|nic\.in)$/;
+const emailRegex = /^[^@]+@([a-z0-9.-]+\.)?(gov\.in|nic\.in)$/i;
 
 const requestSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
@@ -428,3 +429,5 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
     </>
   );
 }
+
+    
