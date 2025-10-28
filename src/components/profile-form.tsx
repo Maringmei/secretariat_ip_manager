@@ -30,8 +30,8 @@ const profileSchema = z.object({
     .string()
     .email("Invalid email address")
     .refine(
-      (email) => /@([a-zA-Z0-9-]+\.)?(nic\.in|gov\.in)$/.test(email),
-      { message: "Email must end with @nic.in or @gov.in" }
+      (email) => /^[^@]+@([a-z0-9.-]+\.)?(gov\.in|nic\.in)$/i.test(email),
+      { message: "Email must end with @gov.in or @nic.in" }
     ),
   whatsapp_no: z.string().length(10, 'WhatsApp number must be 10 digits.'),
 });
@@ -279,3 +279,5 @@ export function ProfileForm({ user }: ProfileFormProps) {
     </Form>
   );
 }
+
+    
