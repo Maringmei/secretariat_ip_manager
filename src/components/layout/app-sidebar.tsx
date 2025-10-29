@@ -33,10 +33,6 @@ interface MenuItem {
     accessKey?: string;
 }
 
-const menuItems: MenuItem[] = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['official', 'requester'], accessKey: 'Dashboard' },
-];
-
 const ipRequestChildItems: MenuItem[] = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['requester'], accessKey: 'Dashboard' },
     { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'pending_approval', accessKey: 'Pending' },
@@ -48,13 +44,13 @@ const ipRequestChildItems: MenuItem[] = [
 ];
 
 const eOfficeChildItems: MenuItem[] = [
-    { href: '/e-office', label: 'E-office', icon: Briefcase, types: ['requester'], accessKey: 'Dashboard' },
-    { href: '/e-office-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], accessKey: 'Dashboard' },
-    { href: '/e-office-issues', label: 'Issues', icon: Ticket, types: ['requester'], accessKey: 'Dashboard'},
+    { href: '/e-office', label: 'E-office', icon: Briefcase, types: ['requester', 'official'], accessKey: 'Dashboard' },
+    { href: '/e-office-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester', 'official'], accessKey: 'Dashboard' },
+    { href: '/e-office-issues', label: 'Issues', icon: Ticket, types: ['requester', 'official'], accessKey: 'Dashboard'},
 ]
 
-
-const adminMenuItems: MenuItem[] = [
+const officialIpRequestChildItems: MenuItem[] = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['official'], accessKey: 'Dashboard' },
     { href: '/new-requests', label: 'New Requests', icon: Inbox, types: ['official'], countKey: 'new', accessKey: 'New Requests' },
     { href: '/pending-approval', label: 'Pending Approval', icon: FileClock, types: ['official'], countKey: 'pending_approval', accessKey: 'Pending' },
     { href: '/approved-requests', label: 'Approved', icon: FileCheck, types: ['official'], countKey: 'approved', accessKey: 'Approved' },
@@ -65,7 +61,7 @@ const adminMenuItems: MenuItem[] = [
     { href: '/search-ip', label: 'Search by IP', icon: Search, types: ['official'], accessKey: 'Search by IP' },
     { href: '/settings', label: 'Settings', icon: Settings, types: ['official'], accessKey: 'Settings' },
     { href: '/users', label: 'User Management', icon: Users, types: ['official'], accessKey: 'User Management' },
-];
+]
 
 
 export default function AppSidebar() {
@@ -80,14 +76,14 @@ export default function AppSidebar() {
     const userAccess = user?.access || [];
 
     useEffect(() => {
-        if (userType === 'requester') {
-            const isIpRequestActive = ipRequestChildItems.some(item => pathname.startsWith(item.href));
-            const isEOfficeActive = eOfficeChildItems.some(item => pathname.startsWith(item.href));
-            const activeMenus = [];
-            if (isIpRequestActive) activeMenus.push('ipRequest');
-            if (isEOfficeActive) activeMenus.push('eOffice');
-            setOpenMenus(activeMenus);
-        }
+        const isIpRequestActive = [...ipRequestChildItems, ...officialIpRequestChildItems].some(item => pathname.startsWith(item.href));
+        const isEOfficeActive = eOfficeChildItems.some(item => pathname.startsWith(item.href));
+        
+        const activeMenus = [];
+        if (isIpRequestActive) activeMenus.push('ipRequest');
+        if (isEOfficeActive) activeMenus.push('eOffice');
+        setOpenMenus(activeMenus);
+
     }, [pathname, userType]);
 
     const toggleMenu = (menu: string) => {
@@ -107,16 +103,12 @@ export default function AppSidebar() {
       if (!item.types?.includes(userType)) {
           return false;
       }
-      if (userType === 'requester' && userAccess.length === 0) {
-          return true; // Show all items for requesters without specific access restrictions
-      }
       if (userAccess.length > 0 && item.accessKey) {
           return userAccess.includes(item.accessKey);
       }
-      return !item.accessKey;
+      return true;
   };
   
-
     const renderMenuItem = (item: MenuItem) => {
       if (!isMenuItemVisible(item)) {
         return null;
@@ -212,8 +204,6 @@ export default function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {userType === 'official' && menuItems.map(renderMenuItem)}
-
           {userType === 'requester' && (
               <>
                   {renderCollapsibleMenu('ipRequest', 'IP Request', FileText, ipRequestChildItems)}
@@ -221,9 +211,12 @@ export default function AppSidebar() {
               </>
           )}
 
-          {(userType === 'official' && adminMenuItems.some(isMenuItemVisible)) && <SidebarSeparator />}
-          
-          {userType === 'official' && adminMenuItems.map(renderMenuItem)}
+          {userType === 'official' && (
+              <>
+                  {renderCollapsibleMenu('ipRequest', 'IP Request', FileText, officialIpRequestChildItems)}
+                  {renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)}
+              </>
+          )}
 
         </SidebarMenu>
       </SidebarContent>
