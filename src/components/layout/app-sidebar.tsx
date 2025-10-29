@@ -44,8 +44,6 @@ const ipRequestChildItems: MenuItem[] = [
 ];
 
 const eOfficeChildItems: MenuItem[] = [
-    { href: '/e-office', label: 'E-office', icon: Briefcase, types: ['requester', 'official'], accessKey: 'Dashboard' },
-    { href: '/e-office-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester', 'official'], accessKey: 'Dashboard' },
     { href: '/e-office-issues', label: 'Issues', icon: Ticket, types: ['requester', 'official'], accessKey: 'Dashboard'},
 ]
 

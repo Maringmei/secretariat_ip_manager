@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -181,9 +182,9 @@ export default function EOfficeIssueDetailsPage() {
     }
     
     const isOfficial = user?.type === 'official';
+    const canMarkInProgress = isOfficial && issue.e_office_issue_status_id === '1';
     const canAssignEngineer = isOfficial && issue.can_assign_engineer;
     const canCloseIssue = isOfficial && issue.can_close;
-    const canMarkInProgress = isOfficial && issue.e_office_issue_status_id === '1';
     const canReopen = isOfficial && issue.e_office_issue_status_id === '4'; // Can reopen if closed
 
 
@@ -221,26 +222,23 @@ export default function EOfficeIssueDetailsPage() {
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-4">
-                     {canMarkInProgress && (
-                         <Button onClick={() => handleActionButtonClick('progress')} disabled={isActionLoading}>
-                             {buttonText}
-                         </Button>
-                     )}
-                     {canAssignEngineer && (
-                        <Button onClick={() => handleActionButtonClick('assign')} disabled={isActionLoading}>
-                            {buttonText}
-                        </Button>
-                     )}
-                     {canCloseIssue && (
-                        <Button onClick={() => handleActionButtonClick('close')} disabled={isActionLoading}>
-                            {buttonText}
-                        </Button>
-                     )}
-                     {canReopen && (
+                     {canReopen ? (
                          <Button onClick={() => handleActionButtonClick('reopen')} disabled={isActionLoading} variant="destructive">
-                             {buttonText}
+                            Re-open
                          </Button>
-                     )}
+                     ) : canMarkInProgress ? (
+                         <Button onClick={() => handleActionButtonClick('progress')} disabled={isActionLoading}>
+                             Mark as In Progress
+                         </Button>
+                     ) : canAssignEngineer ? (
+                        <Button onClick={() => handleActionButtonClick('assign')} disabled={isActionLoading}>
+                            Assign Engineer
+                        </Button>
+                     ) : canCloseIssue ? (
+                        <Button onClick={() => handleActionButtonClick('close')} disabled={isActionLoading}>
+                            Close Issue
+                        </Button>
+                     ) : null}
                 </div>
             </div>
 
