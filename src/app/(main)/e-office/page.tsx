@@ -105,9 +105,6 @@ const RequesterDashboard = ({ data }: { data: EOfficeDashboardData }) => {
                     <h1 className="font-headline text-3xl font-bold">E-Office Dashboard</h1>
                     <p className="text-muted-foreground">Here's a summary of your E-Office issues.</p>
                 </div>
-                <Button asChild variant="default" size="lg">
-                    <Link href="/e-office-issues/new">New Issue</Link>
-                </Button>
             </div>
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
