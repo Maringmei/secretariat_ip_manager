@@ -24,7 +24,6 @@ export default function EOfficeIssueDetailsPage() {
 
     const [issue, setIssue] = useState<EofficeIssue | null>(null);
     const [workflow, setWorkflow] = useState<WorkflowStep[]>([]);
-    const [nextStatuses, setNextStatuses] = useState<Status[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isActionLoading, setIsActionLoading] = useState(false);
 
@@ -48,9 +47,6 @@ export default function EOfficeIssueDetailsPage() {
             const result = await response.json();
             if (result.success && result.data) {
                 setIssue({ ...result.data, created_at: new Date(result.data.created_at).toISOString() });
-                if (result.data.next_statuses) {
-                    setNextStatuses(result.data.next_statuses);
-                }
             } else {
                 toast({ title: "Error", description: result.message || "Could not load issue details.", variant: "destructive" });
                 setIssue(null);
@@ -154,24 +150,23 @@ export default function EOfficeIssueDetailsPage() {
         await handleWorkflowAction(5, remark); // Status 5 is "Re-opened"
     };
 
-    const handleActionButtonClick = (status: Status) => {
-        switch (status.id) {
-            case 3: // Assign Engineer
+    const handleActionButtonClick = (action: 'assign' | 'close' | 'reopen' | 'progress') => {
+        switch (action) {
+            case 'assign':
                 setIsAssignEngineerOpen(true);
                 break;
-            case 4: // Closed
+            case 'close':
                 setIsCloseIssueOpen(true);
                 break;
-            case 5: // Re-opened
+            case 'reopen':
                 setIsReopenIssueOpen(true);
                 break;
-            default: // Other statuses like 'In Progress'
-                setStatusToUpdate(status);
+            case 'progress':
+                setStatusToUpdate({ id: 2, name: 'In Progress', foreground_color: '', background_color: '' });
                 setIsUpdateStatusOpen(true);
                 break;
         }
     }
-
 
     if (isLoading) {
         return (
@@ -186,6 +181,10 @@ export default function EOfficeIssueDetailsPage() {
     }
     
     const isOfficial = user?.type === 'official';
+    const canAssignEngineer = isOfficial && issue.can_assign_engineer;
+    const canCloseIssue = isOfficial && issue.can_close;
+    const canMarkInProgress = isOfficial && issue.e_office_issue_status_id === '1';
+    const canReopen = isOfficial && issue.e_office_issue_status_id === '4'; // Can reopen if closed
 
     return (
         <>
@@ -213,16 +212,26 @@ export default function EOfficeIssueDetailsPage() {
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-4">
-                     {isOfficial && nextStatuses.map(status => (
-                        <Button 
-                            key={status.id}
-                            onClick={() => handleActionButtonClick(status)}
-                            disabled={isActionLoading}
-                            variant={status.id === 4 || status.id === 5 ? "destructive" : "default"}
-                        >
-                            {status.name}
+                     {canMarkInProgress && (
+                         <Button onClick={() => handleActionButtonClick('progress')} disabled={isActionLoading}>
+                             Mark as In Progress
+                         </Button>
+                     )}
+                     {canAssignEngineer && (
+                        <Button onClick={() => handleActionButtonClick('assign')} disabled={isActionLoading}>
+                            Assign Engineer
                         </Button>
-                     ))}
+                     )}
+                     {canCloseIssue && (
+                        <Button onClick={() => handleActionButtonClick('close')} disabled={isActionLoading}>
+                            Close Issue
+                        </Button>
+                     )}
+                     {canReopen && (
+                         <Button onClick={() => handleActionButtonClick('reopen')} disabled={isActionLoading} variant="destructive">
+                             Re-open Issue
+                         </Button>
+                     )}
                 </div>
             </div>
 
