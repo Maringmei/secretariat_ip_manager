@@ -1,19 +1,17 @@
 
 'use client';
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
 import type { EofficeIssue, Department, Status, EofficeCategory } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, PlusCircle, Search } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/lib/api";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from "@/components/ui/pagination";
 import { Combobox } from "@/components/ui/combobox";
 import IssuesTable from "@/components/e-office/issues-table";
-import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 interface PaginationState {
     totalCount: number;
@@ -22,8 +20,14 @@ interface PaginationState {
     perPage: number;
 }
 
-export default function EOfficeIssuesPage() {
-    const { token, user } = useAuth();
+interface EofficeIssuesListPageProps {
+    title: string;
+    description: string;
+    statusId: number;
+}
+
+export default function EofficeIssuesListPage({ title, description, statusId }: EofficeIssuesListPageProps) {
+    const { token } = useAuth();
     const { toast } = useToast();
     const [issues, setIssues] = useState<EofficeIssue[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -41,10 +45,8 @@ export default function EOfficeIssuesPage() {
     const [issueNo, setIssueNo] = useState("");
     const [name, setName] = useState("");
     const [selectedDept, setSelectedDept] = useState("");
-    const [selectedStatus, setSelectedStatus] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState(String(statusId));
     const [selectedCategory, setSelectedCategory] = useState("");
-
-    const isOfficial = user?.type === 'official';
 
     const fetchIssues = async (page: number, filters: Record<string, string> = {}) => {
         if (!token) {
@@ -58,7 +60,7 @@ export default function EOfficeIssuesPage() {
             issue_no: filters.issueNo || "",
             name: filters.name || "",
             department_id: filters.departmentId || "",
-            status_id: filters.statusId || "",
+            status_id: filters.statusId || String(statusId),
             category_id: filters.categoryId || "",
         });
 
@@ -91,7 +93,7 @@ export default function EOfficeIssuesPage() {
     };
     
     useEffect(() => {
-        fetchIssues(1);
+        fetchIssues(1, {statusId: String(statusId)});
 
         const fetchFilterData = async (url: string, setData: (data: any[]) => void) => {
             if (!token) return;
@@ -105,7 +107,7 @@ export default function EOfficeIssuesPage() {
         fetchFilterData(`${API_BASE_URL}/departments`, setDepartments);
         fetchFilterData(`${API_BASE_URL}/e-office-statuses`, setStatuses);
         fetchFilterData(`${API_BASE_URL}/e-office-categories`, setCategories);
-    }, [token]);
+    }, [token, statusId]);
 
     const handleFilter = () => {
         fetchIssues(1, {
@@ -121,9 +123,9 @@ export default function EOfficeIssuesPage() {
         setIssueNo("");
         setName("");
         setSelectedDept("");
-        setSelectedStatus("");
+        setSelectedStatus(String(statusId));
         setSelectedCategory("");
-        fetchIssues(1);
+        fetchIssues(1, {statusId: String(statusId)});
     };
 
     const handlePageChange = (newPage: number) => {
@@ -140,20 +142,10 @@ export default function EOfficeIssuesPage() {
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-                <h1 className="font-headline text-3xl font-bold">All E-Office Issues</h1>
-                {!isOfficial && (
-                    <Button asChild>
-                        <Link href="/e-office-issues/new">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            New Issue
-                        </Link>
-                    </Button>
-                )}
-            </div>
+            <h1 className="font-headline text-3xl font-bold">{title}</h1>
             <Card>
                 <CardHeader>
-                    <CardDescription>A list of all E-Office related issues and their current status.</CardDescription>
+                    <CardDescription>{description}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-end">

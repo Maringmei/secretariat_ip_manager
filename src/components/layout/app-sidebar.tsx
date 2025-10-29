@@ -15,7 +15,7 @@ import {
   SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { ManipurEmblem } from '../icons/manipur-emblem';
-import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus, CheckCheck, Archive, Search, ChevronDown, Briefcase, Ticket } from 'lucide-react';
+import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus, CheckCheck, Archive, Search, ChevronDown, Briefcase, Ticket, Wrench, ShieldCheck, ShieldClose } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
 import { useCounter, Counts } from '../counter/counter-provider';
 import type { LucideIcon } from 'lucide-react';
@@ -44,7 +44,11 @@ const ipRequestChildItems: MenuItem[] = [
 ];
 
 const eOfficeChildItems: MenuItem[] = [
-    { href: '/e-office-issues', label: 'Issues', icon: Ticket, types: ['requester', 'official'], accessKey: 'Dashboard'},
+    { href: '/e-office-issues', label: 'All Issues', icon: Ticket, types: ['requester', 'official'], accessKey: 'Dashboard'},
+    { href: '/e-office-in-progress', label: 'In Progress', icon: Wrench, types: ['requester', 'official']},
+    { href: '/e-office-engineer-assigned', label: 'Engineer Assigned', icon: User, types: ['requester', 'official']},
+    { href: '/e-office-closed', label: 'Closed', icon: ShieldCheck, types: ['requester', 'official']},
+    { href: '/e-office-reopened', label: 'Re-opened', icon: ShieldClose, types: ['requester', 'official']},
 ]
 
 const officialIpRequestChildItems: MenuItem[] = [
