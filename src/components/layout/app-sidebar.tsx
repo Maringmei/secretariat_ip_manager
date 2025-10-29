@@ -15,7 +15,7 @@ import {
   SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { ManipurEmblem } from '../icons/manipur-emblem';
-import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus, CheckCheck, Archive, Search, ChevronDown, Briefcase } from 'lucide-react';
+import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus, CheckCheck, Archive, Search, ChevronDown, Briefcase, Ticket } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
 import { useCounter, Counts } from '../counter/counter-provider';
 import type { LucideIcon } from 'lucide-react';
@@ -50,6 +50,7 @@ const ipRequestChildItems: MenuItem[] = [
 const eOfficeChildItems: MenuItem[] = [
     { href: '/e-office', label: 'E-office', icon: Briefcase, types: ['requester'], accessKey: 'E-office' },
     { href: '/e-office-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], accessKey: 'E-office Pending' },
+    { href: '/e-office-issues', label: 'Issues', icon: Ticket, types: ['requester'], accessKey: 'E-office Issues'},
 ]
 
 

@@ -1,5 +1,6 @@
 
 
+
 export type Role = 'staff' | 'director' | 'coordinator' | 'admin' | string;
 
 export type RequestStatus = 'Pending' | 'Assigned' | 'Pending Approval' | 'Approved' | 'Reverted' | 'Completed' | 'New';
@@ -105,3 +106,21 @@ export interface Status {
   foreground_color: string;
   background_color: string;
 }
+
+export interface EofficeIssue {
+    id: string;
+    issue_no: string;
+    first_name: string;
+    last_name: string;
+    designation: string;
+    department_name: string;
+    block_name: string;
+    section: string;
+    room_no: string;
+    category_name: string;
+    created_at: string;
+    status_name: string;
+    status_foreground_color: string;
+    status_background_color: string;
+}
+
