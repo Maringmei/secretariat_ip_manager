@@ -10,15 +10,17 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { EofficeIssue } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 interface IssuesTableProps {
   issues: EofficeIssue[];
 }
 
 export default function IssuesTable({ issues = [] }: IssuesTableProps) {
+    const router = useRouter();
+    
     const handleRowClick = (issueId: string) => {
-        // router.push(`/e-office-issues/${issueId}`);
-        console.log("Navigating to issue", issueId);
+        router.push(`/e-office-issues/${issueId}`);
     };
 
   return (
@@ -64,4 +66,3 @@ export default function IssuesTable({ issues = [] }: IssuesTableProps) {
     </div>
   );
 }
-

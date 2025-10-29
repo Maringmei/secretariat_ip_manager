@@ -2,6 +2,7 @@
 
 
 
+
 export type Role = 'staff' | 'director' | 'coordinator' | 'admin' | string;
 
 export type RequestStatus = 'Pending' | 'Assigned' | 'Pending Approval' | 'Approved' | 'Reverted' | 'Completed' | 'New';
@@ -109,20 +110,33 @@ export interface Status {
 }
 
 export interface EofficeIssue {
+    // List view fields
     id: string;
     issue_no: string;
     first_name: string;
     last_name: string;
     designation: string;
     department_name: string;
-    block_name: string;
-    section: string;
-    room_no: string;
     category_name: string;
     created_at: string;
     status_name: string;
     status_foreground_color: string;
     status_background_color: string;
+
+    // Detail view fields
+    reporting_officer?: string;
+    ein_sin?: string;
+    mobile_no?: string;
+    email?: string;
+    description?: string;
+    block_name?: string;
+    floor_name?: string;
+    section?: string;
+    room_no?: string;
+    e_office_issue_category_id?: string;
+    e_office_issue_status_id?: string;
+    can_assign_engineer?: boolean;
+    can_close?: boolean;
 }
 
 export interface EofficeCategory extends SettingItem {}
