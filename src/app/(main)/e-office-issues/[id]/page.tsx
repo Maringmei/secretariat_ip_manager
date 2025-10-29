@@ -11,7 +11,9 @@ import { ArrowLeft, Loader2, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { API_BASE_URL } from '@/lib/api';
 import IssueWorkflowTimeline from '@/components/e-office/issue-workflow-timeline';
-
+import { AssignEngineerDialog } from '@/components/e-office/assign-engineer-dialog';
+import { CloseIssueDialog } from '@/components/e-office/close-issue-dialog';
+import { UpdateStatusDialog } from '@/components/e-office/update-status-dialog';
 
 export default function EOfficeIssueDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -22,6 +24,13 @@ export default function EOfficeIssueDetailsPage() {
     const [issue, setIssue] = useState<EofficeIssue | null>(null);
     const [workflow, setWorkflow] = useState<WorkflowStep[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isActionLoading, setIsActionLoading] = useState(false);
+
+    // Dialog states
+    const [isAssignEngineerOpen, setIsAssignEngineerOpen] = useState(false);
+    const [isCloseIssueOpen, setIsCloseIssueOpen] = useState(false);
+    const [isUpdateStatusOpen, setIsUpdateStatusOpen] = useState(false);
+    const [statusToUpdate, setStatusToUpdate] = useState<{ id: number; name: string } | null>(null);
 
     const fetchIssueDetails = async () => {
         if (!token || !id) {
@@ -70,13 +79,69 @@ export default function EOfficeIssueDetailsPage() {
              toast({ title: "Error", description: "An unexpected error occurred while fetching workflow.", variant: "destructive" });
         }
     };
+    
+    const refreshData = () => {
+        fetchIssueDetails();
+        fetchWorkflow();
+    };
 
     useEffect(() => {
         if (id && token) {
-            fetchIssueDetails();
-            fetchWorkflow();
+            refreshData();
         }
     }, [id, token]);
+    
+    const handleWorkflowAction = async (statusId: number, remark?: string, engineerId?: number) => {
+        if (!token || !issue) return;
+        setIsActionLoading(true);
+
+        const body: Record<string, any> = {
+            e_office_issue_id: issue.id,
+            status_id: statusId,
+            remark: remark,
+        };
+
+        if (engineerId) {
+            body.engineer_user_id = engineerId;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/e-office-workflows`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                body: JSON.stringify(body)
+            });
+            const result = await response.json();
+            if (result.success) {
+                toast({ title: "Success", description: "Issue status updated." });
+                // Close all dialogs
+                setIsAssignEngineerOpen(false);
+                setIsCloseIssueOpen(false);
+                setIsUpdateStatusOpen(false);
+                refreshData();
+            } else {
+                throw new Error(result.message || "Failed to update workflow.");
+            }
+        } catch(error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive"});
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+    
+    const handleUpdateStatus = async ({ remark }: { remark?: string }) => {
+        if (statusToUpdate) {
+            await handleWorkflowAction(statusToUpdate.id, remark);
+        }
+    };
+    
+    const handleAssignEngineer = async ({ remark, engineerId }: { remark: string, engineerId: number }) => {
+        await handleWorkflowAction(3, remark, engineerId); // Status 3 is "Assign Engineer"
+    };
+
+    const handleCloseIssue = async ({ remark }: { remark?: string }) => {
+        await handleWorkflowAction(4, remark); // Status 4 is "Closed"
+    };
 
 
     if (isLoading) {
@@ -92,6 +157,10 @@ export default function EOfficeIssueDetailsPage() {
     }
     
     const isOfficial = user?.type === 'official';
+    const canTakeAction = isOfficial && issue.e_office_issue_status_id !== '4'; // Not closed
+    const canAssignEngineer = isOfficial && issue.can_assign_engineer;
+    const canClose = isOfficial && issue.can_close;
+
 
     return (
         <>
@@ -119,7 +188,19 @@ export default function EOfficeIssueDetailsPage() {
                     </div>
                 </div>
                  <div className="flex flex-wrap gap-4">
-                    {/* Action buttons will go here */}
+                     {canTakeAction && issue.e_office_issue_status_id === '1' && (
+                        <Button 
+                            onClick={() => { setStatusToUpdate({id: 2, name: 'In Progress'}); setIsUpdateStatusOpen(true); }} 
+                            disabled={isActionLoading}>
+                            Mark as In Progress
+                        </Button>
+                    )}
+                    {canAssignEngineer && (
+                         <Button onClick={() => setIsAssignEngineerOpen(true)} disabled={isActionLoading}>Assign Engineer</Button>
+                    )}
+                    {canClose && (
+                        <Button onClick={() => setIsCloseIssueOpen(true)} disabled={isActionLoading}>Close Issue</Button>
+                    )}
                 </div>
             </div>
 
@@ -165,6 +246,35 @@ export default function EOfficeIssueDetailsPage() {
                 </Card>
             </div>
         </div>
+        
+        {canAssignEngineer && issue.id && (
+            <AssignEngineerDialog
+                isOpen={isAssignEngineerOpen}
+                onClose={() => setIsAssignEngineerOpen(false)}
+                onConfirm={handleAssignEngineer}
+                isSubmitting={isActionLoading}
+                issueId={issue.id}
+            />
+        )}
+
+        {canClose && (
+             <CloseIssueDialog
+                isOpen={isCloseIssueOpen}
+                onClose={() => setIsCloseIssueOpen(false)}
+                onConfirm={handleCloseIssue}
+                isSubmitting={isActionLoading}
+            />
+        )}
+
+        {statusToUpdate && (
+             <UpdateStatusDialog
+                isOpen={isUpdateStatusOpen}
+                onClose={() => setIsUpdateStatusOpen(false)}
+                onConfirm={handleUpdateStatus}
+                isSubmitting={isActionLoading}
+                statusName={statusToUpdate.name}
+            />
+        )}
         </>
     )
 }
