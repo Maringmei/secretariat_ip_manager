@@ -15,12 +15,14 @@ import {
   SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { ManipurEmblem } from '../icons/manipur-emblem';
-import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus, CheckCheck, Archive, Search } from 'lucide-react';
+import { LayoutDashboard, FileText, User, Network, Settings, Users, LogOut, Inbox, FileClock, FileCheck, FileX, History, FilePlus, CheckCheck, Archive, Search, ChevronDown, Briefcase } from 'lucide-react';
 import { useAuth } from '../auth/auth-provider';
 import { useCounter, Counts } from '../counter/counter-provider';
 import type { LucideIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LogoutConfirmationDialog } from '../auth/logout-confirmation-dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { cn } from '@/lib/utils';
 
 interface MenuItem {
     href: string;
@@ -35,7 +37,8 @@ const menuItems: MenuItem[] = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['official', 'requester'], accessKey: 'Dashboard' },
 ];
 
-const requesterMenuItems: MenuItem[] = [
+const ipRequestChildItems: MenuItem[] = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['requester'], accessKey: 'Dashboard' },
     { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'pending_approval', accessKey: 'Pending' },
     { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'approved', accessKey: 'Approved' },
     { href: '/my-ready-requests', label: 'Ready', icon: CheckCheck, types: ['requester'], countKey: 'ready', accessKey: 'Ready' },
@@ -43,6 +46,12 @@ const requesterMenuItems: MenuItem[] = [
     { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['requester'], countKey: 're_opened', accessKey: 'Reopened' },
     { href: '/my-rejected-requests', label: 'Rejected Requests', icon: FileX, types: ['requester'], countKey: 'rejected', accessKey: 'Rejected' },
 ];
+
+const eOfficeChildItems: MenuItem[] = [
+    { href: '/e-office', label: 'E-office', icon: Briefcase, types: ['requester'], accessKey: 'E-office' },
+    { href: '/e-office-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], accessKey: 'E-office Pending' },
+]
+
 
 const adminMenuItems: MenuItem[] = [
     { href: '/new-requests', label: 'New Requests', icon: Inbox, types: ['official'], countKey: 'new', accessKey: 'New Requests' },
@@ -64,9 +73,25 @@ export default function AppSidebar() {
     const { counts } = useCounter();
     const router = useRouter();
     const [isLogoutDialogOpen, setLogoutDialogOpen] = useState(false);
+    const [openMenus, setOpenMenus] = useState<string[]>([]);
 
     const userType = user?.type || 'requester'; 
     const userAccess = user?.access || [];
+
+    useEffect(() => {
+        if (userType === 'requester') {
+            const isIpRequestActive = ipRequestChildItems.some(item => pathname.startsWith(item.href));
+            const isEOfficeActive = eOfficeChildItems.some(item => pathname.startsWith(item.href));
+            const activeMenus = [];
+            if (isIpRequestActive) activeMenus.push('ipRequest');
+            if (isEOfficeActive) activeMenus.push('eOffice');
+            setOpenMenus(activeMenus);
+        }
+    }, [pathname, userType]);
+
+    const toggleMenu = (menu: string) => {
+        setOpenMenus(prev => prev.includes(menu) ? prev.filter(m => m !== menu) : [...prev, menu]);
+    }
 
     const handleLogout = () => {
       logout();
@@ -81,17 +106,12 @@ export default function AppSidebar() {
         if (!item.types?.includes(userType)) {
             return false;
         }
-        // If the user has a specific list of accessible items, check against it.
         if (userAccess.length > 0 && item.accessKey) {
             return userAccess.includes(item.accessKey);
         }
-        // If no access list is provided, default to showing the item based on type.
-        // Or if the item doesn't have an accessKey, it's considered public for that type.
         if (userAccess.length === 0) {
             return true;
         }
-        
-        // Hide items with an accessKey if userAccess is populated but doesn't include the key
         return !item.accessKey;
     };
 
@@ -120,6 +140,64 @@ export default function AppSidebar() {
         </SidebarMenuItem>
       );
     }
+    
+    const renderCollapsibleMenu = (
+        menuKey: string, 
+        label: string, 
+        icon: LucideIcon, 
+        items: MenuItem[]
+    ) => {
+        const isVisible = items.some(isMenuItemVisible);
+        if (!isVisible) return null;
+
+        const isActive = items.some(item => pathname.startsWith(item.href));
+
+        return (
+            <Collapsible open={openMenus.includes(menuKey)} onOpenChange={() => toggleMenu(menuKey)}>
+                <CollapsibleTrigger asChild>
+                    <SidebarMenuButton isActive={isActive} className="justify-between">
+                        <div className="flex items-center gap-2">
+                            <icon />
+                            <span>{label}</span>
+                        </div>
+                        <ChevronDown className={cn("transition-transform", openMenus.includes(menuKey) && "rotate-180")} />
+                    </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    <div className="flex flex-col gap-1 py-2 pl-8">
+                        {items.map(item => {
+                            if (!isMenuItemVisible(item)) return null;
+                            const countData = item.countKey ? counts[item.countKey] : undefined;
+
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={cn(
+                                        "flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                                        pathname.startsWith(item.href) && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                                    )}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <item.icon />
+                                        <span>{item.label}</span>
+                                    </div>
+                                     {countData && countData.count > 0 && (
+                                        <span className={cn(
+                                            "rounded-full px-2 text-xs",
+                                            countData.highlight ? "bg-destructive text-destructive-foreground" : "bg-muted text-muted-foreground"
+                                        )}>
+                                            {countData.count}
+                                        </span>
+                                    )}
+                                </Link>
+                            )
+                        })}
+                    </div>
+                </CollapsibleContent>
+            </Collapsible>
+        )
+    }
 
   return (
     <>
@@ -132,15 +210,19 @@ export default function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {menuItems.map(renderMenuItem)}
-          
-          {(userType === 'requester' && requesterMenuItems.some(isMenuItemVisible)) && <SidebarSeparator />}
+          {userType === 'official' && menuItems.map(renderMenuItem)}
 
-          {requesterMenuItems.map(renderMenuItem)}
-          
+          {userType === 'requester' && (
+              <>
+                  {renderCollapsibleMenu('ipRequest', 'IP Request', FileText, ipRequestChildItems)}
+                  {renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)}
+              </>
+          )}
+
           {(userType === 'official' && adminMenuItems.some(isMenuItemVisible)) && <SidebarSeparator />}
           
-          {adminMenuItems.map(renderMenuItem)}
+          {userType === 'official' && adminMenuItems.map(renderMenuItem)}
+
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
