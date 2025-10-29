@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/auth-provider';
 import { useToast } from '@/hooks/use-toast';
-import type { EofficeIssue, WorkflowStep } from '@/lib/types';
+import type { EofficeIssue, WorkflowStep, Status } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Loader2, Timer } from 'lucide-react';
@@ -14,6 +14,7 @@ import IssueWorkflowTimeline from '@/components/e-office/issue-workflow-timeline
 import { AssignEngineerDialog } from '@/components/e-office/assign-engineer-dialog';
 import { CloseIssueDialog } from '@/components/e-office/close-issue-dialog';
 import { UpdateStatusDialog } from '@/components/e-office/update-status-dialog';
+import { ReopenIssueDialog } from '@/components/e-office/reopen-issue-dialog';
 
 export default function EOfficeIssueDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -23,14 +24,16 @@ export default function EOfficeIssueDetailsPage() {
 
     const [issue, setIssue] = useState<EofficeIssue | null>(null);
     const [workflow, setWorkflow] = useState<WorkflowStep[]>([]);
+    const [nextStatuses, setNextStatuses] = useState<Status[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isActionLoading, setIsActionLoading] = useState(false);
 
     // Dialog states
     const [isAssignEngineerOpen, setIsAssignEngineerOpen] = useState(false);
     const [isCloseIssueOpen, setIsCloseIssueOpen] = useState(false);
+    const [isReopenIssueOpen, setIsReopenIssueOpen] = useState(false);
     const [isUpdateStatusOpen, setIsUpdateStatusOpen] = useState(false);
-    const [statusToUpdate, setStatusToUpdate] = useState<{ id: number; name: string } | null>(null);
+    const [statusToUpdate, setStatusToUpdate] = useState<Status | null>(null);
 
     const fetchIssueDetails = async () => {
         if (!token || !id) {
@@ -45,6 +48,9 @@ export default function EOfficeIssueDetailsPage() {
             const result = await response.json();
             if (result.success && result.data) {
                 setIssue({ ...result.data, created_at: new Date(result.data.created_at).toISOString() });
+                if (result.data.next_statuses) {
+                    setNextStatuses(result.data.next_statuses);
+                }
             } else {
                 toast({ title: "Error", description: result.message || "Could not load issue details.", variant: "destructive" });
                 setIssue(null);
@@ -117,6 +123,7 @@ export default function EOfficeIssueDetailsPage() {
                 // Close all dialogs
                 setIsAssignEngineerOpen(false);
                 setIsCloseIssueOpen(false);
+                setIsReopenIssueOpen(false);
                 setIsUpdateStatusOpen(false);
                 refreshData();
             } else {
@@ -142,6 +149,28 @@ export default function EOfficeIssueDetailsPage() {
     const handleCloseIssue = async ({ remark }: { remark?: string }) => {
         await handleWorkflowAction(4, remark); // Status 4 is "Closed"
     };
+    
+    const handleReopenIssue = async ({ remark }: { remark?: string }) => {
+        await handleWorkflowAction(5, remark); // Status 5 is "Re-opened"
+    };
+
+    const handleActionButtonClick = (status: Status) => {
+        switch (status.id) {
+            case 3: // Assign Engineer
+                setIsAssignEngineerOpen(true);
+                break;
+            case 4: // Closed
+                setIsCloseIssueOpen(true);
+                break;
+            case 5: // Re-opened
+                setIsReopenIssueOpen(true);
+                break;
+            default: // Other statuses like 'In Progress'
+                setStatusToUpdate(status);
+                setIsUpdateStatusOpen(true);
+                break;
+        }
+    }
 
 
     if (isLoading) {
@@ -157,10 +186,6 @@ export default function EOfficeIssueDetailsPage() {
     }
     
     const isOfficial = user?.type === 'official';
-    const canTakeAction = isOfficial && issue.e_office_issue_status_id !== '4'; // Not closed
-    const canAssignEngineer = isOfficial && issue.can_assign_engineer;
-    const canClose = isOfficial && issue.can_close;
-
 
     return (
         <>
@@ -187,20 +212,17 @@ export default function EOfficeIssueDetailsPage() {
                         </div>
                     </div>
                 </div>
-                 <div className="flex flex-wrap gap-4">
-                     {canTakeAction && issue.e_office_issue_status_id === '1' && (
+                <div className="flex flex-wrap gap-4">
+                     {isOfficial && nextStatuses.map(status => (
                         <Button 
-                            onClick={() => { setStatusToUpdate({id: 2, name: 'In Progress'}); setIsUpdateStatusOpen(true); }} 
-                            disabled={isActionLoading}>
-                            Mark as In Progress
+                            key={status.id}
+                            onClick={() => handleActionButtonClick(status)}
+                            disabled={isActionLoading}
+                            variant={status.id === 4 || status.id === 5 ? "destructive" : "default"}
+                        >
+                            {status.name}
                         </Button>
-                    )}
-                    {canAssignEngineer && (
-                         <Button onClick={() => setIsAssignEngineerOpen(true)} disabled={isActionLoading}>Assign Engineer</Button>
-                    )}
-                    {canClose && (
-                        <Button onClick={() => setIsCloseIssueOpen(true)} disabled={isActionLoading}>Close Issue</Button>
-                    )}
+                     ))}
                 </div>
             </div>
 
@@ -247,7 +269,7 @@ export default function EOfficeIssueDetailsPage() {
             </div>
         </div>
         
-        {canAssignEngineer && issue.id && (
+        {issue.id && (
             <AssignEngineerDialog
                 isOpen={isAssignEngineerOpen}
                 onClose={() => setIsAssignEngineerOpen(false)}
@@ -257,19 +279,24 @@ export default function EOfficeIssueDetailsPage() {
             />
         )}
 
-        {canClose && (
-             <CloseIssueDialog
-                isOpen={isCloseIssueOpen}
-                onClose={() => setIsCloseIssueOpen(false)}
-                onConfirm={handleCloseIssue}
-                isSubmitting={isActionLoading}
-            />
-        )}
+        <CloseIssueDialog
+            isOpen={isCloseIssueOpen}
+            onClose={() => setIsCloseIssueOpen(false)}
+            onConfirm={handleCloseIssue}
+            isSubmitting={isActionLoading}
+        />
+        
+        <ReopenIssueDialog
+            isOpen={isReopenIssueOpen}
+            onClose={() => setIsReopenIssueOpen(false)}
+            onConfirm={handleReopenIssue}
+            isSubmitting={isActionLoading}
+        />
 
         {statusToUpdate && (
              <UpdateStatusDialog
                 isOpen={isUpdateStatusOpen}
-                onClose={() => setIsUpdateStatusOpen(false)}
+                onClose={() => {setIsUpdateStatusOpen(false); setStatusToUpdate(null);}}
                 onConfirm={handleUpdateStatus}
                 isSubmitting={isActionLoading}
                 statusName={statusToUpdate.name}

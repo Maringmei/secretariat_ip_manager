@@ -4,6 +4,7 @@
 
 
 
+
 export type Role = 'staff' | 'director' | 'coordinator' | 'admin' | string;
 
 export type RequestStatus = 'Pending' | 'Assigned' | 'Pending Approval' | 'Approved' | 'Reverted' | 'Completed' | 'New';
@@ -138,6 +139,7 @@ export interface EofficeIssue {
     e_office_issue_status_id?: string;
     can_assign_engineer?: boolean;
     can_close?: boolean;
+    next_statuses?: Status[];
 }
 
 export interface EofficeCategory extends SettingItem {}
