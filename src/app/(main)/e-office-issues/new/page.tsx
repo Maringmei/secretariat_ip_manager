@@ -3,15 +3,21 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, User, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { EofficeIssueForm } from "@/components/e-office/issue-form";
+import { useState } from "react";
 
 export default function NewEofficeIssuePage() {
   const router = useRouter();
+  const [requestFor, setRequestFor] = useState<'self' | 'other' | null>(null);
 
   const handleBack = () => {
-    router.back();
+    if (requestFor) {
+      setRequestFor(null);
+    } else {
+      router.back();
+    }
   };
   
   return (
@@ -27,11 +33,27 @@ export default function NewEofficeIssuePage() {
         <CardHeader>
           <CardTitle className="font-headline text-2xl">Create E-Office Issue</CardTitle>
           <CardDescription>
-            Please fill out the form below to report a new issue.
+            {requestFor ? "Please fill out the form below to report a new issue." : "Who is this E-Office issue for?"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EofficeIssueForm />
+          {!requestFor ? (
+             <div className="flex flex-col items-center justify-center gap-6 p-8">
+                <p className="text-lg font-medium">Is this issue for you or someone else?</p>
+                <div className="flex gap-4">
+                    <Button size="lg" onClick={() => setRequestFor('self')}>
+                        <User className="mr-2" />
+                        For Myself
+                    </Button>
+                    <Button size="lg" variant="secondary" onClick={() => setRequestFor('other')}>
+                         <Users className="mr-2" />
+                        For Other Employee
+                    </Button>
+                </div>
+            </div>
+          ) : (
+            <EofficeIssueForm isForSelf={requestFor === 'self'} />
+          )}
         </CardContent>
       </Card>
     </div>

@@ -41,7 +41,11 @@ const issueSchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters long.'),
 });
 
-export function EofficeIssueForm() {
+interface EofficeIssueFormProps {
+    isForSelf: boolean;
+}
+
+export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -82,7 +86,7 @@ export function EofficeIssueForm() {
   // Effect to pre-fill form with user data
   useEffect(() => {
     const fetchProfileForSelf = async () => {
-        if (token && departments.length > 0) {
+        if (token && isForSelf && departments.length > 0) {
             setIsFormLoading(true);
             try {
                 const response = await fetch(`${API_BASE_URL}/requesters/0`, {
@@ -119,10 +123,31 @@ export function EofficeIssueForm() {
         }
     }
 
-    if (departments.length > 0) {
-        fetchProfileForSelf();
+    if (isForSelf) {
+        if (departments.length > 0) {
+            fetchProfileForSelf();
+        }
+    } else {
+        form.reset({
+            first_name: '',
+            last_name: '',
+            email: '',
+            mobile_no: '',
+            designation: '',
+            department_id: undefined,
+            ein_sin: '',
+            room_no: '',
+            block_id: undefined,
+            floor_id: undefined,
+            reporting_officer: '',
+            section: '',
+            e_office_onboarded: undefined,
+            e_office_issue_category_id: undefined,
+            description: '',
+        });
+        setIsFormLoading(false);
     }
-  }, [user, form, token, toast, departments]);
+  }, [user, form, token, toast, departments, isForSelf]);
 
 
   // Effect to fetch data for dropdowns
@@ -247,7 +272,10 @@ export function EofficeIssueForm() {
                 <CardHeader>
                     <CardTitle className="font-headline text-lg">Applicant Information</CardTitle>
                     <CardDescription>
-                        This information from your profile will be submitted with your request. You can edit it if needed.
+                        {isForSelf 
+                            ? "This information from your profile will be submitted with your request. You can edit it if needed."
+                            : "Enter the information for the employee this issue is for."
+                        }
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">

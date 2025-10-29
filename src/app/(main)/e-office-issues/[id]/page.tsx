@@ -224,19 +224,19 @@ export default function EOfficeIssueDetailsPage() {
                 <div className="flex flex-wrap gap-4">
                      {canReopen ? (
                          <Button onClick={() => handleActionButtonClick('reopen')} disabled={isActionLoading} variant="destructive">
-                            Re-open
+                            {buttonText}
                          </Button>
                      ) : canMarkInProgress ? (
                          <Button onClick={() => handleActionButtonClick('progress')} disabled={isActionLoading}>
-                             Mark as In Progress
+                              {buttonText}
                          </Button>
                      ) : canAssignEngineer ? (
                         <Button onClick={() => handleActionButtonClick('assign')} disabled={isActionLoading}>
-                            Assign Engineer
+                              {buttonText}
                         </Button>
                      ) : canCloseIssue ? (
                         <Button onClick={() => handleActionButtonClick('close')} disabled={isActionLoading}>
-                            Close Issue
+                             {buttonText}
                         </Button>
                      ) : null}
                 </div>
