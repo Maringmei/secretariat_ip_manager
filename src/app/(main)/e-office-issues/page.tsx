@@ -101,7 +101,7 @@ export default function EOfficeIssuesPage() {
         };
 
         fetchFilterData(`${API_BASE_URL}/departments`, setDepartments);
-        fetchFilterData(`${API_BASE_URL}/status`, setStatuses);
+        fetchFilterData(`${API_BASE_URL}/e-office-statuses`, setStatuses);
         fetchFilterData(`${API_BASE_URL}/e-office-categories`, setCategories);
     }, [token]);
 
