@@ -56,7 +56,7 @@ export default function EOfficeIssueDetailsPage() {
             const result = await response.json();
             if (result.success && Array.isArray(result.data)) {
                 const formattedWorkflow = result.data.map((item: any) => ({
-                    step: item.status_name,
+                    step: item.e_office_issue_status_name,
                     timestamp: item.date,
                     actor: item.action_by,
                     remarks: item.remark
