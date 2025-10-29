@@ -4,15 +4,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
-import type { EofficeIssue, Department, Status } from "@/lib/types";
+import type { EofficeIssue, Department, Status, EofficeCategory } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/lib/api";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from "@/components/ui/pagination";
 import { Combobox } from "@/components/ui/combobox";
 import IssuesTable from "@/components/e-office/issues-table";
+import Link from "next/link";
 
 interface PaginationState {
     totalCount: number;
@@ -28,7 +29,7 @@ export default function EOfficeIssuesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [departments, setDepartments] = useState<Department[]>([]);
     const [statuses, setStatuses] = useState<Status[]>([]);
-    const [categories, setCategories] = useState<any[]>([]); // Define a proper type if you have it
+    const [categories, setCategories] = useState<EofficeCategory[]>([]);
     const [pagination, setPagination] = useState<PaginationState>({
         totalCount: 0,
         pageCount: 1,
@@ -101,7 +102,7 @@ export default function EOfficeIssuesPage() {
 
         fetchFilterData(`${API_BASE_URL}/departments`, setDepartments);
         fetchFilterData(`${API_BASE_URL}/status`, setStatuses);
-        fetchFilterData(`${API_BASE_URL}/categories`, setCategories);
+        fetchFilterData(`${API_BASE_URL}/e-office-categories`, setCategories);
     }, [token]);
 
     const handleFilter = () => {
@@ -137,7 +138,15 @@ export default function EOfficeIssuesPage() {
 
     return (
         <div className="flex flex-col gap-6">
-            <h1 className="font-headline text-3xl font-bold">E-Office Issues</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="font-headline text-3xl font-bold">E-Office Issues</h1>
+                <Button asChild>
+                    <Link href="/e-office-issues/new">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        New Issue
+                    </Link>
+                </Button>
+            </div>
             <Card>
                 <CardHeader>
                     <CardDescription>A list of all E-Office related issues and their current status.</CardDescription>

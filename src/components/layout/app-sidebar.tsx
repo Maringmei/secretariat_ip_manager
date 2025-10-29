@@ -48,9 +48,9 @@ const ipRequestChildItems: MenuItem[] = [
 ];
 
 const eOfficeChildItems: MenuItem[] = [
-    { href: '/e-office', label: 'E-office', icon: Briefcase, types: ['requester'], accessKey: 'E-office' },
-    { href: '/e-office-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], accessKey: 'E-office Pending' },
-    { href: '/e-office-issues', label: 'Issues', icon: Ticket, types: ['requester'], accessKey: 'E-office Issues'},
+    { href: '/e-office', label: 'E-office', icon: Briefcase, types: ['requester'], accessKey: 'Dashboard' },
+    { href: '/e-office-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], accessKey: 'Dashboard' },
+    { href: '/e-office-issues', label: 'Issues', icon: Ticket, types: ['requester'], accessKey: 'Dashboard'},
 ]
 
 
@@ -104,17 +104,18 @@ export default function AppSidebar() {
     };
 
     const isMenuItemVisible = (item: MenuItem) => {
-        if (!item.types?.includes(userType)) {
-            return false;
-        }
-        if (userAccess.length > 0 && item.accessKey) {
-            return userAccess.includes(item.accessKey);
-        }
-        if (userAccess.length === 0) {
-            return true;
-        }
-        return !item.accessKey;
-    };
+      if (!item.types?.includes(userType)) {
+          return false;
+      }
+      if (userType === 'requester' && userAccess.length === 0) {
+          return true; // Show all items for requesters without specific access restrictions
+      }
+      if (userAccess.length > 0 && item.accessKey) {
+          return userAccess.includes(item.accessKey);
+      }
+      return !item.accessKey;
+  };
+  
 
     const renderMenuItem = (item: MenuItem) => {
       if (!isMenuItemVisible(item)) {
