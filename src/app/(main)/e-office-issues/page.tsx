@@ -23,7 +23,7 @@ interface PaginationState {
 }
 
 export default function EOfficeIssuesPage() {
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const { toast } = useToast();
     const [issues, setIssues] = useState<EofficeIssue[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -43,6 +43,8 @@ export default function EOfficeIssuesPage() {
     const [selectedDept, setSelectedDept] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
+
+    const isOfficial = user?.type === 'official';
 
     const fetchIssues = async (page: number, filters: Record<string, string> = {}) => {
         if (!token) {
@@ -140,12 +142,14 @@ export default function EOfficeIssuesPage() {
         <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
                 <h1 className="font-headline text-3xl font-bold">E-Office Issues</h1>
-                <Button asChild>
-                    <Link href="/e-office-issues/new">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        New Issue
-                    </Link>
-                </Button>
+                {!isOfficial && (
+                    <Button asChild>
+                        <Link href="/e-office-issues/new">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            New Issue
+                        </Link>
+                    </Button>
+                )}
             </div>
             <Card>
                 <CardHeader>

@@ -186,6 +186,15 @@ export default function EOfficeIssueDetailsPage() {
     const canMarkInProgress = isOfficial && issue.e_office_issue_status_id === '1';
     const canReopen = isOfficial && issue.e_office_issue_status_id === '4'; // Can reopen if closed
 
+
+    const buttonText = isOfficial && (
+        issue.e_office_issue_status_id === "1" ? "New" :
+        issue.e_office_issue_status_id === "2" ? "In Progress" :
+        issue.e_office_issue_status_id === "3" ? "Engineer Assigned" :
+        issue.e_office_issue_status_id === "4" ? "Closed" :
+        issue.e_office_issue_status_id === "5" ? "Re-opened" : ""
+      );
+
     return (
         <>
         <div className="flex flex-col gap-6">
@@ -214,22 +223,22 @@ export default function EOfficeIssueDetailsPage() {
                 <div className="flex flex-wrap gap-4">
                      {canMarkInProgress && (
                          <Button onClick={() => handleActionButtonClick('progress')} disabled={isActionLoading}>
-                             Mark as In Progress
+                             {buttonText}
                          </Button>
                      )}
                      {canAssignEngineer && (
                         <Button onClick={() => handleActionButtonClick('assign')} disabled={isActionLoading}>
-                            Assign Engineer
+                            {buttonText}
                         </Button>
                      )}
                      {canCloseIssue && (
                         <Button onClick={() => handleActionButtonClick('close')} disabled={isActionLoading}>
-                            Close Issue
+                            {buttonText}
                         </Button>
                      )}
                      {canReopen && (
                          <Button onClick={() => handleActionButtonClick('reopen')} disabled={isActionLoading} variant="destructive">
-                             Re-open Issue
+                             {buttonText}
                          </Button>
                      )}
                 </div>
