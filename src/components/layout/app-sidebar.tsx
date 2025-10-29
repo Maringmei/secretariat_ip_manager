@@ -62,6 +62,9 @@ const officialIpRequestChildItems: MenuItem[] = [
     { href: '/reopened-requests', label: 'Reopened', icon: History, types: ['official'], countKey: 're_opened', accessKey: 'Reopened' },
     { href: '/rejected-requests', label: 'Rejected', icon: FileX, types: ['official'], countKey: 'rejected', accessKey: 'Rejected' },
     { href: '/search-ip', label: 'Search by IP', icon: Search, types: ['official'], accessKey: 'Search by IP' },
+]
+
+const adminMenuItems: MenuItem[] = [
     { href: '/settings', label: 'Settings', icon: Settings, types: ['official'], accessKey: 'Settings' },
     { href: '/users', label: 'User Management', icon: Users, types: ['official'], accessKey: 'User Management' },
 ]
@@ -218,6 +221,8 @@ export default function AppSidebar() {
               <>
                   {renderCollapsibleMenu('ipRequest', 'IP Request', FileText, officialIpRequestChildItems)}
                   {renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)}
+                  <SidebarSeparator />
+                  {adminMenuItems.map(item => renderMenuItem(item))}
               </>
           )}
 
