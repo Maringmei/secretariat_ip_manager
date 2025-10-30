@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 import { Apple } from 'lucide-react';
+import Image from 'next/image';
 
 interface FindMacAddressDialogProps {
   isOpen: boolean;
@@ -66,8 +67,17 @@ export function FindMacAddressDialog({ isOpen, onClose }: FindMacAddressDialogPr
                   <li>Click the Start button and search for "Command Prompt".</li>
                   <li>Open the Command Prompt application.</li>
                   <li>Type `ipconfig /all` and press Enter.</li>
-                  <li>Look for "Physical Address". This is your MAC address.</li>
+                  <li>Look for "Physical Address" in the Ethernet adapter Ethernet Section This is your MAC address.</li>
                 </ol>
+                <div className="mt-4 rounded-md border p-2">
+                    <Image 
+                        src="/images/ipconfig-all.jpg"
+                        alt="Example of ipconfig /all command output"
+                        width={600}
+                        height={338}
+                        className="rounded"
+                    />
+                </div>
                 <Button variant="secondary" asChild>
                   <Link href="https://www.youtube.com/watch?v=V_rs20osJ1c" target="_blank" rel="noopener noreferrer">
                     Watch on YouTube
