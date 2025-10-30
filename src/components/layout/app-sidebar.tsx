@@ -45,12 +45,12 @@ const ipRequestChildItems: MenuItem[] = [
 ];
 
 const eOfficeChildItems: MenuItem[] = [
-  { href: '/e-office', label: 'Dashboard', icon: LayoutDashboard, types: ['requester', 'official'], accessKey: 'Dashboard', exact: true },
-  { href: '/e-office-issues', label: 'New', icon: Inbox, types: ['requester', 'official'], accessKey: 'Dashboard' },
-  { href: '/e-office-in-progress', label: 'In Progress', icon: Wrench, types: ['requester', 'official'] },
-  { href: '/e-office-engineer-assigned', label: 'Engineer Assigned', icon: User, types: ['requester', 'official'] },
-  { href: '/e-office-closed', label: 'Closed', icon: ShieldCheck, types: ['requester', 'official'] },
-  { href: '/e-office-reopened', label: 'Re-opened', icon: ShieldClose, types: ['requester', 'official'] },
+  { href: '/e-office', label: 'Dashboard', icon: LayoutDashboard, types: ['requester', 'official'], exact: true , accessKey: 'E-Office Dashboard'},
+  { href: '/e-office-issues', label: 'New', icon: Inbox, types: ['requester', 'official'], accessKey: 'E-Office New' },
+  { href: '/e-office-in-progress', label: 'In Progress', icon: Wrench, types: ['requester', 'official'], accessKey: 'E-Office In Progress' },
+  { href: '/e-office-engineer-assigned', label: 'Engineer Assigned', icon: User, types: ['requester', 'official'], accessKey: 'E-Office Engineer Assigned' },
+  { href: '/e-office-closed', label: 'Closed', icon: ShieldCheck, types: ['requester', 'official'], accessKey: 'E-Office Engineer Closed'},
+  { href: '/e-office-reopened', label: 'Re-opened', icon: ShieldClose, types: ['requester', 'official'], accessKey: 'E-Office Engineer Reopened'},
 ]
 
 const officialIpRequestChildItems: MenuItem[] = [
@@ -123,7 +123,7 @@ export default function AppSidebar() {
   const renderMenuItem = (item: MenuItem) => {
     if (!isMenuItemVisible(item)) {
       return null;
-    }
+    } 
 
     const countData = item.countKey ? counts[item.countKey] : undefined;
     const count = countData?.count;

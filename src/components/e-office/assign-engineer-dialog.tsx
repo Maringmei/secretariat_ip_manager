@@ -40,7 +40,7 @@ interface AssignEngineerDialogProps {
 }
 
 const formSchema = z.object({
-  engineerId: z.string({ required_error: "Please select an engineer." }),
+  engineerId: z.string({ required_error: "Please select an technical support engineer." }),
   visitDate: z.date({ required_error: "A visit date is required." }),
   visitTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)"),
 });
@@ -146,8 +146,8 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
                                     options={engineers.map(e => ({ value: String(e.id), label: e.name }))}
                                     value={field.value}
                                     onChange={field.onChange}
-                                    placeholder="Select an engineer"
-                                    searchPlaceholder='Search engineers...'
+                                    placeholder="Select an technical support engineer"
+                                    searchPlaceholder='Search technical support engineers...'
                                 />
                                 <FormMessage />
                             </FormItem>
