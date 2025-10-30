@@ -226,7 +226,7 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
 
       const result = await response.json();
       if (result.success && result.data) {
-        return result.data;
+        return result.data.filename;
       } else {
         throw new Error(`Failed to upload ${file.name}: ${result.message}`);
       }
@@ -472,7 +472,7 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
                             <FormControl>
                             <FileUpload
                                 onFileSelect={(file) => field.onChange(file)}
-                                fileType="application/pdf"
+                                fileType=".pdf, .xlsx, .xls, .xlsm, .xlsb, .xltx, .xltm, .ods"
                             />
                             </FormControl>
                             <FormMessage />
@@ -488,7 +488,7 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
                             <FormControl>
                             <FileUpload
                                 onFileSelect={(file) => field.onChange(file)}
-                                fileType="application/pdf"
+                                 fileType=".pdf, .xlsx, .xls, .xlsm, .xlsb, .xltx, .xltm, .ods"
                             />
                             </FormControl>
                             <FormMessage />
@@ -504,7 +504,7 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
                             <FormControl>
                             <FileUpload
                                 onFileSelect={(file) => field.onChange(file)}
-                                fileType="application/pdf"
+                                 fileType=".pdf, .xlsx, .xls, .xlsm, .xlsb, .xltx, .xltm, .ods"
                             />
                             </FormControl>
                             <FormMessage />
@@ -520,7 +520,7 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
                             <FormControl>
                             <FileUpload
                                 onFileSelect={(file) => field.onChange(file)}
-                                fileType="application/pdf"
+                                 fileType=".pdf, .xlsx, .xls, .xlsm, .xlsb, .xltx, .xltm, .ods"
                             />
                             </FormControl>
                             <FormMessage />
