@@ -15,9 +15,9 @@ import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import type { Block, Department, Floor, EofficeCategory, User } from '@/lib/types';
 import { useAuth } from '@/components/auth/auth-provider';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { API_BASE_URL } from '@/lib/api';
 import { Combobox } from '@/components/ui/combobox';
+import { FileUpload } from '../ui/file-upload';
 
 const emailRegex = /^[^@]+@([a-z0-9.-]+\.)?(gov\.in|nic\.in)$/i;
 
@@ -35,10 +35,14 @@ const issueSchema = z.object({
   floor_id: z.string({ required_error: 'Please select a floor.' }),
   reporting_officer: z.string().min(2, 'Reporting officer is required'),
   section: z.string().min(1, 'Section is required'),
-  e_office_onboarded: z.enum(['1', '0'], { required_error: 'This field is required.' }),
   
   e_office_issue_category_id: z.string({ required_error: 'Please select an issue category.'}),
   description: z.string().min(10, 'Description must be at least 10 characters long.'),
+
+  gov_order_file: z.any().optional(),
+  cover_letter_file: z.any().optional(),
+  emd_file: z.any().optional(),
+  file_head_file: z.any().optional(),
 });
 
 interface EofficeIssueFormProps {
@@ -75,7 +79,6 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
         floor_id: undefined,
         reporting_officer: '',
         section: '',
-        e_office_onboarded: undefined,
         e_office_issue_category_id: undefined,
         description: '',
     },
@@ -109,7 +112,6 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
                         room_no: '',
                         reporting_officer: '',
                         section: '',
-                        e_office_onboarded: undefined,
                         description: '',
                     });
                 }
@@ -141,7 +143,6 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
             floor_id: undefined,
             reporting_officer: '',
             section: '',
-            e_office_onboarded: undefined,
             e_office_issue_category_id: undefined,
             description: '',
         });
@@ -210,6 +211,35 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
   }, [selectedBlockId, token, toast, form]);
 
 
+  const uploadFile = async (file: File, fieldName: string): Promise<string | undefined> => {
+    if (!token) return undefined;
+
+    const formData = new FormData();
+    formData.append(fieldName, file);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/upload-file`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.success && result.data) {
+        return result.data.filename;
+      } else {
+        throw new Error(`Failed to upload ${file.name}: ${result.message}`);
+      }
+    } catch (error: any) {
+      toast({
+        title: 'File Upload Failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return undefined;
+    }
+  };
+
   async function onSubmit(values: z.infer<typeof issueSchema>) {
     if (!token || !user) {
         toast({ title: 'Authentication Error', description: 'Could not verify user. Please log in again.', variant: 'destructive'});
@@ -218,13 +248,46 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
 
     setIsLoading(true);
     
-    const requestBody = {
-        ...values,
+    let govOrderFileId, coverLetterFileId, emdFileId, fileHeadFileId;
+
+    if (values.gov_order_file?.[0]) {
+      govOrderFileId = await uploadFile(values.gov_order_file[0], 'gov_order_file');
+      if (!govOrderFileId) { setIsLoading(false); return; }
+    }
+    if (values.cover_letter_file?.[0]) {
+      coverLetterFileId = await uploadFile(values.cover_letter_file[0], 'cover_letter_file');
+      if (!coverLetterFileId) { setIsLoading(false); return; }
+    }
+    if (values.emd_file?.[0]) {
+      emdFileId = await uploadFile(values.emd_file[0], 'emd_file');
+      if (!emdFileId) { setIsLoading(false); return; }
+    }
+    if (values.file_head_file?.[0]) {
+      fileHeadFileId = await uploadFile(values.file_head_file[0], 'file_head_file');
+      if (!fileHeadFileId) { setIsLoading(false); return; }
+    }
+
+    const requestBody: any = {
+        first_name: values.first_name,
+        last_name: values.last_name,
         department_id: parseInt(values.department_id, 10),
+        reporting_officer: values.reporting_officer,
+        designation: values.designation,
+        ein_sin: values.ein_sin,
+        email: values.email,
+        mobile_no: values.mobile_no,
+        section: values.section,
+        room_no: values.room_no,
         block_id: parseInt(values.block_id, 10),
         floor_id: parseInt(values.floor_id, 10),
         e_office_issue_category_id: parseInt(values.e_office_issue_category_id, 10),
+        description: values.description,
     };
+
+    if (govOrderFileId) requestBody.gov_order_file = govOrderFileId;
+    if (coverLetterFileId) requestBody.cover_letter_file = coverLetterFileId;
+    if (emdFileId) requestBody.emd_file = emdFileId;
+    if (fileHeadFileId) requestBody.file_head_file = fileHeadFileId;
 
     try {
         const response = await fetch(`${API_BASE_URL}/e-office-issues`, {
@@ -364,18 +427,6 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
                                 <FormMessage />
                             </FormItem>
                         )}/>
-                        <FormField control={form.control} name="e_office_onboarded" render={({ field }) => (
-                            <FormItem className="space-y-3">
-                                <FormLabel>E-office Onboarded?</FormLabel>
-                                <FormControl>
-                                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex items-center space-x-4 pt-2">
-                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="1" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="0" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}/>
                     </div>
                      <FormField
                         control={form.control}
@@ -403,6 +454,79 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
                             <FormMessage />
                         </FormItem>
                     )}/>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className='font-headline text-lg'>File Attachments (Optional)</CardTitle>
+                    <CardDescription>You can attach relevant documents to support your issue.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+                    <FormField
+                        control={form.control}
+                        name="gov_order_file"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Government Order</FormLabel>
+                            <FormControl>
+                            <FileUpload
+                                onFileSelect={(file) => field.onChange(file)}
+                                fileType=".pdf, .xlsx, .xls, .xlsm, .xlsb, .xltx, .xltm, .ods"
+                            />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="cover_letter_file"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Cover Letter</FormLabel>
+                            <FormControl>
+                            <FileUpload
+                                onFileSelect={(file) => field.onChange(file)}
+                                 fileType=".pdf, .xlsx, .xls, .xlsm, .xlsb, .xltx, .xltm, .ods"
+                            />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="emd_file"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>EMD</FormLabel>
+                            <FormControl>
+                            <FileUpload
+                                onFileSelect={(file) => field.onChange(file)}
+                                 fileType=".pdf, .xlsx, .xls, .xlsm, .xlsb, .xltx, .xltm, .ods"
+                            />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="file_head_file"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>File Head</FormLabel>
+                            <FormControl>
+                            <FileUpload
+                                onFileSelect={(file) => field.onChange(file)}
+                                 fileType=".pdf, .xlsx, .xls, .xlsm, .xlsb, .xltx, .xltm, .ods"
+                            />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
                 </CardContent>
             </Card>
 

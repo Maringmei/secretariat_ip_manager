@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { EofficeIssue, WorkflowStep, Status } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Loader2, Timer } from 'lucide-react';
+import { ArrowLeft, Loader2, Timer, Link as LinkIcon, File } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { API_BASE_URL } from '@/lib/api';
 import IssueWorkflowTimeline from '@/components/e-office/issue-workflow-timeline';
@@ -16,6 +16,7 @@ import { AssignEngineerDialog } from '@/components/e-office/assign-engineer-dial
 import { CloseIssueDialog } from '@/components/e-office/close-issue-dialog';
 import { UpdateStatusDialog } from '@/components/e-office/update-status-dialog';
 import { ReopenIssueDialog } from '@/components/e-office/reopen-issue-dialog';
+import Link from 'next/link';
 
 export default function EOfficeIssueDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -189,12 +190,19 @@ export default function EOfficeIssueDetailsPage() {
 
 
     const buttonText = isOfficial && (
-        issue.e_office_issue_status_id === "1" ? "New" :
-        issue.e_office_issue_status_id === "2" ? "In Progress" :
-        issue.e_office_issue_status_id === "3" ? "Engineer Assigned" :
-        issue.e_office_issue_status_id === "4" ? "Closed" :
-        issue.e_office_issue_status_id === "5" ? "Re-opened" : ""
+        issue.e_office_issue_status_id === "1" ? "Update Status" :
+        issue.e_office_issue_status_id === "2" ? "Assign Engineer" :
+        issue.e_office_issue_status_id === "3" ? "Close" :
+        issue.e_office_issue_status_id === "4" ? "Re-open" :
+        issue.e_office_issue_status_id === "5" ? "Close" : ""
       );
+
+    const attachments = [
+        { label: "Government Order", url: issue.gov_order_file },
+        { label: "Cover Letter", url: issue.cover_letter_file },
+        { label: "EMD", url: issue.emd_file },
+        { label: "File Head", url: issue.file_head_file },
+    ].filter(file => file.url);
 
     return (
         <>
@@ -269,6 +277,24 @@ export default function EOfficeIssueDetailsPage() {
                         <p><strong>Description:</strong> {issue.description}</p>
                     </CardContent>
                 </Card>
+
+                 {attachments.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline text-lg">Attachments</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                            {attachments.map((file, index) => (
+                                <div key={index} className='flex items-center'>
+                                    <File className="h-4 w-4 mr-2 text-muted-foreground" />
+                                    <Link href={file.url!} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                                        {file.label}
+                                    </Link>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                )}
 
                 <Card>
                     <CardHeader>
