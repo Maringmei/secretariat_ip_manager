@@ -46,11 +46,11 @@ const ipRequestChildItems: MenuItem[] = [
 
 const eOfficeChildItems: MenuItem[] = [
   { href: '/e-office', label: 'Dashboard', icon: LayoutDashboard, types: ['requester', 'official'], exact: true , accessKey: 'E-Office Dashboard'},
-  { href: '/e-office-issues', label: 'New', icon: Inbox, types: ['requester', 'official'], accessKey: 'E-Office New' },
-  { href: '/e-office-in-progress', label: 'In Progress', icon: Wrench, types: ['requester', 'official'], accessKey: 'E-Office In Progress' },
-  { href: '/e-office-engineer-assigned', label: 'Engineer Assigned', icon: User, types: ['requester', 'official'], accessKey: 'E-Office Engineer Assigned' },
-  { href: '/e-office-closed', label: 'Closed', icon: ShieldCheck, types: ['requester', 'official'], accessKey: 'E-Office Engineer Closed'},
-  { href: '/e-office-reopened', label: 'Re-opened', icon: ShieldClose, types: ['requester', 'official'], accessKey: 'E-Office Engineer Reopened'},
+  { href: '/e-office-issues', label: 'New', icon: Inbox, types: ['requester', 'official'], accessKey: 'E-Office New',countKey: 'e_office_new' },
+  { href: '/e-office-in-progress', label: 'In Progress', icon: Wrench, types: ['requester', 'official'], accessKey: 'E-Office In Progress', countKey: 'e_office_in_progress' },
+  { href: '/e-office-engineer-assigned', label: 'Engineer Assigned', icon: User, types: ['requester', 'official'], accessKey: 'E-Office Engineer Assigned', countKey: 'e_office_engineer_assigned' },
+  { href: '/e-office-closed', label: 'Closed', icon: ShieldCheck, types: ['requester', 'official'], accessKey: 'E-Office Engineer Closed', countKey: 'e_office_closed'},
+  { href: '/e-office-reopened', label: 'Re-opened', icon: ShieldClose, types: ['requester', 'official'], accessKey: 'E-Office Engineer Reopened', countKey: 'e_office_re_opened'},
 ]
 
 const officialIpRequestChildItems: MenuItem[] = [
@@ -226,8 +226,9 @@ export default function AppSidebar() {
 
             {userType === 'official' && (
               <>
-                {renderCollapsibleMenu('ipRequest', 'IP Request', FileText, officialIpRequestChildItems)}
-                {renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)}
+                {userAccess.includes('IP Request') && renderCollapsibleMenu('ipRequest', 'IP Request', FileText, officialIpRequestChildItems)}
+                {userAccess.includes('E-Office') && renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)}
+
                 <SidebarSeparator />
                 {adminMenuItems.map(item => renderMenuItem(item))}
               </>
