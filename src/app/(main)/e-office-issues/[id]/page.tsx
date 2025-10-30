@@ -189,11 +189,11 @@ export default function EOfficeIssueDetailsPage() {
 
 
     const buttonText = isOfficial && (
-        issue.e_office_issue_status_id === "1" ? "New" :
-        issue.e_office_issue_status_id === "2" ? "In Progress" :
-        issue.e_office_issue_status_id === "3" ? "Engineer Assigned" :
-        issue.e_office_issue_status_id === "4" ? "Closed" :
-        issue.e_office_issue_status_id === "5" ? "Re-opened" : ""
+        issue.e_office_issue_status_id === "1" ? "Update Status" :
+        issue.e_office_issue_status_id === "2" ? "Assign Engineer" :
+        issue.e_office_issue_status_id === "3" ? "Close" :
+        issue.e_office_issue_status_id === "4" ? "Re-open" :
+        issue.e_office_issue_status_id === "5" ? "Close" : ""
       );
 
     return (

@@ -45,7 +45,7 @@ const ipRequestChildItems: MenuItem[] = [
 
 const eOfficeChildItems: MenuItem[] = [
     { href: '/e-office', label: 'E-Office Dashboard', icon: LayoutDashboard, types: ['requester', 'official'], accessKey: 'Dashboard'},
-    { href: '/e-office-issues', label: 'All Issues', icon: Ticket, types: ['requester', 'official'], accessKey: 'Dashboard'},
+    { href: '/e-office-issues', label: 'New', icon: Inbox, types: ['requester', 'official'], accessKey: 'Dashboard'},
     { href: '/e-office-in-progress', label: 'In Progress', icon: Wrench, types: ['requester', 'official']},
     { href: '/e-office-engineer-assigned', label: 'Engineer Assigned', icon: User, types: ['requester', 'official']},
     { href: '/e-office-closed', label: 'Closed', icon: ShieldCheck, types: ['requester', 'official']},
