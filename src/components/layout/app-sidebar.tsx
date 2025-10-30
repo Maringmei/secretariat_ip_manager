@@ -31,10 +31,11 @@ interface MenuItem {
   types?: string[];
   countKey?: keyof Counts;
   accessKey?: string;
+  exact?: boolean;
 }
 
 const ipRequestChildItems: MenuItem[] = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['requester'], accessKey: 'Dashboard' },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['requester'], accessKey: 'Dashboard', exact: true },
   { href: '/my-pending-requests', label: 'Pending Requests', icon: FileClock, types: ['requester'], countKey: 'pending_approval', accessKey: 'Pending' },
   { href: '/my-approved-requests', label: 'Approved Requests', icon: FileCheck, types: ['requester'], countKey: 'approved', accessKey: 'Approved' },
   { href: '/my-ready-requests', label: 'Ready', icon: CheckCheck, types: ['requester'], countKey: 'ready', accessKey: 'Ready' },
@@ -44,7 +45,7 @@ const ipRequestChildItems: MenuItem[] = [
 ];
 
 const eOfficeChildItems: MenuItem[] = [
-  { href: '/e-office', label: 'Dashboard', icon: LayoutDashboard, types: ['requester', 'official'], accessKey: 'Dashboard' },
+  { href: '/e-office', label: 'Dashboard', icon: LayoutDashboard, types: ['requester', 'official'], accessKey: 'Dashboard', exact: true },
   { href: '/e-office-issues', label: 'New', icon: Inbox, types: ['requester', 'official'], accessKey: 'Dashboard' },
   { href: '/e-office-in-progress', label: 'In Progress', icon: Wrench, types: ['requester', 'official'] },
   { href: '/e-office-engineer-assigned', label: 'Engineer Assigned', icon: User, types: ['requester', 'official'] },
@@ -53,7 +54,7 @@ const eOfficeChildItems: MenuItem[] = [
 ]
 
 const officialIpRequestChildItems: MenuItem[] = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['official'], accessKey: 'Dashboard' },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, types: ['official'], accessKey: 'Dashboard', exact: true },
   { href: '/new-requests', label: 'New Requests', icon: Inbox, types: ['official'], countKey: 'new', accessKey: 'New Requests' },
   { href: '/pending-approval', label: 'Pending Approval', icon: FileClock, types: ['official'], countKey: 'pending_approval', accessKey: 'Pending' },
   { href: '/approved-requests', label: 'Approved', icon: FileCheck, types: ['official'], countKey: 'approved', accessKey: 'Approved' },
@@ -69,6 +70,10 @@ const adminMenuItems: MenuItem[] = [
   { href: '/users', label: 'User Management', icon: Users, types: ['official'], accessKey: 'User Management' },
 ]
 
+const isLinkActive = (pathname: string, href: string, exact: boolean = false) => {
+    return exact ? pathname === href : pathname.startsWith(href);
+}
+
 
 export default function AppSidebar() {
   const pathname = usePathname();
@@ -82,8 +87,8 @@ export default function AppSidebar() {
   const userAccess = user?.access || [];
 
   useEffect(() => {
-    const isIpRequestActive = [...ipRequestChildItems, ...officialIpRequestChildItems].some(item => pathname.startsWith(item.href));
-    const isEOfficeActive = eOfficeChildItems.some(item => pathname.startsWith(item.href));
+    const isIpRequestActive = [...ipRequestChildItems, ...officialIpRequestChildItems].some(item => isLinkActive(pathname, item.href, item.exact));
+    const isEOfficeActive = eOfficeChildItems.some(item => isLinkActive(pathname, item.href, item.exact));
 
     const activeMenus = [];
     if (isIpRequestActive) activeMenus.push('ipRequest');
@@ -123,10 +128,11 @@ export default function AppSidebar() {
     const countData = item.countKey ? counts[item.countKey] : undefined;
     const count = countData?.count;
     const highlight = countData?.highlight;
+    const isActive = isLinkActive(pathname, item.href, item.exact);
 
     return (
       <SidebarMenuItem key={item.href}>
-        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+        <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
           <Link href={item.href}>
             <item.icon />
             <span>{item.label}</span>
@@ -150,7 +156,7 @@ export default function AppSidebar() {
     const isVisible = items.some(isMenuItemVisible);
     if (!isVisible) return null;
 
-    const isActive = items.some(item => pathname.startsWith(item.href));
+    const isActive = items.some(item => isLinkActive(pathname, item.href, item.exact));
 
     return (
       <Collapsible open={openMenus.includes(menuKey)} onOpenChange={() => toggleMenu(menuKey)}>
@@ -168,6 +174,7 @@ export default function AppSidebar() {
             {items.map(item => {
               if (!isMenuItemVisible(item)) return null;
               const countData = item.countKey ? counts[item.countKey] : undefined;
+              const itemIsActive = isLinkActive(pathname, item.href, item.exact);
 
               return (
                 <Link
@@ -175,7 +182,7 @@ export default function AppSidebar() {
                   href={item.href}
                   className={cn(
                     "flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    pathname.startsWith(item.href) && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                    itemIsActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                   )}
                 >
                   <div className="flex items-center gap-2">
