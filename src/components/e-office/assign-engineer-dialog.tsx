@@ -132,7 +132,7 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
                 <DialogHeader>
-                    <DialogTitle>Assign Engineer</DialogTitle>
+                    <DialogTitle>Assign Technical Support Engineer</DialogTitle>
                     <DialogDescription>Schedule a visit and a notification will be sent to the requester.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-6 py-6">
