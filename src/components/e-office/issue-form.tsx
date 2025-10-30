@@ -15,7 +15,6 @@ import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import type { Block, Department, Floor, EofficeCategory, User } from '@/lib/types';
 import { useAuth } from '@/components/auth/auth-provider';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { API_BASE_URL } from '@/lib/api';
 import { Combobox } from '@/components/ui/combobox';
 
@@ -35,7 +34,6 @@ const issueSchema = z.object({
   floor_id: z.string({ required_error: 'Please select a floor.' }),
   reporting_officer: z.string().min(2, 'Reporting officer is required'),
   section: z.string().min(1, 'Section is required'),
-  e_office_onboarded: z.enum(['1', '0'], { required_error: 'This field is required.' }),
   
   e_office_issue_category_id: z.string({ required_error: 'Please select an issue category.'}),
   description: z.string().min(10, 'Description must be at least 10 characters long.'),
@@ -75,7 +73,6 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
         floor_id: undefined,
         reporting_officer: '',
         section: '',
-        e_office_onboarded: undefined,
         e_office_issue_category_id: undefined,
         description: '',
     },
@@ -109,7 +106,6 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
                         room_no: '',
                         reporting_officer: '',
                         section: '',
-                        e_office_onboarded: undefined,
                         description: '',
                     });
                 }
@@ -141,7 +137,6 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
             floor_id: undefined,
             reporting_officer: '',
             section: '',
-            e_office_onboarded: undefined,
             e_office_issue_category_id: undefined,
             description: '',
         });
@@ -361,18 +356,6 @@ export function EofficeIssueForm({ isForSelf }: EofficeIssueFormProps) {
                                     }
                                     searchPlaceholder='Search floors...'
                                 />
-                                <FormMessage />
-                            </FormItem>
-                        )}/>
-                        <FormField control={form.control} name="e_office_onboarded" render={({ field }) => (
-                            <FormItem className="space-y-3">
-                                <FormLabel>E-office Onboarded?</FormLabel>
-                                <FormControl>
-                                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex items-center space-x-4 pt-2">
-                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="1" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="0" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                    </RadioGroup>
-                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}/>
