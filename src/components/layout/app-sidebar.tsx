@@ -226,8 +226,8 @@ export default function AppSidebar() {
 
             {userType === 'official' && (
               <>
-                {userAccess.includes('IP Request') && renderCollapsibleMenu('ipRequest', 'IP Request', FileText, officialIpRequestChildItems)}
-                {userAccess.includes('E-Office') && renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)}
+                {!userAccess.includes('IP Request') && renderCollapsibleMenu('ipRequest', 'IP Request', FileText, officialIpRequestChildItems)}
+                {!userAccess.includes('E-Office') && renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)}
 
                 <SidebarSeparator />
                 {adminMenuItems.map(item => renderMenuItem(item))}
