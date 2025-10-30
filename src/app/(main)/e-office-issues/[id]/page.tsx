@@ -190,8 +190,8 @@ export default function EOfficeIssueDetailsPage() {
 
 
     const buttonText = isOfficial && (
-        issue.e_office_issue_status_id === "1" ? "Update Status" :
-        issue.e_office_issue_status_id === "2" ? "Assign Engineer" :
+        issue.e_office_issue_status_id === "1" ? "Forward to Team Lead" :
+        issue.e_office_issue_status_id === "2" ? "Assign Technical Support" :
         issue.e_office_issue_status_id === "3" ? "Close" :
         issue.e_office_issue_status_id === "4" ? "Re-open" :
         issue.e_office_issue_status_id === "5" ? "Close" : ""

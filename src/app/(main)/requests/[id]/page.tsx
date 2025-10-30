@@ -402,13 +402,13 @@ export default function RequestDetailsPage() {
             isSubmitting={isActionLoading}
         />
         
-        {canAssignEngineer && (
+        {canAssignEngineer && request && (
             <AssignEngineerDialog
                 isOpen={isAssignEngineerOpen}
                 onClose={() => setIsAssignEngineerOpen(false)}
                 onConfirm={handleAssignEngineer}
                 isSubmitting={isActionLoading}
-                requestId={Number(id)}
+                requestId={request.id}
             />
         )}
         {canReopen && (
