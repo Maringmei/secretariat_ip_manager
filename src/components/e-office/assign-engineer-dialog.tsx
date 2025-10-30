@@ -40,7 +40,7 @@ interface AssignEngineerDialogProps {
 }
 
 const formSchema = z.object({
-  engineerId: z.string({ required_error: "Please select an engineer." }),
+  engineerId: z.string({ required_error: "Please select an technical support engineer." }),
   visitDate: z.date({ required_error: "A visit date is required." }),
   visitTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)"),
 });
@@ -92,15 +92,15 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
                     toast({ title: 'Error', description: 'Could not load message template.', variant: 'destructive'});
                 }
 
-                 // Fetch network engineers
-                const engineerResponse = await fetch(`${API_BASE_URL}/profiles/network-engineers`, {
+                 // Fetch e-office engineers
+                const engineerResponse = await fetch(`${API_BASE_URL}/profiles/e-office-engineers`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const engineerResult = await engineerResponse.json();
                 if (engineerResult.success) {
                     setEngineers(engineerResult.data);
                 } else {
-                    toast({ title: 'Error', description: 'Could not load network engineers.', variant: 'destructive'});
+                    toast({ title: 'Error', description: 'Could not load e-office engineers.', variant: 'destructive'});
                 }
 
             } catch (error) {
@@ -132,7 +132,7 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
                 <DialogHeader>
-                    <DialogTitle>Assign Engineer</DialogTitle>
+                    <DialogTitle>Assign Technical Support Engineer</DialogTitle>
                     <DialogDescription>Schedule a visit and a notification will be sent to the requester.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-6 py-6">
@@ -141,13 +141,13 @@ export function AssignEngineerDialog({ isOpen, onClose, onConfirm, isSubmitting,
                         name="engineerId"
                         render={({ field }) => (
                             <FormItem className='flex flex-col'>
-                                <Label>Network Engineer</Label>
+                                <Label>Support Engineer</Label>
                                 <Combobox
                                     options={engineers.map(e => ({ value: String(e.id), label: e.name }))}
                                     value={field.value}
                                     onChange={field.onChange}
-                                    placeholder="Select an engineer"
-                                    searchPlaceholder='Search engineers...'
+                                    placeholder="Select an technical support engineer"
+                                    searchPlaceholder='Search technical support engineers...'
                                 />
                                 <FormMessage />
                             </FormItem>

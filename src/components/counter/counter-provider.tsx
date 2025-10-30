@@ -24,6 +24,12 @@ export interface Counts {
   my_rejected?: CountData;
   my_ready?: CountData;
   my_closed?: CountData;
+  e_office_new?: CountData;
+  e_office_in_progress?: CountData;
+  e_office_engineer_assigned?: CountData;
+  e_office_closed?: CountData;
+  e_office_re_opened?: CountData;
+
   [key: string]: CountData | undefined;
 }
 
