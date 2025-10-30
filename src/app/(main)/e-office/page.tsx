@@ -4,7 +4,7 @@ import type { Role } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import StatsCard from "@/components/dashboard/stats-card";
-import { Check, Clock, FileText, Server, Users, X, Activity, BarChart2, Inbox, CheckCheck, Archive, History, Ticket, Wrench, ShieldCheck, ShieldClose } from "lucide-react";
+import { Check, Clock, FileText, Server, Users, X, Activity, BarChart2, Inbox, CheckCheck, Archive, History, Ticket, Wrench, ShieldCheck, ShieldClose, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
@@ -105,6 +105,12 @@ const RequesterDashboard = ({ data }: { data: EOfficeDashboardData }) => {
                     <h1 className="font-headline text-3xl font-bold">E-Office Dashboard</h1>
                     <p className="text-muted-foreground">Here's a summary of your E-Office issues.</p>
                 </div>
+                <Button asChild>
+                    <Link href="/e-office-issues/new">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        New Issue
+                    </Link>
+                </Button>
             </div>
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
