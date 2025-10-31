@@ -35,13 +35,13 @@ export default function SpeedChart({ data }: SpeedChartProps) {
     };
 
     if (chartData.length === 0) {
-      return <div className="flex h-[200px] items-center justify-center text-muted-foreground">No data available</div>
+      return <div className="flex h-[300px] items-center justify-center text-muted-foreground">No data available</div>
     }
 
   return (
       <ChartContainer
         config={chartConfig}
-        className="mx-auto aspect-square max-h-[200px]"
+        className="mx-auto aspect-square max-h-[300px]"
       >
         <PieChart>
           <ChartTooltip
@@ -52,8 +52,8 @@ export default function SpeedChart({ data }: SpeedChartProps) {
             data={chartData}
             dataKey="count"
             nameKey="name"
-            innerRadius={50}
-            strokeWidth={8}
+            innerRadius={60}
+            strokeWidth={5}
           />
           <ChartLegend content={<ChartLegendContent nameKey="name" />} />
         </PieChart>
