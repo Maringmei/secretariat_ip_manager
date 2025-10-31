@@ -18,7 +18,9 @@ export interface User {
 
   // from profile form/API
   department?: string; // departmentId
-  ein_sin?: string;
+  ein_sin?: string | null;
+  id_card_no?: string | null;
+  id_card_file?: string | null;
   email?: string;
   whatsapp_no?: string;
   profileComplete?: boolean;
