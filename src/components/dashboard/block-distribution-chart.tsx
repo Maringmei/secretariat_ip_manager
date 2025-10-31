@@ -30,11 +30,11 @@ export default function BlockDistributionChart({ data }: BlockDistributionChartP
     }));
 
     if (chartData.length === 0) {
-      return <div className="flex h-[250px] items-center justify-center text-muted-foreground">No block data available</div>
+      return <div className="flex h-[200px] items-center justify-center text-muted-foreground">No block data available</div>
     }
 
   return (
-      <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
+      <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
         <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ left: 20 }}>
           <CartesianGrid horizontal={false} />
           <YAxis

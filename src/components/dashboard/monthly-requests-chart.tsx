@@ -30,11 +30,11 @@ export default function MonthlyRequestsChart({ data }: MonthlyRequestsChartProps
     }));
 
      if (chartData.length === 0) {
-      return <div className="flex h-[250px] items-center justify-center text-muted-foreground">No monthly data available</div>
+      return <div className="flex h-[200px] items-center justify-center text-muted-foreground">No monthly data available</div>
     }
 
   return (
-      <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
+      <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
         <LineChart accessibilityLayer data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
             <CartesianGrid vertical={false} />
             <XAxis
