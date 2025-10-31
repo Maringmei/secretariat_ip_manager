@@ -52,7 +52,7 @@ export default function SpeedChart({ data }: SpeedChartProps) {
             data={chartData}
             dataKey="count"
             nameKey="name"
-            innerRadius={60}
+            innerRadius={50}
             strokeWidth={8}
           />
           <ChartLegend content={<ChartLegendContent nameKey="name" />} />
