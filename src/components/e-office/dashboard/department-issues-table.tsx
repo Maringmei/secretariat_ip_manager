@@ -18,7 +18,7 @@ export default function DepartmentIssuesTable({ data }: DepartmentIssuesTablePro
             <Table>
                 <TableHeader className="bg-muted/50">
                     <TableRow>
-                        <TableHead>Department Name</TableHead>
+                        <TableHead>Block Name</TableHead>
                         <TableHead className="text-center">Total Issues</TableHead>
                         <TableHead className="text-center">Pending</TableHead>
                         <TableHead className="text-center">Resolved</TableHead>

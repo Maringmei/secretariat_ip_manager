@@ -114,7 +114,7 @@ const AdminDashboard = ({ data }: { data: DashboardData }) => {
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Department Details</CardTitle>
+                    <CardTitle className="font-headline">Block Details</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <DepartmentAllocationsTable data={data.by_department} />
