@@ -293,7 +293,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
       requestBody.ein_sin = values.ein_sin;
     } else {
       requestBody.id_card_no = values.id_card_no;
-      requestBody.id_card_url = idCardUrl;
+      requestBody.id_card_file = idCardUrl;
     }
 
 
