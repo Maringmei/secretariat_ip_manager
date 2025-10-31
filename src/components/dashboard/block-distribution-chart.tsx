@@ -35,7 +35,7 @@ export default function BlockDistributionChart({ data }: BlockDistributionChartP
 
   return (
       <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-        <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ left: 20 }}>
+        <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ left: 20 }} barSize={20}>
           <CartesianGrid horizontal={false} />
           <YAxis
             dataKey="block"
