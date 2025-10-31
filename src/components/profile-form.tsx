@@ -138,6 +138,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     reportingOfficer: '', // API response doesn't have this
                     ein_sin: profileData.ein_sin || undefined,
                     id_card_no: profileData.id_card_no || undefined,
+                    id_card_file: profileData.id_card_file || undefined,
                     eofficeOnboarded: undefined, // API response doesn't have this
                     email: profileData.email || '',
                     whatsapp_no: profileData.whatsapp_no || authUser?.whatsapp_no || '',
@@ -163,6 +164,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     if (departments.length > 0) {
       fetchProfile();
     } else {
+        // If there are no departments, we probably still want to stop loading
         setIsLoading(false);
     }
   }, [token, departments, form, toast, authUser]);
@@ -205,6 +207,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
     let idCardUrl;
     if (!hasEinSin && values.id_card_file?.[0]) {
+        // Only upload if it's a new file, not an existing URL string
         if (typeof values.id_card_file[0] !== 'string') {
             idCardUrl = await uploadFile(values.id_card_file[0]);
             if (!idCardUrl) {
@@ -409,3 +412,5 @@ export function ProfileForm({ user }: ProfileFormProps) {
     </Form>
   );
 }
+
+    
