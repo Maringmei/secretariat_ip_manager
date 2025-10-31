@@ -18,7 +18,7 @@ export default function DepartmentAllocationsTable({ data }: DepartmentAllocatio
             <Table>
                 <TableHeader className="bg-muted/50">
                     <TableRow>
-                        <TableHead>Department Name</TableHead>
+                        <TableHead>Block Name</TableHead>
                         <TableHead className="text-center">Total</TableHead>
                         <TableHead className="text-center">Pending</TableHead>
                         <TableHead className="text-center">Approved</TableHead>

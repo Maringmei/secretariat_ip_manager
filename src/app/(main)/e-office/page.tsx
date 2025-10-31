@@ -84,7 +84,7 @@ const OfficialDashboard = ({ data }: { data: EOfficeDashboardData }) => {
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Issues by Department</CardTitle>
+                    <CardTitle className="font-headline">Block Details</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <DepartmentIssuesTable data={data.by_department} />
