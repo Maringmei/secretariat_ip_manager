@@ -39,7 +39,8 @@ export function FileUpload({ onFileSelect, fileType = '*', className }: FileUplo
     const files = event.dataTransfer.files;
     if (files && files.length > 0) {
         const droppedFile = files[0];
-        if(droppedFile.type === fileType || fileType === '*') {
+        const allowedTypes = fileType.split(',').map(t => t.trim());
+        if(allowedTypes.includes(droppedFile.type) || fileType === '*') {
             setFile(droppedFile);
             onFileSelect(files);
         }
@@ -64,7 +65,7 @@ export function FileUpload({ onFileSelect, fileType = '*', className }: FileUplo
             <span className="font-semibold text-primary">Click to upload</span> or drag and drop
         </p>
         <p className="text-xs text-muted-foreground">
-          {fileType === 'application/pdf' ? 'PDF only' : 'Any file type'}
+          {fileType}
         </p>
         <Input
           ref={inputRef}
@@ -97,3 +98,5 @@ export function FileUpload({ onFileSelect, fileType = '*', className }: FileUplo
     </div>
   );
 }
+
+    

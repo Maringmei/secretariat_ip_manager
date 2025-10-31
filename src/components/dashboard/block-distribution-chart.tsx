@@ -1,4 +1,3 @@
-
 "use client"
 
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts"
@@ -35,7 +34,7 @@ export default function BlockDistributionChart({ data }: BlockDistributionChartP
 
   return (
       <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-        <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ left: 20 }}>
+        <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ left: 20 }} barSize={20}>
           <CartesianGrid horizontal={false} />
           <YAxis
             dataKey="block"
@@ -47,7 +46,7 @@ export default function BlockDistributionChart({ data }: BlockDistributionChartP
           />
           <XAxis dataKey="requests" type="number" hide />
           <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-          <Bar dataKey="requests" fill="red" radius={4} />
+          <Bar dataKey="requests" fill="#98FB98" radius={4} />
         </BarChart>
       </ChartContainer>
   )

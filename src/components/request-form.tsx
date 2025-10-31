@@ -20,6 +20,7 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { API_BASE_URL } from '@/lib/api';
 import { Combobox } from '@/components/ui/combobox';
 import { FindMacAddressDialog } from './requests/find-mac-address-dialog';
+import { FileUpload } from './ui/file-upload';
 
 const macAddressRegex = /^(?:[0-9A-Fa-f]{2}([:-]?))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}$|^[0-9A-Fa-f]{12}$/;
 const emailRegex = /^[^@]+@([a-z0-9.-]+\.)?(gov\.in|nic\.in)$/i;
@@ -31,9 +32,12 @@ const requestSchema = z.object({
   whatsapp_no: z.string().length(10, 'WhatsApp number must be 10 digits'),
   designation: z.string().min(2, 'Designation is required'),
   department_id: z.string({ required_error: 'Please select a department.' }),
-  ein_sin: z.string().min(1, 'A valid EIN/SIN is required'),
+  
+  ein_sin: z.string().optional(),
+  id_card_no: z.string().optional(),
+  id_card_file: z.any().optional(),
 
-  mac_address: z.string().regex(macAddressRegex, 'Invalid MAC address format.'),
+  mac_address: z.string().regex(macAddressRegex, 'Invalid MAC address format. Valid formats: 00:1A:...:5E, 00-1A-...-5E, 001A.2B3C.4D5E, or 001A2B3C4D5E'),
   room_no: z.string().min(1, 'Room number is required'),
   block_id: z.string({ required_error: 'Please select a block.' }),
   floor_id: z.string({ required_error: 'Please select a floor.' }),
@@ -43,6 +47,28 @@ const requestSchema = z.object({
   consent: z.literal<boolean>(true, {
     errorMap: () => ({ message: 'You must agree to the terms to proceed.' }),
   }),
+}).superRefine((data, ctx) => {
+    if (!data.ein_sin && !data.id_card_no) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['id_card_no'],
+            message: 'ID Number is required if you do not have an EIN/SIN.',
+        });
+    }
+    if (!data.ein_sin && !data.id_card_file) {
+         ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['id_card_file'],
+            message: 'ID Card upload is required if you do not have an EIN/SIN.',
+        });
+    }
+    if (data.ein_sin && data.id_card_no) {
+         ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['ein_sin'],
+            message: 'Provide either EIN/SIN or an ID card, not both.',
+        });
+    }
 });
 
 interface RequestFormProps {
@@ -60,6 +86,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
   const [departments, setDepartments] = useState<Department[]>([]);
   const { token, user } = useAuth();
   const [isMacAddressDialogOpen, setIsMacAddressDialogOpen] = useState(false);
+  const [hasEinSin, setHasEinSin] = useState(true);
 
   const form = useForm<z.infer<typeof requestSchema>>({
     resolver: zodResolver(requestSchema),
@@ -74,7 +101,6 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
       email: '',
       whatsapp_no: '',
       designation: '',
-      ein_sin: '',
       e_office_onboarded: undefined,
       block_id: undefined,
       floor_id: undefined,
@@ -103,7 +129,9 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                         whatsapp_no: profile.whatsapp_no || '',
                         designation: profile.designation || '',
                         department_id: userDepartment ? String(userDepartment.id) : undefined,
-                        ein_sin: profile.ein_sin || '',
+                        ein_sin: profile.ein_sin || undefined,
+                        id_card_no: profile.id_card_no || undefined,
+                        id_card_file: profile.id_card_file || undefined,
                         // Reset other fields
                         mac_address: '',
                         room_no: '',
@@ -112,6 +140,12 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                         consent: false,
                         e_office_onboarded: undefined,
                     });
+
+                    if (!profile.ein_sin && (profile.id_card_no || profile.id_card_file)) {
+                        setHasEinSin(false);
+                    } else {
+                        setHasEinSin(true);
+                    }
                 } else {
                      toast({ title: "Note", description: "Could not fetch profile. Please fill out the form manually.", variant: "default" });
                 }
@@ -126,7 +160,6 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
     }
 
     if (isForSelf) {
-        // We wait for departments to be loaded before fetching profile to ensure we can match it.
         if (departments.length > 0) {
             fetchProfileForSelf();
         }
@@ -142,9 +175,9 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
             email: '',
             whatsapp_no: '',
             designation: '',
-            ein_sin: '',
             e_office_onboarded: undefined,
         });
+        setHasEinSin(true);
         setIsFormLoading(false);
     }
   }, [user, form, isForSelf, token, toast, departments]);
@@ -206,6 +239,34 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
     }
   }, [selectedBlockId, token, toast, form]);
 
+  const uploadFile = async (file: File): Promise<string | undefined> => {
+    if (!token) return undefined;
+
+    const formData = new FormData();
+    formData.append('id_card_file', file);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/upload-file`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.success && result.data) {
+        return result.data.filename;
+      } else {
+        throw new Error(`Failed to upload ${file.name}: ${result.message}`);
+      }
+    } catch (error: any) {
+      toast({
+        title: 'File Upload Failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return undefined;
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof requestSchema>) {
     if (!token || !user) {
@@ -215,13 +276,18 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
 
     setIsLoading(true);
     
-    const requestBody = {
+    let idCardUrl;
+    if (!hasEinSin && values.id_card_file?.[0]) {
+      idCardUrl = await uploadFile(values.id_card_file[0]);
+      if (!idCardUrl) { setIsLoading(false); return; }
+    }
+    
+    const requestBody: any = {
         first_name: values.first_name,
         last_name: values.last_name,
         department_id: parseInt(values.department_id, 10),
         reporting_officer: values.reporting_officer,
         designation: values.designation,
-        ein_sin: values.ein_sin,
         email: values.email,
         mobile_no: values.whatsapp_no,
         section: values.section,
@@ -231,6 +297,14 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
         e_office_onboarded: values.e_office_onboarded,
         mac_address: values.mac_address,
     };
+    
+    if (hasEinSin) {
+      requestBody.ein_sin = values.ein_sin;
+    } else {
+      requestBody.id_card_no = values.id_card_no;
+      requestBody.id_card_file = idCardUrl;
+    }
+
 
     try {
         const response = await fetch(`${API_BASE_URL}/ip-requests`, {
@@ -313,9 +387,59 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                                 </FormItem>
                             )}
                         />
-                         <FormField control={form.control} name="ein_sin" render={({ field }) => (
-                            <FormItem><FormLabel>EIN / SIN</FormLabel><FormControl><Input placeholder="Applicant's Employee/Service ID" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
+                         {hasEinSin ? (
+                             <FormField control={form.control} name="ein_sin" render={({ field }) => (
+                                <FormItem>
+                                    <div className="flex items-center justify-between">
+                                        <FormLabel>EIN / SIN</FormLabel>
+                                        <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => {
+                                            setHasEinSin(false);
+                                            form.setValue('ein_sin', undefined);
+                                        }}>
+                                            Does not have EIN/SIN
+                                        </Button>
+                                    </div>
+                                    <FormControl><Input placeholder="Applicant's Employee/Service ID" {...field} value={field.value ?? ''} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}/>
+                         ) : (
+                            <>
+                                <FormField control={form.control} name="id_card_no" render={({ field }) => (
+                                    <FormItem>
+                                        <div className="flex items-center justify-between">
+                                            <FormLabel>ID Number</FormLabel>
+                                             <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => {
+                                                setHasEinSin(true);
+                                                form.setValue('id_card_no', undefined);
+                                                form.setValue('id_card_file', undefined);
+                                            }}>
+                                                Have an EIN/SIN?
+                                            </Button>
+                                        </div>
+                                        <FormControl><Input placeholder="Government ID Number" {...field} value={field.value ?? ''} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField
+                                    control={form.control}
+                                    name="id_card_file"
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Upload ID Card</FormLabel>
+                                        <FormControl>
+                                        <FileUpload
+                                            onFileSelect={(file) => field.onChange(file)}
+                                            fileType=".pdf,.jpg,.jpeg,.png"
+                                        />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                            </>
+                         )}
+
                         <FormField control={form.control} name="email" render={({ field }) => (
                             <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="applicant.email@gov.in" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>

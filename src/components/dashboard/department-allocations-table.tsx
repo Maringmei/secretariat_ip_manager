@@ -10,7 +10,7 @@ interface DepartmentAllocationsTableProps {
 
 export default function DepartmentAllocationsTable({ data }: DepartmentAllocationsTableProps) {
     if (!data || data.length === 0) {
-        return <div className="flex h-[200px] items-center justify-center text-muted-foreground">No department data available</div>;
+        return <div className="flex h-[150px] items-center justify-center text-muted-foreground">No department data available</div>;
     }
 
     return (

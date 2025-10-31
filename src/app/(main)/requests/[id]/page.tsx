@@ -9,7 +9,7 @@ import type { Request, WorkflowStep } from '@/lib/types';
 import WorkflowTimeline from '@/components/workflow-timeline';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Loader2, Timer } from 'lucide-react';
+import { ArrowLeft, File, Loader2, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AssignIpDialog } from '@/components/requests/assign-ip-dialog';
 import { useCounter } from '@/components/counter/counter-provider';
@@ -19,6 +19,7 @@ import { API_BASE_URL } from '@/lib/api';
 import { AssignEngineerDialog } from '@/components/requests/assign-engineer-dialog';
 import { CloseRequestDialog } from '@/components/requests/close-request-dialog';
 import { ReopenRequestDialog } from '@/components/requests/reopen-request-dialog';
+import Link from 'next/link';
 
 export default function RequestDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -334,7 +335,23 @@ export default function RequestDetailsPage() {
                         <p><strong>Name:</strong> {request.first_name} {request.last_name}</p>
                         <p><strong>Designation:</strong> {request.designation}</p>
                         <p><strong>Department:</strong> {request.department_name}</p>
-                        <p><strong>EIN/SIN:</strong> {request.ein_sin}</p>
+                        {request.ein_sin ? (
+                            <p><strong>EIN/SIN:</strong> {request.ein_sin}</p>
+                        ) : (
+                            request.id_card_no && (
+                                <div>
+                                    <p><strong>ID Card No:</strong> {request.id_card_no}</p>
+                                    {request.id_card_file && (
+                                        <div className='flex items-center mt-1'>
+                                            <File className="h-4 w-4 mr-2 text-muted-foreground" />
+                                            <Link href={request.id_card_file} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                                                View ID Card
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        )}
                         <p><strong>Reporting Officer:</strong> {request.reporting_officer}</p>
                         <p><strong>Email:</strong> {request.email}</p>
                         <p><strong>WhatsApp:</strong> {request.mobile_no}</p>

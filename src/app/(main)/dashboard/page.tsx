@@ -51,7 +51,7 @@ interface DashboardData {
 const AdminDashboard = ({ data }: { data: DashboardData }) => {
     const summary = data.summary || { total: 0, new: 0, pending_approval: 0, approved: 0, ready: 0, closed: 0, re_opened: 0, rejected: 0, e_office_onboarded: 0, e_office_not_onboarded: 0 };
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
             <Card className="bg-card/80 backdrop-blur-sm">
                 <CardHeader>
                     <div className="flex items-center gap-3">
@@ -131,7 +131,7 @@ const StaffDashboard = ({ data }: { data: DashboardData }) => {
     const pendingCount = (data.pending ?? 0) ;
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="font-headline text-3xl font-bold">Welcome, {user.name}!</h1>
