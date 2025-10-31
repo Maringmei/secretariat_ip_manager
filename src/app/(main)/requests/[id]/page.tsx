@@ -338,7 +338,19 @@ export default function RequestDetailsPage() {
                         {request.ein_sin ? (
                             <p><strong>EIN/SIN:</strong> {request.ein_sin}</p>
                         ) : (
-                            <p><strong>ID Card No:</strong> {request.id_card_no}</p>
+                            request.id_card_no && (
+                                <div>
+                                    <p><strong>ID Card No:</strong> {request.id_card_no}</p>
+                                    {request.id_card_file && (
+                                        <div className='flex items-center mt-1'>
+                                            <File className="h-4 w-4 mr-2 text-muted-foreground" />
+                                            <Link href={request.id_card_file} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                                                View ID Card
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
+                            )
                         )}
                         <p><strong>Reporting Officer:</strong> {request.reporting_officer}</p>
                         <p><strong>Email:</strong> {request.email}</p>
@@ -362,23 +374,6 @@ export default function RequestDetailsPage() {
                         <p><strong>Speed:</strong> {request.connection_speed || 'N/A'}</p>
                     </CardContent>
                 </Card>
-                
-                {request.id_card_file && (
-                     <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-lg">Attachments</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                                <div className='flex items-center'>
-                                    <File className="h-4 w-4 mr-2 text-muted-foreground" />
-                                    <Link href={request.id_card_file} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
-                                        View ID Card
-                                    </Link>
-                                </div>
-                        </CardContent>
-                    </Card>
-                )}
-
 
                 <Card>
                     <CardHeader>
