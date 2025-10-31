@@ -47,13 +47,13 @@ export default function StatusOverviewChart({ data }: StatusOverviewChartProps) 
     ].filter(d => d.count > 0);
 
     if (chartData.length === 0) {
-      return <div className="flex h-[300px] items-center justify-center text-muted-foreground">No status data available</div>
+      return <div className="flex h-[250px] items-center justify-center text-muted-foreground">No status data available</div>
     }
 
   return (
       <ChartContainer
         config={chartConfig}
-        className="mx-auto aspect-square max-h-[300px]"
+        className="mx-auto aspect-square max-h-[250px]"
       >
         <PieChart>
           <ChartTooltip
