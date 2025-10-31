@@ -53,7 +53,7 @@ export default function SpeedChart({ data }: SpeedChartProps) {
             dataKey="count"
             nameKey="name"
             innerRadius={60}
-            strokeWidth={5}
+            strokeWidth={8}
           />
           <ChartLegend content={<ChartLegendContent nameKey="name" />} />
         </PieChart>
