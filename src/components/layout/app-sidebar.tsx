@@ -50,7 +50,7 @@ const eOfficeChildItems: MenuItem[] = [
   { href: '/e-office-in-progress', label: 'In Progress', icon: Wrench, types: ['requester', 'official'], accessKey: 'E-Office In Progress', countKey: 'e_office_in_progress' },
   { href: '/e-office-engineer-assigned', label: 'Engineer Assigned', icon: User, types: ['requester', 'official'], accessKey: 'E-Office Engineer Assigned', countKey: 'e_office_engineer_assigned' },
   { href: '/e-office-closed', label: 'Closed', icon: ShieldCheck, types: ['requester', 'official'], accessKey: 'E-Office Engineer Closed', countKey: 'e_office_closed'},
-  { href: '/e-office-reopened', label: 'Re-opened', icon: ShieldClose, types: ['requester', 'official'], accessKey: 'E-Office Engineer Reopened', countKey: 'e_office_re_opened'},
+  { href: '/e-office-reopened', label: 'Re-opened', icon: ShieldClose, types: ['requester', 'official'], accessKey: 'E-Office Engineer Re-Opened', countKey: 'e_office_re_opened'},
 ]
 
 const officialIpRequestChildItems: MenuItem[] = [

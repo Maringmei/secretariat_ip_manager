@@ -8,11 +8,21 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogFooter,
+    AlertDialogCancel,
+    AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
-import { Apple } from 'lucide-react';
+import { Apple, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 
 interface FindMacAddressDialogProps {
@@ -34,10 +44,6 @@ const WindowsLogo = () => (
 
 
 export function FindMacAddressDialog({ isOpen, onClose }: FindMacAddressDialogProps) {
-
-  const openLink = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -69,20 +75,40 @@ export function FindMacAddressDialog({ isOpen, onClose }: FindMacAddressDialogPr
                   <li>Type `ipconfig /all` and press Enter.</li>
                   <li>Look for "Physical Address" in the Ethernet adapter Ethernet Section This is your MAC address.</li>
                 </ol>
-                <div className="mt-4 rounded-md border p-2">
-                    <Image 
-                        src="/images/ipconfig-all.jpg"
-                        alt="Example of ipconfig /all command output"
-                        width={600}
-                        height={338}
-                        className="rounded"
-                    />
+                <div className="flex gap-2">
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="outline">
+                                <ImageIcon className="mr-2"/>
+                                Show Example Image
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Windows MAC Address Example</AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <div className="mt-4 rounded-md border p-2 flex justify-center">
+                                <Image 
+                                    src="/images/ipconfig-all.jpg"
+                                    alt="Example of ipconfig /all command output"
+                                    width={500}
+                                    height={500}
+                                    className="rounded"
+                                    objectFit="contain"
+                                />
+                            </div>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Close</AlertDialogCancel>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+
+                    <Button variant="secondary" asChild>
+                        <Link href="https://www.youtube.com/watch?v=V_rs20osJ1c" target="_blank" rel="noopener noreferrer">
+                            Watch on YouTube
+                        </Link>
+                    </Button>
                 </div>
-                <Button variant="secondary" asChild>
-                  <Link href="https://www.youtube.com/watch?v=V_rs20osJ1c" target="_blank" rel="noopener noreferrer">
-                    Watch on YouTube
-                  </Link>
-                </Button>
               </div>
             </TabsContent>
             <TabsContent value="macos" className="mt-4">
