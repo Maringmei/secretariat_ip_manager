@@ -129,7 +129,9 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                         whatsapp_no: profile.whatsapp_no || '',
                         designation: profile.designation || '',
                         department_id: userDepartment ? String(userDepartment.id) : undefined,
-                        ein_sin: profile.ein_sin || '',
+                        ein_sin: profile.ein_sin || undefined,
+                        id_card_no: profile.id_card_no || undefined,
+                        id_card_file: profile.id_card_file || undefined,
                         // Reset other fields
                         mac_address: '',
                         room_no: '',
@@ -138,6 +140,12 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                         consent: false,
                         e_office_onboarded: undefined,
                     });
+
+                    if (!profile.ein_sin && (profile.id_card_no || profile.id_card_file)) {
+                        setHasEinSin(false);
+                    } else {
+                        setHasEinSin(true);
+                    }
                 } else {
                      toast({ title: "Note", description: "Could not fetch profile. Please fill out the form manually.", variant: "default" });
                 }
@@ -169,6 +177,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
             designation: '',
             e_office_onboarded: undefined,
         });
+        setHasEinSin(true);
         setIsFormLoading(false);
     }
   }, [user, form, isForSelf, token, toast, departments]);
