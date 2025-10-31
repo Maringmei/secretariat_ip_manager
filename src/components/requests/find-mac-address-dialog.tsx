@@ -91,8 +91,8 @@ export function FindMacAddressDialog({ isOpen, onClose }: FindMacAddressDialogPr
                                 <Image 
                                     src="/images/ipconfig-all.jpg"
                                     alt="Example of ipconfig /all command output"
-                                    width={400}
-                                    height={400}
+                                    width={500}
+                                    height={500}
                                     className="rounded"
                                     objectFit="contain"
                                 />
