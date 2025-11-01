@@ -95,6 +95,7 @@ export interface Request {
   service_time_label? : string;
   can_reject? : boolean;
   can_edit? : boolean;
+  can_update_ip? : boolean;
 
 
 

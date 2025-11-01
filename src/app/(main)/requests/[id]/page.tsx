@@ -20,6 +20,7 @@ import { AssignEngineerDialog } from '@/components/requests/assign-engineer-dial
 import { CloseRequestDialog } from '@/components/requests/close-request-dialog';
 import { ReopenRequestDialog } from '@/components/requests/reopen-request-dialog';
 import Link from 'next/link';
+import { UpdateIpAllocationDialog } from '@/components/requests/update-ip-allocation-dialog';
 
 export default function RequestDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -40,6 +41,7 @@ export default function RequestDetailsPage() {
     const [isAssignEngineerOpen, setIsAssignEngineerOpen] = useState(false);
     const [isCloseRequestOpen, setIsCloseRequestOpen] = useState(false);
     const [isReopenRequestOpen, setIsReopenRequestOpen] = useState(false);
+    const [isUpdateIpOpen, setIsUpdateIpOpen] = useState(false);
 
 
     const fetchRequestDetails = async () => {
@@ -187,6 +189,35 @@ export default function RequestDetailsPage() {
             setIsActionLoading(false);
         }
     };
+    
+    const handleUpdateIpAllocation = async (data: { ipAddressId: number; speedId: number; remark?: string }) => {
+        if (!token || !request) return;
+        setIsActionLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/ip-requests/${id}/update-ip-allocation`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                body: JSON.stringify({
+                    ip_address_id: data.ipAddressId,
+                    connection_speed_id: data.speedId,
+                    remark: data.remark,
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                toast({ title: "Success", description: "IP allocation has been updated." });
+                setIsUpdateIpOpen(false);
+                refreshData();
+            } else {
+                throw new Error(result.message || "Failed to update IP allocation.");
+            }
+        } catch(error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive"});
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
 
     const handleApprove = async ({ remark }: { remark?: string }) => {
         await handleWorkflowAction(3, remark);
@@ -263,7 +294,8 @@ export default function RequestDetailsPage() {
     const canReopen = canReopenAsOfficial || canReopenAsRequester;
 
     const canEdit = !isOfficial && request.can_edit;
-    // const canRejectByRequester = !isOfficial && request.can_reject;
+    const canUpdateIp = isOfficial && request.can_update_ip;
+    const canRejectByRequester = !isOfficial && request.can_reject;
 
   
 
@@ -296,6 +328,9 @@ export default function RequestDetailsPage() {
                     {canAssignIp && (
                         <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
                     )}
+                    {canUpdateIp && (
+                        <Button onClick={() => setIsUpdateIpOpen(true)} disabled={isActionLoading}>Update allocated IP</Button>
+                    )}
                     {canApprove && (
                         <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
                     )}
@@ -305,7 +340,7 @@ export default function RequestDetailsPage() {
                     {canCloseRequestByRequester && (
                             <Button onClick={() => setIsCloseRequestOpen(true)} disabled={isActionLoading}>Close request</Button>
                     )}
-                    {canReject && (
+                    {(canReject || canRejectByRequester) && (
                         <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
                     )}
                     {canAssignEngineer && (
@@ -405,6 +440,16 @@ export default function RequestDetailsPage() {
                 isOpen={isAssignIpOpen}
                 onClose={() => setIsAssignIpOpen(false)}
                 onConfirm={handleAssignIp}
+                isSubmitting={isActionLoading}
+                requestId={Number(id)}
+            />
+        )}
+
+        {canUpdateIp && (
+            <UpdateIpAllocationDialog
+                isOpen={isUpdateIpOpen}
+                onClose={() => setIsUpdateIpOpen(false)}
+                onConfirm={handleUpdateIpAllocation}
                 isSubmitting={isActionLoading}
                 requestId={Number(id)}
             />
