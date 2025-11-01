@@ -144,7 +144,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     whatsapp_no: profileData.whatsapp_no || authUser?.whatsapp_no || '',
                 });
 
-                if (!profileData.ein_sin && (profileData.id_card_no || profileData.id_card_file)) {
+                if (profileData.ein_sin) {
+                    setHasEinSin(true);
+                } else if (profileData.id_card_no || profileData.id_card_file) {
                     setHasEinSin(false);
                 }
 
@@ -381,27 +383,28 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     />
                 </>
              )}
-        </div>
-        <FormField control={form.control} name="eofficeOnboarded" render={({ field }) => (
-            <FormItem className="space-y-3">
-            <FormLabel>E-office Onboarded?</FormLabel>
-            <FormControl>
-                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex items-center space-x-4">
-                <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                </RadioGroup>
-            </FormControl>
-            <FormMessage />
-            </FormItem>
-        )}/>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+
             <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="your.email@gov.in" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
             <FormField control={form.control} name="whatsapp_no" render={({ field }) => (
                 <FormItem><FormLabel>WhatsApp No.</FormLabel><FormControl><Input placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem>
             )}/>
+        
+            <FormField control={form.control} name="eofficeOnboarded" render={({ field }) => (
+                <FormItem className="space-y-3 md:col-span-2">
+                <FormLabel>E-office Onboarded?</FormLabel>
+                <FormControl>
+                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex items-center space-x-4">
+                    <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                    <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                    </RadioGroup>
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}/>
         </div>
+        
         <div className="flex justify-end">
             <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
