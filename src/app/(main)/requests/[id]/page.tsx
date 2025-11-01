@@ -195,7 +195,7 @@ export default function RequestDetailsPage() {
         setIsActionLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/ip-requests/${id}/update-ip-allocation`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
                 body: JSON.stringify({
                     ip_address_id: data.ipAddressId,
@@ -295,7 +295,6 @@ export default function RequestDetailsPage() {
 
     const canEdit = !isOfficial && request.can_edit;
     const canUpdateIp = isOfficial && request.can_update_ip;
-    const canRejectByRequester = !isOfficial && request.can_reject;
 
   
 
@@ -340,7 +339,7 @@ export default function RequestDetailsPage() {
                     {canCloseRequestByRequester && (
                             <Button onClick={() => setIsCloseRequestOpen(true)} disabled={isActionLoading}>Close request</Button>
                     )}
-                    {(canReject || canRejectByRequester) && (
+                    {canReject && (
                         <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
                     )}
                     {canAssignEngineer && (
