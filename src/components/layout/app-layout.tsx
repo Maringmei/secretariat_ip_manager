@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from "@/components/auth/auth-provider";
@@ -47,6 +48,17 @@ export default function  AppLayout({
             // Profile has been created, clear the flag
             localStorage.removeItem('isNewUser');
         }
+
+        // Redirect logic for officials without IP Request access
+        const isOfficial = user.type === 'official';
+        const userAccess = user.access || [];
+        const hasIpRequestAccess = userAccess.includes('IP Request');
+        const hasEofficeAccess = userAccess.includes('E-Office');
+
+        if (isOfficial && !hasIpRequestAccess && hasEofficeAccess && !pathname.startsWith('/e-office')) {
+          router.replace('/e-office');
+        }
+
     }
   }, [isAuthenticated, user, pathname, router]);
 
