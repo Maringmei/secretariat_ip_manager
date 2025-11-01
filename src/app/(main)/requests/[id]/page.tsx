@@ -251,7 +251,7 @@ export default function RequestDetailsPage() {
     const isOfficial = user?.type === 'official';
     const canAssignIp = isOfficial && request.status_id === "1";
     const canApprove = isOfficial && request.status_id === "2" && request.can_approve;
-    const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2") && request.can_approve;
+    const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2");
     const canAssignEngineer = isOfficial && request.status_id === "3" && request.can_assign_network_engineer;
     const canCloseRequest = isOfficial && (request.status_id === "6" || request.status_id === "8") && request.can_close;
     const canCloseRequestByRequester = !isOfficial && (request.status_id === "6" || request.status_id === "8") && request.can_close;
