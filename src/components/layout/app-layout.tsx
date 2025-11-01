@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from "@/components/auth/auth-provider";
@@ -7,15 +8,6 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import Link from "next/link";
 import ProfilePage from "@/app/(main)/profile/page";
 
 export default function  AppLayout({
@@ -27,6 +19,7 @@ export default function  AppLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [isNewUser, setIsNewUser] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -43,15 +36,30 @@ export default function  AppLayout({
 
         if (needsProfile && pathname !== '/profile') {
             router.replace('/profile');
+            return;
         } else if (!needsProfile && newUserFlag) {
             // Profile has been created, clear the flag
             localStorage.removeItem('isNewUser');
         }
+
+        // Redirect logic for officials without IP Request access
+        const isOfficial = user.type === 'official';
+        const userAccess = user.access || [];
+        const hasIpRequestAccess = userAccess.includes('IP Request');
+        const hasEofficeAccess = userAccess.includes('E-Office');
+
+        if (isOfficial && !hasIpRequestAccess && hasEofficeAccess && !pathname.startsWith('/e-office')) {
+          setShouldRedirect(true);
+          router.replace('/e-office');
+        } else {
+          setShouldRedirect(false);
+        }
+
     }
   }, [isAuthenticated, user, pathname, router]);
 
 
-  if (isLoading || !isAuthenticated) {
+  if (isLoading || !isAuthenticated || shouldRedirect) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

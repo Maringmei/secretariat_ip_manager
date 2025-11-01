@@ -4,7 +4,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { useEffect, useState } from "react";
 import type { EofficeIssue, Department, Status, EofficeCategory } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, PlusCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/lib/api";
@@ -12,6 +12,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, Pagi
 import { Combobox } from "@/components/ui/combobox";
 import IssuesTable from "@/components/e-office/issues-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import Link from "next/link";
 
 interface PaginationState {
     totalCount: number;
@@ -27,7 +28,7 @@ interface EofficeIssuesListPageProps {
 }
 
 export default function EofficeIssuesListPage({ title, description, statusId }: EofficeIssuesListPageProps) {
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const { toast } = useToast();
     const [issues, setIssues] = useState<EofficeIssue[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -139,10 +140,22 @@ export default function EofficeIssuesListPage({ title, description, statusId }: 
             });
         }
     };
+    
+    const isOfficial = user?.type === 'official';
 
     return (
         <div className="flex flex-col gap-6">
-            <h1 className="font-headline text-3xl font-bold">{title}</h1>
+             <div className="flex items-center justify-between">
+                <h1 className="font-headline text-3xl font-bold">{title}</h1>
+                 {!isOfficial && (
+                    <Button asChild>
+                        <Link href="/e-office-issues/new">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            New Issue
+                        </Link>
+                    </Button>
+                )}
+            </div>
             <Card>
                 <CardHeader>
                     <CardDescription>{description}</CardDescription>
