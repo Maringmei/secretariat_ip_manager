@@ -8,7 +8,6 @@ import type { Request, Department } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Search } from "lucide-react";
 import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Button } from "./ui/button";
 import { API_BASE_URL } from "@/lib/api";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from "@/components/ui/pagination";
@@ -18,6 +17,8 @@ interface RequestListPageProps {
     title: string;
     description: string;
     statusId: number;
+    actionButton?: React.ReactNode;
+    onFiltersChange?: (filters: { name: string; reqNo: string; deptId: string }) => void;
 }
 
 interface PaginationState {
@@ -27,7 +28,7 @@ interface PaginationState {
     perPage: number;
 }
 
-export default function RequestListPage({ title, description, statusId }: RequestListPageProps) {
+export default function RequestListPage({ title, description, statusId, actionButton, onFiltersChange }: RequestListPageProps) {
     const { token } = useAuth();
     const { toast } = useToast();
     const [requests, setRequests] = useState<Request[]>([]);
@@ -113,7 +114,13 @@ export default function RequestListPage({ title, description, statusId }: Reques
         };
 
         fetchFilterData(`${API_BASE_URL}/departments`, setDepartments);
-    }, [token, toast, statusId, title]);
+    }, [token, statusId]);
+
+    useEffect(() => {
+        if (onFiltersChange) {
+            onFiltersChange({ name: searchName, reqNo: requestNumber, deptId: selectedDept });
+        }
+    }, [searchName, requestNumber, selectedDept, onFiltersChange]);
 
     const handleFilter = () => {
         fetchRequests(1, statusId, searchName, requestNumber, selectedDept);
@@ -134,7 +141,10 @@ export default function RequestListPage({ title, description, statusId }: Reques
 
     return (
         <div className="flex flex-col gap-6">
-            <h1 className="font-headline text-3xl font-bold">{title}</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="font-headline text-3xl font-bold">{title}</h1>
+                {actionButton}
+            </div>
             <Card>
                 <CardHeader>
                   
