@@ -30,7 +30,7 @@ export default function NewRequestPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">New IP Address Request</CardTitle>
+        
           <CardDescription>
             {requestFor ? "Please provide the following details for your device. Your profile information is automatically included." : "Who is this IP request for?"}
           </CardDescription>
