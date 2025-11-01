@@ -328,7 +328,7 @@ export default function RequestDetailsPage() {
                         <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
                     )}
                     {canUpdateIp && (
-                        <Button onClick={() => setIsUpdateIpOpen(true)} disabled={isActionLoading}>Update allocated IP</Button>
+                        <Button onClick={() => setIsUpdateIpOpen(true)} disabled={isActionLoading}>Update Allocated IP</Button>
                     )}
                     {canApprove && (
                         <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
@@ -493,3 +493,5 @@ export default function RequestDetailsPage() {
         </>
     )
 }
+
+    
