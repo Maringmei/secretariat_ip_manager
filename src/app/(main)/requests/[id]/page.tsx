@@ -251,7 +251,7 @@ export default function RequestDetailsPage() {
     const isOfficial = user?.type === 'official';
     const canAssignIp = isOfficial && request.status_id === "1";
     const canApprove = isOfficial && request.status_id === "2" && request.can_approve;
-    const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2");
+    const canReject = request.can_reject;
     const canAssignEngineer = isOfficial && request.status_id === "3" && request.can_assign_network_engineer;
     const canCloseRequest = isOfficial && (request.status_id === "6" || request.status_id === "8") && request.can_close;
     const canCloseRequestByRequester = !isOfficial && (request.status_id === "6" || request.status_id === "8") && request.can_close;
@@ -263,8 +263,9 @@ export default function RequestDetailsPage() {
     const canReopen = canReopenAsOfficial || canReopenAsRequester;
 
     const canEdit = !isOfficial && request.can_edit;
-    const canRejectByRequester = !isOfficial && request.can_reject;
+    // const canRejectByRequester = !isOfficial && request.can_reject;
 
+  
 
     return (
         <>
@@ -314,16 +315,14 @@ export default function RequestDetailsPage() {
                         <Button onClick={() => setIsReopenRequestOpen(true)} disabled={isActionLoading}>Reopen</Button>
                     )}
                     {canEdit && (
-                         <Button asChild variant="outline">
+                         <Button asChild variant="default">
                             <Link href={`/requests/${id}/edit`}>
                                 <Edit className="mr-2 h-4 w-4"/>
                                 Edit Request
                             </Link>
                          </Button>
                     )}
-                    {canRejectByRequester && (
-                        <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
-                    )}
+                    
                 </div>
             </div>
 
