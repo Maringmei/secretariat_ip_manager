@@ -93,6 +93,9 @@ export interface Request {
   can_assign_network_engineer? : boolean; 
   service_time? : string;
   service_time_label? : string;
+  can_reject? : boolean;
+  can_edit? : boolean;
+
 
 
   // Fields for table view (might be deprecated if details are always fetched)

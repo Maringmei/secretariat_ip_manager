@@ -9,7 +9,7 @@ import type { Request, WorkflowStep } from '@/lib/types';
 import WorkflowTimeline from '@/components/workflow-timeline';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, File, Loader2, Timer } from 'lucide-react';
+import { ArrowLeft, File, Loader2, Timer, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AssignIpDialog } from '@/components/requests/assign-ip-dialog';
 import { useCounter } from '@/components/counter/counter-provider';
@@ -249,7 +249,6 @@ export default function RequestDetailsPage() {
     }
     
     const isOfficial = user?.type === 'official';
-    const isRequester = user?.type === 'requester';
     const canAssignIp = isOfficial && request.status_id === "1";
     const canApprove = isOfficial && request.status_id === "2" && request.can_approve;
     const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2") && request.can_approve;
@@ -258,11 +257,13 @@ export default function RequestDetailsPage() {
     const canCloseRequestByRequester = !isOfficial && (request.status_id === "6" || request.status_id === "8") && request.can_close;
     
     const isClosed = request.status_id === "7";
-    const isApproved = request.status_id === "3";
 
     const canReopenAsOfficial = isOfficial && isClosed;
     const canReopenAsRequester = !isOfficial && isClosed;
     const canReopen = canReopenAsOfficial || canReopenAsRequester;
+
+    const canEdit = !isOfficial && request.can_edit;
+    const canRejectByRequester = !isOfficial && request.can_reject;
 
 
     return (
@@ -306,13 +307,23 @@ export default function RequestDetailsPage() {
                     {canReject && (
                         <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
                     )}
-                        {canAssignEngineer && (
+                    {canAssignEngineer && (
                         <Button onClick={() => setIsAssignEngineerOpen(true)} disabled={isActionLoading}>Assign Network Engineer</Button>
                     )}
                     {canReopen && (
                         <Button onClick={() => setIsReopenRequestOpen(true)} disabled={isActionLoading}>Reopen</Button>
                     )}
-                
+                    {canEdit && (
+                         <Button asChild variant="outline">
+                            <Link href={`/requests/${id}/edit`}>
+                                <Edit className="mr-2 h-4 w-4"/>
+                                Edit Request
+                            </Link>
+                         </Button>
+                    )}
+                    {canRejectByRequester && (
+                        <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
+                    )}
                 </div>
             </div>
 
