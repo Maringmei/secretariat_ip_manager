@@ -13,11 +13,12 @@ import type { User, Department } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { File, Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/auth-provider';
 import { API_BASE_URL } from '@/lib/api';
 import { Combobox } from '@/components/ui/combobox';
 import { FileUpload } from './ui/file-upload';
+import Link from 'next/link';
 
 const profileSchema = z.object({
   first_name: z.string().min(2, 'First name is required'),
@@ -75,6 +76,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const [departments, setDepartments] = useState<Department[]>([]);
   const { token, user: authUser, login } = useAuth();
   const [hasEinSin, setHasEinSin] = useState(true);
+  const [existingIdCardFile, setExistingIdCardFile] = useState<string | null>(null);
   
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -143,6 +145,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     email: profileData.email || '',
                     whatsapp_no: profileData.whatsapp_no || authUser?.whatsapp_no || '',
                 });
+
+                 if (profileData.id_card_file) {
+                    setExistingIdCardFile(profileData.id_card_file);
+                }
 
                 if (profileData.ein_sin) {
                     setHasEinSin(true);
@@ -365,22 +371,35 @@ export function ProfileForm({ user }: ProfileFormProps) {
                             <FormMessage />
                         </FormItem>
                     )}/>
-                    <FormField
-                        control={form.control}
-                        name="id_card_file"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Upload ID Card</FormLabel>
-                            <FormControl>
-                            <FileUpload
-                                onFileSelect={(file) => field.onChange(file)}
-                                fileType=".pdf,.jpg,.jpeg,.png"
-                            />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
+                    <div className='space-y-2'>
+                        <FormField
+                            control={form.control}
+                            name="id_card_file"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Upload ID Card</FormLabel>
+                                <FormControl>
+                                <FileUpload
+                                    onFileSelect={(file) => {
+                                        field.onChange(file);
+                                        if (file) setExistingIdCardFile(null); // Clear existing file URL if a new file is selected
+                                    }}
+                                    fileType=".pdf,.jpg,.jpeg,.png"
+                                />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        {existingIdCardFile && (
+                             <div className='flex items-center'>
+                                <File className="h-4 w-4 mr-2 text-muted-foreground" />
+                                <Link href={existingIdCardFile} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                                    View ID Card
+                                </Link>
+                            </div>
                         )}
-                    />
+                    </div>
                 </>
              )}
 
@@ -415,5 +434,3 @@ export function ProfileForm({ user }: ProfileFormProps) {
     </Form>
   );
 }
-
-    
