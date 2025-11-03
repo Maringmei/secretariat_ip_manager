@@ -23,21 +23,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const storedToken = localStorage.getItem('accessToken');
-      const userData = localStorage.getItem('userData');
-      if (storedToken && userData) {
-        setIsAuthenticated(true);
-        setUser(JSON.parse(userData));
-        setToken(storedToken);
-      }
-    } catch (error) {
-        console.error("Failed to parse auth data from localStorage", error);
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('userData');
-    } finally {
-        setIsLoading(false);
-    }
+    const checkAuthStatus = async () => {
+        try {
+            const storedToken = localStorage.getItem('accessToken');
+            const storedUserData = localStorage.getItem('userData');
+
+            if (storedToken && storedUserData) {
+                let userData = JSON.parse(storedUserData);
+                
+                // Re-fetch access rights on every page load
+                try {
+                    const accessResponse = await fetch(`${API_BASE_URL}/auth/access`, {
+                        headers: { 'Authorization': `Bearer ${storedToken}` }
+                    });
+                    const accessResult = await accessResponse.json();
+                    if (accessResult.success && Array.isArray(accessResult.data)) {
+                        userData.access = accessResult.data;
+                        localStorage.setItem('userData', JSON.stringify(userData)); // Update localStorage
+                    }
+                } catch (e) {
+                    console.error("Could not re-fetch access rights, using stored ones.", e);
+                }
+
+                setToken(storedToken);
+                setUser(userData);
+                setIsAuthenticated(true);
+            }
+        } catch (error) {
+            console.error("Failed to parse auth data from localStorage", error);
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('userData');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    checkAuthStatus();
   }, []);
 
   const login = async (token: string, userData: any) => {
