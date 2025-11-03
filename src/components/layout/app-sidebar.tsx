@@ -150,7 +150,7 @@ export default function AppSidebar() {
   const renderCollapsibleMenu = (
     menuKey: string,
     label: string,
-    icon: LucideIcon,
+    Icon: LucideIcon,
     items: MenuItem[]
   ) => {
     const isVisible = items.some(isMenuItemVisible);
@@ -163,7 +163,7 @@ export default function AppSidebar() {
         <CollapsibleTrigger asChild>
           <SidebarMenuButton isActive={isActive} className="justify-between">
             <div className="flex items-center gap-2">
-              <icon />
+              <Icon />
               <span>{label}</span>
             </div>
             <ChevronDown className={cn("transition-transform", openMenus.includes(menuKey) && "rotate-180")} />
@@ -175,6 +175,7 @@ export default function AppSidebar() {
               if (!isMenuItemVisible(item)) return null;
               const countData = item.countKey ? counts[item.countKey] : undefined;
               const itemIsActive = isLinkActive(pathname, item.href, item.exact);
+              const ItemIcon = item.icon;
 
               return (
                 <Link
@@ -186,7 +187,7 @@ export default function AppSidebar() {
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <item.icon />
+                    <ItemIcon />
                     <span>{item.label}</span>
                   </div>
                   {countData && countData.count > 0 && (
