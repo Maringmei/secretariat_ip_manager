@@ -19,6 +19,7 @@ interface MyRequestsListPageProps {
     description: string;
     statusIds: number[];
     showFilters?: boolean;
+    onFiltersChange?: (filters: { name: string; reqNo: string; deptId: string }) => void;
 }
 
 interface PaginationState {
@@ -28,7 +29,7 @@ interface PaginationState {
     perPage: number;
 }
 
-export default function MyRequestsListPage({ title, description, statusIds, showFilters = false }: MyRequestsListPageProps) {
+export default function MyRequestsListPage({ title, description, statusIds, showFilters = false, onFiltersChange }: MyRequestsListPageProps) {
     const { token } = useAuth();
     const { toast } = useToast();
     const [requests, setRequests] = useState<Request[]>([]);
@@ -122,6 +123,9 @@ export default function MyRequestsListPage({ title, description, statusIds, show
 
     const handleFilter = () => {
         fetchRequests(1, searchName, requestNumber, selectedDept);
+        if (onFiltersChange) {
+            onFiltersChange({ name: searchName, reqNo: requestNumber, deptId: selectedDept });
+        }
     }
     
     const handleClearFilters = () => {
@@ -129,6 +133,9 @@ export default function MyRequestsListPage({ title, description, statusIds, show
         setRequestNumber("");
         setSelectedDept("");
         fetchRequests(1);
+        if (onFiltersChange) {
+            onFiltersChange({ name: "", reqNo: "", deptId: "" });
+        }
     };
 
     const handlePageChange = (newPage: number) => {

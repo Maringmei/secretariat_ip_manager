@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import type { Block, ConnectionSpeed, Department, User, Floor } from '@/lib/types';
+import type { Block, ConnectionSpeed, Department, User, Floor, Request } from '@/lib/types';
 import { useAuth } from '@/components/auth/auth-provider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { API_BASE_URL } from '@/lib/api';
@@ -46,7 +46,7 @@ const requestSchema = z.object({
   e_office_onboarded: z.enum(['1', '0'], { required_error: 'This field is required.' }),
   consent: z.literal<boolean>(true, {
     errorMap: () => ({ message: 'You must agree to the terms to proceed.' }),
-  }),
+  }).optional(),
 }).superRefine((data, ctx) => {
     if (!data.ein_sin && !data.id_card_no) {
         ctx.addIssue({
@@ -55,6 +55,7 @@ const requestSchema = z.object({
             message: 'ID Number is required if you do not have an EIN/SIN.',
         });
     }
+    // For new submissions, a file is required if no EIN/SIN
     if (!data.ein_sin && !data.id_card_file) {
          ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -72,10 +73,12 @@ const requestSchema = z.object({
 });
 
 interface RequestFormProps {
-    isForSelf: boolean;
+    isForSelf?: boolean;
+    isEditing?: boolean;
+    existingRequest?: Request;
 }
 
-export default function RequestForm({ isForSelf }: RequestFormProps) {
+export default function RequestForm({ isForSelf, isEditing = false, existingRequest }: RequestFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -95,7 +98,7 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
       room_no: '',
       reporting_officer: '',
       section: '',
-      consent: false,
+      consent: isEditing ? true : false,
       first_name: '',
       last_name: '',
       email: '',
@@ -109,89 +112,12 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
 
   const selectedBlockId = form.watch('block_id');
 
-  useEffect(() => {
-    const fetchProfileForSelf = async () => {
-        if (token && isForSelf && departments.length > 0) {
-            setIsFormLoading(true);
-            try {
-                const response = await fetch(`${API_BASE_URL}/requesters/0`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const result = await response.json();
-                if (result.success && result.data) {
-                    const profile: User = result.data;
-                    const userDepartment = departments.find(d => d.name === profile.department_name);
-
-                    form.reset({
-                        first_name: profile.first_name || '',
-                        last_name: profile.last_name || '',
-                        email: profile.email || '',
-                        whatsapp_no: profile.whatsapp_no || '',
-                        designation: profile.designation || '',
-                        department_id: userDepartment ? String(userDepartment.id) : undefined,
-                        ein_sin: profile.ein_sin || undefined,
-                        id_card_no: profile.id_card_no || undefined,
-                        id_card_file: profile.id_card_file || undefined,
-                        // Reset other fields
-                        mac_address: '',
-                        room_no: '',
-                        reporting_officer: '',
-                        section: '',
-                        consent: false,
-                        e_office_onboarded: undefined,
-                    });
-
-                    if (!profile.ein_sin && (profile.id_card_no || profile.id_card_file)) {
-                        setHasEinSin(false);
-                    } else {
-                        setHasEinSin(true);
-                    }
-                } else {
-                     toast({ title: "Note", description: "Could not fetch profile. Please fill out the form manually.", variant: "default" });
-                }
-            } catch (error) {
-                 toast({ title: "Error", description: "An error occurred while fetching your profile.", variant: "destructive" });
-            } finally {
-                setIsFormLoading(false);
-            }
-        } else {
-            setIsFormLoading(false);
-        }
-    }
-
-    if (isForSelf) {
-        if (departments.length > 0) {
-            fetchProfileForSelf();
-        }
-    } else {
-         form.reset({
-            mac_address: '',
-            room_no: '',
-            reporting_officer: '',
-            section: '',
-            consent: false,
-            first_name: '',
-            last_name: '',
-            email: '',
-            whatsapp_no: '',
-            designation: '',
-            e_office_onboarded: undefined,
-        });
-        setHasEinSin(true);
-        setIsFormLoading(false);
-    }
-  }, [user, form, isForSelf, token, toast, departments]);
-
-
+  // Universal data fetcher for dropdowns
   useEffect(() => {
     const fetchData = async (url: string, setData: (data: any[]) => void, type: string) => {
         if (!token) return;
          try {
-            const response = await fetch(url, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
             const result = await response.json();
             if (result.success) {
                 const activeItems = result.data.filter((item: any) => item.is_active !== 0);
@@ -203,41 +129,117 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
             toast({ title: 'Error', description: `An error occurred while loading ${type}.`, variant: 'destructive' });
         }
     };
-
     fetchData(`${API_BASE_URL}/blocks`, setBlocks, 'blocks');
     fetchData(`${API_BASE_URL}/departments`, setDepartments, 'departments');
-
   }, [toast, token]);
 
+  // Pre-fill form logic
   useEffect(() => {
-    const fetchFloors = async (blockId: string) => {
-        if (!token || !blockId) return;
-        setIsFloorsLoading(true);
-        setFloors([]);
-        form.setValue('floor_id', '');
-        try {
-            const response = await fetch(`${API_BASE_URL}/blocks/${blockId}/floors`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const result = await response.json();
-            if (result.success) {
-                setFloors(result.data);
-            } else {
-                setFloors([]);
-                toast({ title: 'Error', description: 'Could not load floors for the selected block.', variant: 'destructive' });
-            }
-        } catch (error) {
-            setFloors([]);
-            toast({ title: 'Error', description: 'An error occurred while fetching floors.', variant: 'destructive' });
-        } finally {
-            setIsFloorsLoading(false);
+    if (departments.length === 0) return;
+
+    const prefillForm = (data: User | Request) => {
+      const userDepartment = departments.find(d => d.name === data.department_name);
+      
+      form.reset({
+        first_name: data.first_name || '',
+        last_name: data.last_name || '',
+        email: data.email || '',
+        whatsapp_no: 'mobile_no' in data ? data.mobile_no : data.whatsapp_no || '',
+        designation: data.designation || '',
+        department_id: userDepartment ? String(userDepartment.id) : undefined,
+        ein_sin: data.ein_sin || undefined,
+        id_card_no: data.id_card_no || undefined,
+        id_card_file: data.id_card_file || undefined,
+        mac_address: 'mac_address' in data ? data.mac_address : '',
+        room_no: 'room_no' in data ? data.room_no : '',
+        reporting_officer: 'reporting_officer' in data ? data.reporting_officer : '',
+        section: 'section' in data ? data.section : '',
+        e_office_onboarded: 'e_office_onboarded' in data ? data.e_office_onboarded : undefined,
+        block_id: blocks.find(b => b.name === ('block_name' in data ? data.block_name : ''))?.id.toString(),
+        floor_id: 'floor_id' in data ? data.floor_id : undefined, // This needs to be fetched
+        consent: isEditing ? true : false,
+      });
+
+      if (!data.ein_sin && (data.id_card_no || data.id_card_file)) {
+        setHasEinSin(false);
+      } else {
+        setHasEinSin(true);
+      }
+
+      // If editing, we need to fetch floors for the pre-selected block
+      if (isEditing && 'block_name' in data) {
+        const block = blocks.find(b => b.name === data.block_name);
+        if (block) {
+          fetchFloors(block.id.toString(), data.floor_name);
         }
+      }
     };
 
-    if (selectedBlockId) {
-        fetchFloors(selectedBlockId);
+    if (isEditing && existingRequest) {
+      prefillForm(existingRequest);
+      setIsFormLoading(false);
+    } else if (isForSelf && !isEditing) {
+      setIsFormLoading(true);
+      fetch(`${API_BASE_URL}/requesters/0`, { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(result => {
+          if (result.success && result.data) {
+            prefillForm(result.data);
+          } else {
+            toast({ title: "Note", description: "Could not fetch profile. Please fill out the form manually.", variant: "default" });
+          }
+        })
+        .catch(() => toast({ title: "Error", description: "An error occurred while fetching your profile.", variant: "destructive" }))
+        .finally(() => setIsFormLoading(false));
+    } else {
+      setIsFormLoading(false);
+      if(!isEditing) {
+        form.reset({
+            mac_address: '', room_no: '', reporting_officer: '', section: '',
+            consent: false, first_name: '', last_name: '', email: '',
+            whatsapp_no: '', designation: '', e_office_onboarded: undefined,
+        });
+      }
     }
-  }, [selectedBlockId, token, toast, form]);
+  }, [isForSelf, isEditing, existingRequest, token, departments, blocks, form, toast]);
+
+  const fetchFloors = async (blockId: string, floorToSelect?: string) => {
+    if (!token || !blockId) return;
+    setIsFloorsLoading(true);
+    setFloors([]);
+    form.setValue('floor_id', '');
+    try {
+        const response = await fetch(`${API_BASE_URL}/blocks/${blockId}/floors`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const result = await response.json();
+        if (result.success) {
+            setFloors(result.data);
+            if (floorToSelect) {
+              const floor = result.data.find((f: Floor) => f.name === floorToSelect);
+              if (floor) {
+                form.setValue('floor_id', floor.id.toString());
+              }
+            }
+        } else {
+            toast({ title: 'Error', description: 'Could not load floors.', variant: 'destructive' });
+        }
+    } catch (error) {
+        toast({ title: 'Error', description: 'An error occurred while fetching floors.', variant: 'destructive' });
+    } finally {
+        setIsFloorsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedBlockId) {
+      // Don't refetch if we are editing and floors are already loaded.
+      const floorValue = form.getValues('floor_id');
+      if (isEditing && floors.length > 0 && floorValue) {
+        return;
+      }
+      fetchFloors(selectedBlockId);
+    }
+  }, [selectedBlockId, isEditing]);
+
 
   const uploadFile = async (file: File): Promise<string | undefined> => {
     if (!token) return undefined;
@@ -259,25 +261,21 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
         throw new Error(`Failed to upload ${file.name}: ${result.message}`);
       }
     } catch (error: any) {
-      toast({
-        title: 'File Upload Failed',
-        description: error.message,
-        variant: 'destructive',
-      });
+      toast({ title: 'File Upload Failed', description: error.message, variant: 'destructive' });
       return undefined;
     }
   };
 
   async function onSubmit(values: z.infer<typeof requestSchema>) {
     if (!token || !user) {
-        toast({ title: 'Authentication Error', description: 'Could not verify user. Please log in again.', variant: 'destructive'});
+        toast({ title: 'Authentication Error', description: 'Could not verify user.', variant: 'destructive'});
         return;
     }
 
     setIsLoading(true);
     
-    let idCardUrl;
-    if (!hasEinSin && values.id_card_file?.[0]) {
+    let idCardUrl = values.id_card_file; // Keep existing URL if not changed
+    if (!hasEinSin && values.id_card_file?.[0] && typeof values.id_card_file[0] !== 'string') {
       idCardUrl = await uploadFile(values.id_card_file[0]);
       if (!idCardUrl) { setIsLoading(false); return; }
     }
@@ -302,17 +300,16 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
       requestBody.ein_sin = values.ein_sin;
     } else {
       requestBody.id_card_no = values.id_card_no;
-      requestBody.id_card_file = idCardUrl;
+      if(idCardUrl) requestBody.id_card_file = idCardUrl;
     }
 
+    const url = isEditing ? `${API_BASE_URL}/ip-requests/${existingRequest?.id}` : `${API_BASE_URL}/ip-requests`;
+    const method = isEditing ? 'PUT' : 'POST';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/ip-requests`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify(requestBody),
         });
 
@@ -320,20 +317,16 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
 
         if (result.success) {
             toast({
-                title: 'Request Submitted!',
-                description: result.message || 'Your IP request has been submitted for processing.',
+                title: `Request ${isEditing ? 'Updated' : 'Submitted'}!`,
+                description: result.message || `Your IP request has been ${isEditing ? 'updated' : 'submitted'}.`,
             });
-            router.push('/dashboard');
+            router.push(isEditing ? `/requests/${existingRequest?.id}` : '/dashboard');
+            router.refresh();
         } else {
-            throw new Error(result.message || 'Failed to submit request.');
+            throw new Error(result.message || `Failed to ${isEditing ? 'update' : 'submit'} request.`);
         }
-
     } catch (error: any) {
-        toast({
-            title: 'Submission Failed',
-            description: error.message || 'An unexpected error occurred.',
-            variant: 'destructive'
-        });
+        toast({ title: 'Submission Failed', description: error.message, variant: 'destructive' });
     } finally {
         setIsLoading(false);
     }
@@ -349,106 +342,98 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
         <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-            <Card className="bg-secondary/50">
-                <CardHeader>
-                    <CardTitle className="font-headline text-lg">Applicant Information</CardTitle>
-                    <CardDescription>
-                        {isForSelf 
-                            ? "This information from your profile will be submitted with your request. You can edit it if needed." 
-                            : "Enter the information for the employee this request is for."
-                        }
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6 pt-6">
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        <FormField control={form.control} name="first_name" render={({ field }) => (
-                            <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Applicant's first name" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={form.control} name="last_name" render={({ field }) => (
-                            <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Applicant's last name" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={form.control} name="designation" render={({ field }) => (
-                            <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="Applicant's designation" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        <FormField
-                            control={form.control}
-                            name="department_id"
-                            render={({ field }) => (
-                                <FormItem className='flex flex-col'>
-                                <FormLabel>Department</FormLabel>
-                                <Combobox
-                                    options={departments.map(d => ({ value: String(d.id), label: d.name }))}
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    placeholder="Select a department"
-                                    searchPlaceholder='Search departments...'
-                                />
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         {hasEinSin ? (
-                             <FormField control={form.control} name="ein_sin" render={({ field }) => (
-                                <FormItem>
-                                    <div className="flex items-center justify-between">
-                                        <FormLabel>EIN / SIN</FormLabel>
-                                        <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => {
-                                            setHasEinSin(false);
-                                            form.setValue('ein_sin', undefined);
-                                        }}>
-                                            Does not have EIN/SIN
-                                        </Button>
-                                    </div>
-                                    <FormControl><Input placeholder="Applicant's Employee/Service ID" {...field} value={field.value ?? ''} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
+            {!isEditing && (
+                 <Card className="bg-secondary/50">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-lg">Applicant Information</CardTitle>
+                        <CardDescription>
+                            {isForSelf 
+                                ? "This information from your profile will be submitted with your request. You can edit it if needed." 
+                                : "Enter the information for the employee this request is for."
+                            }
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6 pt-6">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            <FormField control={form.control} name="first_name" render={({ field }) => (
+                                <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="Applicant's first name" {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
-                         ) : (
-                            <>
-                                <FormField control={form.control} name="id_card_no" render={({ field }) => (
+                            <FormField control={form.control} name="last_name" render={({ field }) => (
+                                <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Applicant's last name" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={form.control} name="designation" render={({ field }) => (
+                                <FormItem><FormLabel>Designation</FormLabel><FormControl><Input placeholder="Applicant's designation" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField
+                                control={form.control}
+                                name="department_id"
+                                render={({ field }) => (
+                                    <FormItem className='flex flex-col'>
+                                    <FormLabel>Department</FormLabel>
+                                    <Combobox
+                                        options={departments.map(d => ({ value: String(d.id), label: d.name }))}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Select a department"
+                                        searchPlaceholder='Search departments...'
+                                    />
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            {hasEinSin ? (
+                                <FormField control={form.control} name="ein_sin" render={({ field }) => (
                                     <FormItem>
                                         <div className="flex items-center justify-between">
-                                            <FormLabel>ID Number</FormLabel>
-                                             <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => {
-                                                setHasEinSin(true);
-                                                form.setValue('id_card_no', undefined);
-                                                form.setValue('id_card_file', undefined);
-                                            }}>
-                                                Have an EIN/SIN?
+                                            <FormLabel>EIN / SIN</FormLabel>
+                                            <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => setHasEinSin(false)}>
+                                                Does not have EIN/SIN
                                             </Button>
                                         </div>
-                                        <FormControl><Input placeholder="Government ID Number" {...field} value={field.value ?? ''} /></FormControl>
+                                        <FormControl><Input placeholder="Applicant's Employee/Service ID" {...field} value={field.value ?? ''} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}/>
-                                <FormField
-                                    control={form.control}
-                                    name="id_card_file"
-                                    render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Upload ID Card</FormLabel>
-                                        <FormControl>
-                                        <FileUpload
-                                            onFileSelect={(file) => field.onChange(file)}
-                                            fileType=".pdf,.jpg,.jpeg,.png"
-                                        />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                    )}
-                                />
-                            </>
-                         )}
+                            ) : (
+                                <>
+                                    <FormField control={form.control} name="id_card_no" render={({ field }) => (
+                                        <FormItem>
+                                            <div className="flex items-center justify-between">
+                                                <FormLabel>ID Number</FormLabel>
+                                                <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => setHasEinSin(true)}>
+                                                    Have an EIN/SIN?
+                                                </Button>
+                                            </div>
+                                            <FormControl><Input placeholder="Government ID Number" {...field} value={field.value ?? ''} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}/>
+                                    <FormField
+                                        control={form.control}
+                                        name="id_card_file"
+                                        render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Upload ID Card</FormLabel>
+                                            <FormControl>
+                                                <FileUpload onFileSelect={(file) => field.onChange(file)} fileType=".pdf,.jpg,.jpeg,.png"/>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                        )}
+                                    />
+                                </>
+                            )}
 
-                        <FormField control={form.control} name="email" render={({ field }) => (
-                            <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="applicant.email@gov.in" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={form.control} name="whatsapp_no" render={({ field }) => (
-                            <FormItem><FormLabel>WhatsApp No.</FormLabel><FormControl><Input placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                    </div>
-                </CardContent>
-            </Card>
+                            <FormField control={form.control} name="email" render={({ field }) => (
+                                <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" placeholder="applicant.email@gov.in" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={form.control} name="whatsapp_no" render={({ field }) => (
+                                <FormItem><FormLabel>WhatsApp No.</FormLabel><FormControl><Input placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             <Card>
                 <CardHeader>
@@ -479,36 +464,40 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                         )}/>
                         </div>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        <FormField control={form.control} name="block_id" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Block</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Select a block" /></SelectTrigger></FormControl>
-                            <SelectContent>{blocks.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>)}</SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                        )}/>
-                        <FormField control={form.control} name="floor_id" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Floor</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value} disabled={!selectedBlockId || isFloorsLoading}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder={
-                                                isFloorsLoading ? "Loading floors..." :
-                                                !selectedBlockId ? "Select a block first" :
-                                                "Select a floor"
-                                            } />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {floors.map(f => <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}/>
+                        <FormField
+                            control={form.control}
+                            name="block_id"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Block</FormLabel>
+                                    <Combobox
+                                        options={blocks.map(b => ({ value: String(b.id), label: b.name }))}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Select a block"
+                                        searchPlaceholder="Search blocks..."
+                                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="floor_id"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Floor</FormLabel>
+                                    <Combobox
+                                        options={floors.map(f => ({ value: String(f.id), label: f.name }))}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder={isFloorsLoading ? "Loading..." : !selectedBlockId ? "Select block first" : "Select a floor"}
+                                        searchPlaceholder="Search floors..."
+                                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField control={form.control} name="e_office_onboarded" render={({ field }) => (
                             <FormItem className="space-y-3">
                             <FormLabel>E-office Onboarded?</FormLabel>
@@ -525,22 +514,24 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
                 </CardContent>
             </Card>
 
-            <FormField control={form.control} name="consent" render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                    <div className="space-y-1 leading-none">
-                        <FormLabel>Consent</FormLabel>
-                        <p className="text-sm text-muted-foreground">
-                        I hereby agree that the allotted internet connection will be used strictly for official Government work in accordance with IT security and usage policies.
-                        </p>
-                        <FormMessage />
-                    </div>
-                </FormItem>
-            )}/>
+            {!isEditing && (
+                <FormField control={form.control} name="consent" render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <div className="space-y-1 leading-none">
+                            <FormLabel>Consent</FormLabel>
+                            <p className="text-sm text-muted-foreground">
+                            I hereby agree that the allotted internet connection will be used strictly for official Government work in accordance with IT security and usage policies.
+                            </p>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                )}/>
+            )}
             <div className="flex justify-end">
                 <Button type="submit" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Submit Request
+                    {isEditing ? 'Save Changes' : 'Submit Request'}
                 </Button>
             </div>
         </form>
@@ -553,5 +544,3 @@ export default function RequestForm({ isForSelf }: RequestFormProps) {
     </>
   );
 }
-
-    

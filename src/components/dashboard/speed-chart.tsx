@@ -18,7 +18,7 @@ interface SpeedChartProps {
 export default function SpeedChart({ data }: SpeedChartProps) {
     if (!data) return null;
 
-    const chartData = data.map((speed, index) => {
+    const chartData = data.filter(speed => speed.connection_speed_name).map((speed, index) => {
         const hue = (index * 137.5) % 360; // Use golden angle for distinct colors
         return { 
             name: speed.connection_speed_name, 
@@ -31,7 +31,7 @@ export default function SpeedChart({ data }: SpeedChartProps) {
         count: {
             label: "Count",
         },
-        ...Object.fromEntries(chartData.map(d => [d.name.replace(/\s/g, ''), { label: d.name, color: d.fill }]))
+        ...Object.fromEntries(chartData.map(d => [(d.name || '').replace(/\s/g, ''), { label: d.name, color: d.fill }]))
     };
 
     if (chartData.length === 0) {

@@ -9,7 +9,7 @@ import type { Request, WorkflowStep } from '@/lib/types';
 import WorkflowTimeline from '@/components/workflow-timeline';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, File, Loader2, Timer } from 'lucide-react';
+import { ArrowLeft, File, Loader2, Timer, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AssignIpDialog } from '@/components/requests/assign-ip-dialog';
 import { useCounter } from '@/components/counter/counter-provider';
@@ -20,6 +20,7 @@ import { AssignEngineerDialog } from '@/components/requests/assign-engineer-dial
 import { CloseRequestDialog } from '@/components/requests/close-request-dialog';
 import { ReopenRequestDialog } from '@/components/requests/reopen-request-dialog';
 import Link from 'next/link';
+import { UpdateIpAllocationDialog } from '@/components/requests/update-ip-allocation-dialog';
 
 export default function RequestDetailsPage() {
     const { id } = useParams<{ id: string }>();
@@ -40,6 +41,7 @@ export default function RequestDetailsPage() {
     const [isAssignEngineerOpen, setIsAssignEngineerOpen] = useState(false);
     const [isCloseRequestOpen, setIsCloseRequestOpen] = useState(false);
     const [isReopenRequestOpen, setIsReopenRequestOpen] = useState(false);
+    const [isUpdateIpOpen, setIsUpdateIpOpen] = useState(false);
 
 
     const fetchRequestDetails = async () => {
@@ -187,6 +189,35 @@ export default function RequestDetailsPage() {
             setIsActionLoading(false);
         }
     };
+    
+    const handleUpdateIpAllocation = async (data: { ipAddressId: number; speedId: number; remark?: string }) => {
+        if (!token || !request) return;
+        setIsActionLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/ip-requests/${id}/update-ip-allocation`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                body: JSON.stringify({
+                    ip_address_id: data.ipAddressId,
+                    connection_speed_id: data.speedId,
+                    remark: data.remark,
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                toast({ title: "Success", description: "IP allocation has been updated." });
+                setIsUpdateIpOpen(false);
+                refreshData();
+            } else {
+                throw new Error(result.message || "Failed to update IP allocation.");
+            }
+        } catch(error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive"});
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
 
     const handleApprove = async ({ remark }: { remark?: string }) => {
         await handleWorkflowAction(3, remark);
@@ -249,21 +280,23 @@ export default function RequestDetailsPage() {
     }
     
     const isOfficial = user?.type === 'official';
-    const isRequester = user?.type === 'requester';
     const canAssignIp = isOfficial && request.status_id === "1";
     const canApprove = isOfficial && request.status_id === "2" && request.can_approve;
-    const canReject = isOfficial && (request.status_id === "1" || request.status_id === "2") && request.can_approve;
+    const canReject = request.can_reject;
     const canAssignEngineer = isOfficial && request.status_id === "3" && request.can_assign_network_engineer;
     const canCloseRequest = isOfficial && (request.status_id === "6" || request.status_id === "8") && request.can_close;
     const canCloseRequestByRequester = !isOfficial && (request.status_id === "6" || request.status_id === "8") && request.can_close;
     
     const isClosed = request.status_id === "7";
-    const isApproved = request.status_id === "3";
 
     const canReopenAsOfficial = isOfficial && isClosed;
     const canReopenAsRequester = !isOfficial && isClosed;
     const canReopen = canReopenAsOfficial || canReopenAsRequester;
 
+    const canEdit = !isOfficial && request.can_edit;
+    const canUpdateIp = isOfficial && request.can_update_ip;
+
+  
 
     return (
         <>
@@ -294,6 +327,9 @@ export default function RequestDetailsPage() {
                     {canAssignIp && (
                         <Button onClick={() => setIsAssignIpOpen(true)} disabled={isActionLoading}>Assign IP Address</Button>
                     )}
+                    {canUpdateIp && (
+                        <Button onClick={() => setIsUpdateIpOpen(true)} disabled={isActionLoading}>Update Allocated IP</Button>
+                    )}
                     {canApprove && (
                         <Button onClick={() => setIsApproveOpen(true)} disabled={isActionLoading}>Approve</Button>
                     )}
@@ -306,13 +342,21 @@ export default function RequestDetailsPage() {
                     {canReject && (
                         <Button variant="destructive" onClick={() => setIsRejectOpen(true)} disabled={isActionLoading}>Reject</Button>
                     )}
-                        {canAssignEngineer && (
+                    {canAssignEngineer && (
                         <Button onClick={() => setIsAssignEngineerOpen(true)} disabled={isActionLoading}>Assign Network Engineer</Button>
                     )}
                     {canReopen && (
                         <Button onClick={() => setIsReopenRequestOpen(true)} disabled={isActionLoading}>Reopen</Button>
                     )}
-                
+                    {canEdit && (
+                         <Button asChild variant="default">
+                            <Link href={`/requests/${id}/edit`}>
+                                <Edit className="mr-2 h-4 w-4"/>
+                                Edit Request
+                            </Link>
+                         </Button>
+                    )}
+                    
                 </div>
             </div>
 
@@ -400,6 +444,16 @@ export default function RequestDetailsPage() {
                 requestId={Number(id)}
             />
         )}
+
+        {canUpdateIp && (
+            <UpdateIpAllocationDialog
+                isOpen={isUpdateIpOpen}
+                onClose={() => setIsUpdateIpOpen(false)}
+                onConfirm={handleUpdateIpAllocation}
+                isSubmitting={isActionLoading}
+                requestId={Number(id)}
+            />
+        )}
         
         <ApproveRequestDialog
             isOpen={isApproveOpen}
@@ -440,3 +494,5 @@ export default function RequestDetailsPage() {
         </>
     )
 }
+
+    
