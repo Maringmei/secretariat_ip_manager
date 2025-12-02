@@ -221,14 +221,14 @@ export default function AppSidebar() {
             {userType === 'requester' && (
               <>
                 {renderCollapsibleMenu('ipRequest', 'IP Request', FileText, ipRequestChildItems)}
-                {renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)}
+                {/* {renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)} */}
               </>
             )}
 
             {userType === 'official' && (
               <>
                 {userAccess.includes('IP Request') && renderCollapsibleMenu('ipRequest', 'IP Request', FileText, officialIpRequestChildItems)}
-                {userAccess.includes('E-Office') && renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)}
+                {/* {userAccess.includes('E-Office') && renderCollapsibleMenu('eOffice', 'E-Office', Briefcase, eOfficeChildItems)} */}
 
                 <SidebarSeparator />
                 {adminMenuItems.map(item => renderMenuItem(item))}
