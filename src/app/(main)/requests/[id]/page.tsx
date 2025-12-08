@@ -294,9 +294,7 @@ export default function RequestDetailsPage() {
     const canReopen = canReopenAsOfficial || canReopenAsRequester;
 
     const canEdit = !isOfficial && request.can_edit;
-    const canUpdateIp = isOfficial && request.can_update_ip;
-
-  
+    const canUpdateIp = isOfficial && request.can_update_ip;  
 
     return (
         <>
